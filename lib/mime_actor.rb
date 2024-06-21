@@ -2,6 +2,10 @@
 
 require_relative "mime_actor/version"
 
+require 'active_support'
+
 module MimeActor
-  class Error < StandardError; end
+  extend ActiveSupport::Autoload
+
+  autoload :Formatter
 end
