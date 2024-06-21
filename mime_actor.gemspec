@@ -3,21 +3,23 @@
 require_relative "lib/mime_actor/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "mime_actor"
-  spec.version = MimeActor::VERSION
-  spec.authors = ["Ryan Chang"]
-  spec.email = ["ryancyq@gmail.com"]
+  spec.name     = "mime_actor"
+  spec.version  = MimeActor::version
+  spec.platform = Gem::Platform::RUBY
+  spec.authors  = ["Ryan Chang"]
+  spec.email    = ["ryancyq@gmail.com"]
 
-  spec.summary = "TODO: Write a short summary, because RubyGems requires one."
-  spec.description = "TODO: Write a longer description or delete this line."
-  spec.homepage = "TODO: Put your gem's website or public repo URL here."
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.summary     = "action rendering and rescue with mime type via configuration in actionpack"
+  spec.description = ""
+  spec.homepage    = "https://github.com/ryancyq/mime_actor"
+  spec.license     = "MIT"
 
-  spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
+  spec.required_ruby_version = ">= 3.1.0"
 
-  spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "TODO: Put your gem's public repo URL here."
-  spec.metadata["changelog_uri"] = "TODO: Put your gem's CHANGELOG.md URL here."
+  spec.metadata["allowed_push_host"] = "https://rubygems.org"
+  spec.metadata["homepage_uri"]      = spec.homepage
+  spec.metadata["source_code_uri"]   = spec.homepage
+  spec.metadata["changelog_uri"]     = "https://github.com/ryancyq/mime_actor/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -28,12 +30,17 @@ Gem::Specification.new do |spec|
         f.start_with?(*%w[bin/ test/ spec/ features/ .git appveyor Gemfile])
     end
   end
-  spec.bindir = "exe"
-  spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
+
+  spec.bindir        = "exe"
+  spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
+  spec.add_dependency "rake", ">= 11.0"
+  spec.add_dependency "activesupport", ">= 5.0"
+  spec.add_dependency "actionpack", ">= 5.0"
+
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rubocop'
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

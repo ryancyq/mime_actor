@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
 module MimeActor
-  VERSION = "0.1.0"
+  def self.version
+    gem_version
+  end
+
+  def self.gem_version
+    Gem::Version.new VERSION::STRING
+  end
+
+  module VERSION
+    MAJOR = 0
+    MINOR = 0
+    BUILD  = 0
+    PRE   = "alpha"
+
+    STRING = [MAJOR, MINOR, BUILD, PRE].compact.join(".")
+  end
 end

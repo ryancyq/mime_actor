@@ -4,5 +4,4 @@ require_relative "mime_actor/version"
 
 module MimeActor
   class Error < StandardError; end
-  # Your code goes here...
 end
