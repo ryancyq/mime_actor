@@ -13,6 +13,22 @@ RSpec.describe MimeActor::Formatter do
     let(:formats) { :xml }
     let(:actions) { { on: :index } }
 
+    context "with unsupported format" do
+      let(:formats) { [:html, :my_custom_type, :json] }
+    
+      it "raises ArgumentError" do
+        expect { act }.to raise_error(ArgumentError, "Unsupported format: my_custom_type")
+      end
+    end
+
+    context "without action name" do
+      let(:actions) { }
+
+      it "raises ArgumentError" do
+        expect { act }.to raise_error(ArgumentError, "Action name can't be blank, e.g. on: :create")
+      end
+    end
+
     context "with single format and single action" do
       let(:formats) { :html }
       let(:actions) { { on: :create } }
@@ -109,6 +125,19 @@ RSpec.describe MimeActor::Formatter do
           "update" => Set[:xml],
           "show" => Set[:json, :xml]
         })
+      end
+    end
+
+    context "with action method already defined" do
+      let(:formats) { :xml }
+      let(:actions) { { on: :create } }
+
+      before do
+        klazz.define_method(:create) { puts "test" }
+      end
+
+      it "raises ArgumentError" do
+        expect { act }.to raise_error(ArgumentError, "Action method already defined: create")
       end
     end
   end
