@@ -13,4 +13,7 @@ module MimeActor
 
   autoload :Rescuer
   include Rescuer
+
+  SUPPORTED_MIME_TYPES = Mime::SET.symbols.to_set
+  private_constant :SUPPORTED_MIME_TYPES
 end

@@ -15,9 +15,6 @@ module MimeActor
     include AbstractController::Rendering # required by MimeResponds
     include ActionController::MimeResponds
 
-    SUPPORTED_MIME_TYPES = Mime::SET.symbols.to_set
-    private_constant :SUPPORTED_MIME_TYPES
-
     included do
       mattr_accessor :action_formatters, instance_writer: false, default: ActiveSupport::HashWithIndifferentAccess.new
       mattr_accessor :raise_on_missing_action_formatter, instance_writer: false, default: false
