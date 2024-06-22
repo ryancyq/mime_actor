@@ -2,18 +2,12 @@
 
 require_relative "mime_actor/version"
 
-require 'active_support'
+require 'active_support/dependencies/autoload'
 
 module MimeActor
-  extend ActiveSupport::Concern
   extend ActiveSupport::Autoload
 
   autoload :Formatter
-  include Formatter
-
   autoload :Rescuer
-  include Rescuer
-
-  SUPPORTED_MIME_TYPES = Mime::SET.symbols.to_set
-  private_constant :SUPPORTED_MIME_TYPES
+  autoload :Set
 end
