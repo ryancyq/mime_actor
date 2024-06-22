@@ -1,14 +1,12 @@
-name: "Publish Gem"
+name: publish
 
 on:
-  workflow_run:
-    workflows: [build]
-    branches: ["releases/v[0-9]+.[0-9]+.[0-9]+"]
-    types: [completed]
+  push:
+    branches: [main]
+    paths: ["lib/mime_actor/version.rb"]
 
 jobs:
-  gem-release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  gem:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,16 +19,8 @@ jobs:
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.3
           bundler-cache: true
 
-      - name: Publish to RubyGems
+      - name: Release New Version
         run: |
-          mkdir -p $HOME/.gem
-          touch $HOME/.gem/credentials
-          chmod 0600 $HOME/.gem/credentials
-          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
-          gem build *.gemspec
-          gem push *.gem
-        env:
-          GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
+          bundle exec rake release
