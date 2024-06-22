@@ -24,3 +24,5 @@ jobs:
       - name: Release New Version
         run: |
           bundle exec rake release
+        env:
+          GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
