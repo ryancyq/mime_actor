@@ -10,4 +10,7 @@ module MimeActor
 
   autoload :Formatter
   include Formatter
+
+  autoload :Rescuer
+  include Rescuer
 end
