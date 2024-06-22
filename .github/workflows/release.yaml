@@ -9,8 +9,7 @@ jobs:
   gem:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
+      contents: write
 
     steps:
       - name: Checkout code
