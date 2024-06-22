@@ -5,9 +5,9 @@ require "mime_actor"
 
 RSpec.describe MimeActor do
   [
+    "MimeActor::Act",
     "MimeActor::Scene",
-    "MimeActor::Rescuer",
-    "MimeActor::Set"
+    "MimeActor::Rescuer"
   ].each do |module_name|
     it "auto loads #{module_name}" do
       expect(module_name.safe_constantize).to be_kind_of(Module)
