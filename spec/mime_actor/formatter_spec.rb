@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "action_controller"
+require "action_dispatch"
 require "mime_actor"
 
 RSpec.describe MimeActor::Formatter do

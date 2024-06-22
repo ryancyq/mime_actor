@@ -4,7 +4,6 @@ require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/hash/indifferent_access"
 require 'action_controller'
-require 'action_dispatch'
 
 module MimeActor
   module Formatter
