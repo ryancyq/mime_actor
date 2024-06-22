@@ -187,4 +187,177 @@ RSpec.describe MimeActor::Rescuer do
       end
     end
   end
+
+  describe "when dispatches an action" do
+    subject(:dispatch) { controller.dispatch(action_name, req, res) }
+
+    let(:env) do
+      {
+        "REQUEST_METHOD" => "POST",
+        "HTTP_ACCEPT" => "application/json,application/xml"
+      }
+    end
+    let(:controller) { klazz.new }
+    let(:req) { ActionDispatch::Request.new(env) }
+    let(:res) { ActionDispatch::Response.new.tap { |res| res.request = req } }
+    let(:action_name) { "create" }
+    let(:format) { "json" }
+    let(:actor_name) { "#{action_name}_#{format}" }
+    let(:stub_logger) { instance_double("ActiveSupport::BroadcastLogger") }
+
+    before do
+      klazz.config.logger = stub_logger
+    end
+
+    context "when actor method raise error" do
+      before do
+        klazz.class_eval <<-RUBY
+          def #{action_name}
+            self.class.dispatch_act(
+              action: :#{action_name}, 
+              format: :#{format},
+              context: self,
+              &self.method(:#{actor_name})
+            ).call
+          end
+        RUBY
+        klazz.define_method(actor_name) {}
+        allow(controller).to receive(actor_name).and_raise(actor_error)
+      end
+
+      context "with catch all rescuer" do
+        [
+          RuntimeError.new("My Runtime Error"),
+          ArgumentError.new("Invalid param")
+        ].each do |error_cause|
+          context "when raises #{error_cause.class.name}" do
+            let(:actor_error) { error_cause }
+            let(:rescuer) { -> ex { logger.debug "rescued #{ex.class.name}" } }
+
+            it "handles gracefully" do
+              klazz.rescue_act_from StandardError, &rescuer
+
+              expect(stub_logger).to receive(:debug).with("rescued #{error_cause.class.name}").once
+              expect { dispatch }.not_to raise_error
+            end
+          end
+        end
+      end
+
+      context "with single format rescuer" do
+        [
+          RuntimeError.new("My Runtime Error"),
+          ArgumentError.new("Invalid param")
+        ].each do |error_cause|
+          context "when raises #{error_cause.class.name}" do
+            let(:actor_error) { error_cause }
+            let(:rescuer) { -> ex, format { logger.debug "rescued #{ex.class.name} with #{format}" } }
+
+            it "handles gracefully" do
+              klazz.rescue_act_from StandardError, format: format.to_sym, &rescuer
+
+              expect(stub_logger).to receive(:debug).with("rescued #{error_cause.class.name} with json").once
+              expect { dispatch }.not_to raise_error
+            end
+          end
+        end
+      end
+
+      context "with multiple formats rescuer" do
+        [
+          RuntimeError.new("My Runtime Error"),
+          ArgumentError.new("Invalid param")
+        ].each do |error_cause|
+          context "when raises #{error_cause.class.name}" do
+            let(:actor_error) { error_cause }
+            let(:rescuer) { -> ex, format { logger.debug "rescued #{ex.class.name} with #{format}" } }
+            
+            it "handles gracefully" do
+              klazz.rescue_act_from StandardError, format: [format.to_sym, :pdf], &rescuer
+
+              expect(stub_logger).to receive(:debug).with("rescued #{error_cause.class.name} with json").once
+              expect { dispatch }.not_to raise_error
+            end
+          end
+        end
+      end
+
+      context "with single action rescuer" do
+        [
+          RuntimeError.new("My Runtime Error"),
+          ArgumentError.new("Invalid param")
+        ].each do |error_cause|
+          context "when raises #{error_cause.class.name}" do
+            let(:actor_error) { error_cause }
+            let(:rescuer) { -> ex, _, action { logger.debug "rescued #{ex.class.name} on #{action}" } }
+            
+            it "handles gracefully" do
+              klazz.rescue_act_from StandardError, action: action_name.to_sym, &rescuer
+
+              expect(stub_logger).to receive(:debug).with("rescued #{error_cause.class.name} on create").once
+              expect { dispatch }.not_to raise_error
+            end
+          end
+        end
+      end
+
+      context "with multiple actions rescuer" do
+        [
+          RuntimeError.new("My Runtime Error"),
+          ArgumentError.new("Invalid param")
+        ].each do |error_cause|
+          context "when raises #{error_cause.class.name}" do
+            let(:actor_error) { error_cause }
+            let(:rescuer) { -> ex, _, action { logger.debug "rescued #{ex.class.name} on #{action}" } }
+            
+            it "handles gracefully" do
+              klazz.rescue_act_from StandardError, action: [action_name.to_sym, :index], &rescuer
+
+              expect(stub_logger).to receive(:debug).with("rescued #{error_cause.class.name} on create").once
+              expect { dispatch }.not_to raise_error
+            end
+          end
+        end
+      end
+
+      context "with multiple rescuers" do
+        describe "rescues the same error" do
+          [
+            RuntimeError.new("My Runtime Error"),
+            ArgumentError.new("Invalid param")
+          ].each do |error_cause|
+            context "when raises #{error_cause.class.name}" do
+              let(:actor_error) { error_cause }
+              let(:rescuer) { -> ex { logger.debug "rescued #{ex.class.name}" } }
+              let(:another_rescuer) { -> ex { logger.debug "rescued another #{ex.class.name}" } }
+
+              it "resolve using most recently declared rescuer" do
+                klazz.rescue_act_from StandardError, &rescuer
+                klazz.rescue_act_from StandardError, &another_rescuer
+
+                expect(stub_logger).to receive(:debug).with("rescued another #{error_cause.class.name}").once
+                expect { dispatch }.not_to raise_error
+              end
+            end
+          end
+        end
+
+        describe "rescues the different error" do
+          context "when raises ArgumentError" do
+            let(:actor_error) { ArgumentError.new("Invalid param") }
+            let(:rescuer) { -> ex { logger.debug "rescued #{ex.class.name}" } }
+            let(:another_rescuer) { -> ex { logger.debug "rescued different #{ex.class.name}" } }
+
+            it "resolve using the correct rescuer" do
+              klazz.rescue_act_from ArgumentError, &rescuer
+              klazz.rescue_act_from RuntimeError, &another_rescuer
+
+              expect(stub_logger).to receive(:debug).with("rescued ArgumentError").once
+              expect { dispatch }.not_to raise_error
+            end
+          end
+        end
+      end
+    end
+  end
 end
