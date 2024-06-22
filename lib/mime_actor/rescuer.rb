@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
-require 'active_support'
+require 'active_support/concern'
+require 'active_support/configurable'
 require "active_support/core_ext/module/attribute_accessors"
+require 'abstract_controller/logger'
 
 module MimeActor
   module Rescuer
     extend ActiveSupport::Concern
+    include ActiveSupport::Configurable
+    include AbstractController::Logger
 
     included do
       mattr_accessor :actor_rescuers, instance_writer: false, default: []

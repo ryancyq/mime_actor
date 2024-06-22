@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-require 'active_support'
+require 'active_support/concern'
+require 'active_support/configurable'
 require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/hash/indifferent_access"
 require "active_support/core_ext/module/attribute_accessors"
-require 'action_controller'
+require 'abstract_controller/logger'
+require 'abstract_controller/rendering'
+require 'action_controller/metal/mime_responds'
 
 module MimeActor
   module Formatter
