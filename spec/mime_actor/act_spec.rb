@@ -2,7 +2,7 @@
 
 require "mime_actor"
 
-RSpec.describe MimeActor::Set do
+RSpec.describe MimeActor::Act do
   let(:klazz) { Class.new.include described_class }
 
   describe "#action_formatters" do
