@@ -23,8 +23,8 @@ jobs:
 
       - name: Setup git email and name for tagging
         run: |
-          git config --local user.email ${{github.event.pusher.email}}
-          git config --local user.name ${{github.event.pusher.name}}
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
       - name: Release New Version
         run: |
