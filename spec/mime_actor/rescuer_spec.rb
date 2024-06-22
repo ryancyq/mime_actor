@@ -142,4 +142,49 @@ RSpec.describe MimeActor::Rescuer do
       end
     end
   end
+
+  describe "#dispatch_act" do
+    subject(:dispatch) do
+      klazz.dispatch_act(action:, format:, context: self, &stub_block)
+    end
+
+    let(:action) { :display }
+    let(:format) { :pdf }
+    let(:stub_block) { proc { "stub" } }
+
+    it "returns lambda wrapper" do
+      expect(dispatch).to be_kind_of(Proc)
+      expect(dispatch).not_to eq stub_block
+      expect(dispatch.call).to eq "stub"
+    end
+
+    context "when block raise exception" do
+      let(:stub_block) { proc { raise "Error" } }
+
+      it "re-raise error within the lambda" do
+        expect(dispatch).to be_kind_of(Proc)
+        expect(dispatch).not_to eq stub_block
+        expect{ dispatch.call }.to raise_error do |error|
+          expect(error).to be_kind_of(RuntimeError)
+          expect(error.message).to eq "Error"
+        end
+      end
+    end
+
+    context "when block is a proc" do
+      let(:stub_block) { proc { self.to_s } }
+
+      it "executes the proc in the correct context" do
+        expect(dispatch.call).to match("RSpec::ExampleGroups::MimeActorRescuer::DispatchAct::WhenBlockIsAProc")
+      end
+    end
+
+    context "when block is a method" do
+      let(:stub_block) { method(:to_s) }
+
+      it "executes the method in the correct context" do
+        expect(dispatch.call).to match("RSpec::ExampleGroups::MimeActorRescuer::DispatchAct::WhenBlockIsAMethod")
+      end
+    end
+  end
 end

@@ -51,6 +51,19 @@ module MimeActor
           self.actor_rescuers << [error, format, action, with]
         end
       end
+
+      def dispatch_act(action: nil, format: nil, context: self, &block)
+        lambda do
+          case block
+          when Proc
+            context.instance_exec(&block)
+          else
+            block.call
+          end
+        rescue Exception => ex
+          raise
+        end
+      end
     end
   end
 end
