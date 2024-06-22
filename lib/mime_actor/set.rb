@@ -6,7 +6,7 @@ module MimeActor
   module Set
     extend ActiveSupport::Concern
 
-    include Formatter
+    include Scene
     include Rescuer
   end
 end

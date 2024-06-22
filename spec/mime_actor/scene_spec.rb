@@ -4,7 +4,7 @@ require "action_controller"
 require "action_dispatch"
 require "mime_actor"
 
-RSpec.describe MimeActor::Formatter do
+RSpec.describe MimeActor::Scene do
   let(:klazz) { Class.new(ActionController::Metal).include described_class }
   
   describe "#act_on_format" do

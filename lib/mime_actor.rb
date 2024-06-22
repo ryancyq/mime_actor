@@ -7,7 +7,7 @@ require 'active_support/dependencies/autoload'
 module MimeActor
   extend ActiveSupport::Autoload
 
-  autoload :Formatter
+  autoload :Scene
   autoload :Rescuer
   autoload :Set
 end

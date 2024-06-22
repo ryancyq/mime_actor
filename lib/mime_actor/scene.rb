@@ -11,7 +11,7 @@ require 'abstract_controller/rendering'
 require 'action_controller/metal/mime_responds'
 
 module MimeActor
-  module Formatter
+  module Scene
     extend ActiveSupport::Concern
     include ActiveSupport::Configurable
     include AbstractController::Logger
