@@ -3,6 +3,7 @@
 require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/hash/indifferent_access"
+require "active_support/core_ext/module/attribute_accessors"
 require 'action_controller'
 
 module MimeActor
