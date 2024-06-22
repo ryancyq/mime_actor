@@ -3,9 +3,8 @@ name: "Publish Gem"
 on:
   workflow_run:
     workflows: [build]
-    branches: [main]
+    branches: ["releases/v[0-9]+.[0-9]+.[0-9]+"]
     types: [completed]
-    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
 
 jobs:
   gem-release:
