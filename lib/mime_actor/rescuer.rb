@@ -1,35 +1,36 @@
 # frozen_string_literal: true
 
 require 'active_support/concern'
-require 'active_support/configurable'
+require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
-require 'abstract_controller/logger'
+require "active_support/core_ext/object/blank"
+require "active_support/core_ext/string/inflections"
+require "action_dispatch/http/mime_type"
 
 module MimeActor
   module Rescuer
     extend ActiveSupport::Concern
-    include ActiveSupport::Configurable
-    include AbstractController::Logger
 
     included do
       mattr_accessor :actor_rescuers, instance_writer: false, default: []
     end
 
     module ClassMethods
-      def rescue_act_from(*klazzes, format: nil, action: nil, with: nil, &block)
-        unless with
-          raise ArgumentError, "Provide the with: keyword argument or a block" unless block_given?
-          with = block
-        end
+      def rescue_actor_from(*klazzes, action: nil, format: nil, with: nil, &block)
+        raise ArgumentError, "Error filter can't be empty" if klazzes.empty?
+        raise ArgumentError, "Provide only the with: keyword argument or a block" if with.present? && block_given?
+        raise ArgumentError, "Provide the with: keyword argument or a block" unless with.present? || block_given?
+
+        with = block if block_given?
         raise ArgumentError, "Rescue handler can only be Symbol/Proc" unless with.is_a?(Proc) || with.is_a?(Symbol)
 
         if format.present?
           case format
           when Symbol
-            raise ArgumentError, "Unsupported format: #{format}" unless SUPPORTED_MIME_TYPES.include?(format.to_sym)
+            raise ArgumentError, "Unsupported format: #{format}" unless Mime::SET.symbols.include?(format.to_sym)
           when Enumerable
             unfiltered = format.to_set
-            filtered = unfiltered & SUPPORTED_MIME_TYPES
+            filtered = unfiltered & Mime::SET.symbols.to_set
             rejected = unfiltered - filtered
             raise ArgumentError, "Unsupported formats: #{rejected.join(', ')}" if rejected.size.positive?
           else
@@ -37,9 +38,8 @@ module MimeActor
           end
         end
 
-        if action.present?
-          message = "Action filter can only be Symbol/Enumerable"
-          raise ArgumentError, message unless action.is_a?(Symbol) || action.is_a?(Enumerable)
+        if action.present? && !(action.is_a?(Symbol) || action.is_a?(Enumerable))
+          raise ArgumentError, "Action filter can only be Symbol/Enumerable"
         end
 
         klazzes.each do |klazz|
@@ -53,19 +53,6 @@ module MimeActor
 
           # append at the end because strategies are read in reverse.
           self.actor_rescuers << [error, format, action, with]
-        end
-      end
-
-      def dispatch_act(action: nil, format: nil, context: self, &block)
-        lambda do
-          case block
-          when Proc
-            context.instance_exec(&block)
-          else
-            block.call
-          end
-        rescue Exception => ex
-          rescue_actor(ex, format:, action:, context:) || raise
         end
       end
 
