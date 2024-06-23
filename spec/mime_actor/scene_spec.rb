@@ -28,6 +28,22 @@ RSpec.describe MimeActor::Scene do
       end
     end
 
+    describe "when action name is #new" do
+      let(:actions) { { on: :new } }
+
+      it "stores config in class attributes" do
+        expect(klazz.acting_scenes).to be_empty
+        expect { act }.not_to raise_error
+        expect(klazz.acting_scenes).to include("new" => Set[:xml])
+      end
+
+      it "defines the action method" do
+        expect(klazz.method_defined?(:new)).to be_falsey
+        expect { act }.not_to raise_error
+        expect(klazz.method_defined?(:new)).to be_truthy
+      end
+    end
+
     context "with single format and single action" do
       let(:formats) { :html }
       let(:actions) { { on: :create } }

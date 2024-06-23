@@ -39,7 +39,7 @@ module MimeActor
             acting_scenes[action] ||= Set.new
             acting_scenes[action] |= [mime_type.to_sym]
 
-            unless respond_to?(action)
+            unless self.instance_methods.include?(action)
               class_eval <<-RUBY, __FILE__, __LINE__ + 1
                 def #{action}
                   respond_to?(:play_scene) && public_send(:play_scene, :#{action})
