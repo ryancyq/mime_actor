@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mime_actor/stage'
+
 require 'active_support/concern'
 require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
@@ -10,6 +12,8 @@ require "action_dispatch/http/mime_type"
 module MimeActor
   module Scene
     extend ActiveSupport::Concern
+
+    include Stage
 
     included do
       mattr_accessor :acting_scenes, instance_writer: false, default: ActiveSupport::HashWithIndifferentAccess.new
@@ -30,16 +34,14 @@ module MimeActor
           end
 
           actions.each do |action|
-            unless acting_scenes.key?(action)
-              if respond_to?(:action_methods) && public_send(:action_methods).include?(action.to_s)
-                raise ArgumentError, "Action method already defined: #{action}"
-              end
+            if !acting_scenes.key?(action) && self.actor?(action)
+              raise ArgumentError, "Action method already defined: #{action}"
             end
 
             acting_scenes[action] ||= Set.new
             acting_scenes[action] |= [mime_type.to_sym]
 
-            unless self.instance_methods.include?(action)
+            unless self.actor?(action)
               class_eval <<-RUBY, __FILE__, __LINE__ + 1
                 def #{action}
                   respond_to?(:play_scene) && public_send(:play_scene, :#{action})

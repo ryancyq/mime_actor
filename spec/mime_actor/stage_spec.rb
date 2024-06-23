@@ -27,6 +27,61 @@ RSpec.describe MimeActor::Stage do
     end
   end
 
+  describe "class#actor?" do
+    subject { klazz.actor? actor_name }
+
+    context "when actor exists" do
+      before { klazz.define_method(:supporting_actor) {} }
+
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+        
+        it { is_expected.to be_truthy }
+      end
+    end
+
+    context "when actor does not exist" do
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it { is_expected.to be_falsey }
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+        
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context "when actor exists in action_methods" do
+      let(:actor_name) { :create_json }
+
+      before do
+        klazz.define_method(:create_json) {}
+        klazz.define_singleton_method(:action_methods) { ["create_json"] }
+      end
+
+      it { is_expected.to be_truthy }
+    end
+
+    context "when actor does not exist in action_methods" do
+      let(:actor_name) { :missing_actor }
+
+      before do
+        klazz.define_singleton_method(:action_methods) { [] }
+      end
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
   describe "#actor?" do
     subject { controller.actor? actor_name }
     let(:controller) { klazz.new }

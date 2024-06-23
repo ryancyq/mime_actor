@@ -18,6 +18,15 @@ module MimeActor
       mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
     end
 
+    module ClassMethods
+      def actor?(actor_name)
+        if self.singleton_methods.include?(:action_methods)
+          return self.public_send(:action_methods).include?(actor_name.to_s)
+        end
+        self.instance_methods.include?(actor_name.to_sym)
+      end
+    end
+
     def actor?(actor_name)
       return self.public_send(:action_methods).include?(actor_name.to_s) if self.respond_to?(:action_methods)
       
