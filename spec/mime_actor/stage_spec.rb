@@ -27,21 +27,144 @@ RSpec.describe MimeActor::Stage do
     end
   end
 
-  describe "#find_actor" do
+  describe "#actor?" do
+    subject { controller.actor? actor_name }
     let(:controller) { klazz.new }
-    let(:perform) { controller.send(:find_actor, :create_json) }
-    let(:stub_logger) { instance_double("ActiveSupport::Logger") }
 
-    before { klazz.config.logger = stub_logger }
+    context "when actor exists" do
+      before { klazz.define_method(:supporting_actor) {} }
+
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+        
+        it { is_expected.to be_truthy }
+      end
+    end
+
+    context "when actor does not exist" do
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it { is_expected.to be_falsey }
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+        
+        it { is_expected.to be_falsey }
+      end
+    end
 
     context "when actor exists in action_methods" do
+      let(:actor_name) { :create_json }
+
       before do
         klazz.define_method(:create_json) {}
         klazz.define_method(:action_methods) { ["create_json"] }
       end
+
+      it { is_expected.to be_truthy }
     end
 
     context "when actor does not exist in action_methods" do
+      let(:actor_name) { :missing_actor }
+
+      before do
+        klazz.define_method(:action_methods) { [] }
+      end
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
+  describe "#find_actor" do
+    subject { controller.find_actor(actor_name) }
+
+    let(:controller) { klazz.new }
+    let(:stub_logger) { instance_double("ActiveSupport::Logger") }
+
+    before { klazz.config.logger = stub_logger }
+
+    context "when actor exists" do
+      before { klazz.define_method(:supporting_actor) {} }
+
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it { is_expected.to eq controller.method(:supporting_actor) }
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+        
+        it { is_expected.to eq controller.method(:supporting_actor) }
+      end
+    end
+
+    context "when actor does not exist" do
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it "logs warning message" do
+          expect(stub_logger).to receive(:warn) do |&block|
+            expect(block.call).to eq(
+              "Actor not found: <MimeActor::ActorNotFound> :supporting_actor not found"
+            )
+          end
+          is_expected.to be_nil
+        end
+
+        context "when raise_on_missing_actor" do
+          before { klazz.raise_on_missing_actor = true }
+
+          it "raises error" do
+            expect { is_expected }.to raise_error(MimeActor::ActorNotFound, ":supporting_actor not found")
+          end
+        end
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+        
+        it "logs warning message" do
+          expect(stub_logger).to receive(:warn) do |&block|
+            expect(block.call).to eq(
+              "Actor not found: <MimeActor::ActorNotFound> :supporting_actor not found"
+            )
+          end
+          is_expected.to be_nil
+        end
+
+        context "when raise_on_missing_actor" do
+          before { klazz.raise_on_missing_actor = true }
+
+          it "raises error" do
+            expect { is_expected }.to raise_error(MimeActor::ActorNotFound, ":supporting_actor not found")
+          end
+        end
+      end
+    end
+
+    context "when actor exists in action_methods" do
+      let(:actor_name) { :create_json }
+
+      before do
+        klazz.define_method(:create_json) {}
+        klazz.define_method(:action_methods) { ["create_json"] }
+      end
+
+      it { is_expected.to eq controller.method(:create_json) }
+    end
+
+    context "when actor does not exist in action_methods" do
+      let(:actor_name) { :missing_actor }
+
       before do
         klazz.define_method(:action_methods) { [] }
       end
@@ -49,37 +172,17 @@ RSpec.describe MimeActor::Stage do
       it "logs warning message" do
         expect(stub_logger).to receive(:warn) do |&block|
           expect(block.call).to eq(
-            "Actor not found: <MimeActor::ActorNotFound> :create_json not found"
+            "Actor not found: <MimeActor::ActorNotFound> :missing_actor not found"
           )
         end
-        expect(perform).to be_nil
+        is_expected.to be_nil
       end
 
       context "when raise_on_missing_actor" do
         before { klazz.raise_on_missing_actor = true }
 
         it "raises error" do
-          expect { perform }.to raise_error(MimeActor::ActorNotFound, ":create_json not found")
-        end
-      end
-
-    end
-
-    context "when action_methods undefined" do
-      it "logs warning message" do
-        expect(stub_logger).to receive(:warn) do |&block|
-          expect(block.call).to eq(
-            "Actor not found: <MimeActor::ActorNotFound> :create_json not found"
-          )
-        end
-        expect(perform).to be_nil
-      end
-
-      context "when raise_on_missing_actor" do
-        before { klazz.raise_on_missing_actor = true }
-
-        it "raises error" do
-          expect { perform }.to raise_error(MimeActor::ActorNotFound, ":create_json not found")
+          expect { is_expected }.to raise_error(MimeActor::ActorNotFound, ":missing_actor not found")
         end
       end
     end

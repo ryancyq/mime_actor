@@ -17,13 +17,15 @@ module MimeActor
     included do
       mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
     end
+
+    def actor?(actor_name)
+      return self.public_send(:action_methods).include?(actor_name.to_s) if self.respond_to?(:action_methods)
+      
+      self.methods.include?(actor_name.to_sym)
+    end
     
     def find_actor(actor_name)
-      if self.respond_to?(:action_methods)
-        return self.method(actor_name) if public_send(:action_methods).include?(actor_name)
-      elsif self.methods.include?(actor_name)
-        return self.method(actor_name)
-      end
+      return self.method(actor_name) if actor?(actor_name)
 
       error = MimeActor::ActorNotFound.new(actor_name) 
       unless self.raise_on_missing_actor
