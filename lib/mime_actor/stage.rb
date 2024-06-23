@@ -44,5 +44,16 @@ module MimeActor
 
       raise error
     end
+
+    def cue_actor(actor_name, *args)
+      return unless self.actor?(actor_name)
+
+      result = self.public_send(actor_name, *args)
+      if block_given?
+        yield result 
+      else
+        result
+      end
+    end
   end
 end

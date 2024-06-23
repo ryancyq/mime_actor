@@ -242,4 +242,54 @@ RSpec.describe MimeActor::Stage do
       end
     end
   end
+
+  describe "#cue_actor" do
+    subject { controller.cue_actor(actor_name, *acting_instructions) }
+
+    let(:controller) { klazz.new }
+    let(:acting_instructions) { [] } 
+
+    context "when actor does not exist" do
+      let(:actor_name) { :unknown_actor }
+
+      it { is_expected.to be_nil }
+    end
+
+    context "when actor exists" do
+      let(:actor_name) { :lead_role }
+
+      context "with insturctions" do
+        let(:acting_instructions) { "overheard the news" }
+
+        before do
+          klazz.define_method(actor_name) do |scripts|
+            "shed tears of joy when #{scripts}"
+          end
+        end
+
+        it { is_expected.to eq "shed tears of joy when overheard the news" }
+      end
+
+      context "without insturctions" do
+        before do
+          klazz.define_method(actor_name) { "a meaningless truth" }
+        end
+
+        it { is_expected.to eq "a meaningless truth" }
+      end
+
+      context "with block passed" do
+        let(:cue) { controller.cue_actor(actor_name, *acting_instructions, &another_block) }
+        let(:another_block) { -> num { num.positive? } }
+
+        before do
+          klazz.define_method(actor_name) { 1 }
+        end
+
+        it "yield the block wih the result from actor" do
+          expect(cue).to eq true
+        end
+      end
+    end
+  end
 end

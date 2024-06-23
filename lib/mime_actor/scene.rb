@@ -44,7 +44,7 @@ module MimeActor
             unless self.actor?(action)
               class_eval <<-RUBY, __FILE__, __LINE__ + 1
                 def #{action}
-                  respond_to?(:play_scene) && public_send(:play_scene, :#{action})
+                  self.cue_actor(:play_scene, :#{action})
                 end
               RUBY
             end

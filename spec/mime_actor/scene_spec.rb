@@ -59,6 +59,16 @@ RSpec.describe MimeActor::Scene do
         expect { act }.not_to raise_error
         expect(klazz.method_defined?(:create)).to be_truthy
       end
+
+      context "with the newly defined aciton method" do
+        let(:controller) { klazz.new }
+
+        it "calls cue_actor" do
+          expect { act }.not_to raise_error
+          expect(controller).to receive(:cue_actor).with(:play_scene, :create).and_return("test")
+          expect(controller.create).to eq "test"
+        end
+      end
     end
 
     context "with multiple formats and single action" do
