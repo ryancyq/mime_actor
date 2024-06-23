@@ -4,7 +4,7 @@ require_relative "lib/mime_actor/version"
 
 Gem::Specification.new do |spec|
   spec.name     = "mime_actor"
-  spec.version  = MimeActor::version
+  spec.version  = MimeActor.version
   spec.platform = Gem::Platform::RUBY
   spec.authors  = ["Ryan Chang"]
   spec.email    = ["ryancyq@gmail.com"]
@@ -35,13 +35,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rake", ">= 11.0"
-  spec.add_dependency "activesupport", ">= 5.0"
   spec.add_dependency "actionpack", ">= 5.0"
-
-  spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'rubocop'
-  spec.add_development_dependency 'rubocop-rspec'
+  spec.add_dependency "activesupport", ">= 5.0"
+  spec.add_dependency "rake", ">= 11.0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

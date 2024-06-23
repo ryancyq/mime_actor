@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'mime_actor/errors'
+require "mime_actor/errors"
 
-require 'active_support/concern'
-require 'active_support/configurable'
+require "active_support/concern"
+require "active_support/configurable"
 require "active_support/core_ext/module/attribute_accessors"
-require 'abstract_controller/logger'
+require "abstract_controller/logger"
 
 module MimeActor
   module Stage
@@ -20,37 +20,33 @@ module MimeActor
 
     module ClassMethods
       def actor?(actor_name)
-        if self.singleton_methods.include?(:action_methods)
-          return self.public_send(:action_methods).include?(actor_name.to_s)
-        end
-        self.instance_methods.include?(actor_name.to_sym)
+        return action_methods.include?(actor_name.to_s) if singleton_methods.include?(:action_methods)
+
+        instance_methods.include?(actor_name.to_sym)
       end
     end
 
     def actor?(actor_name)
-      return self.public_send(:action_methods).include?(actor_name.to_s) if self.respond_to?(:action_methods)
-      
-      self.methods.include?(actor_name.to_sym)
+      return action_methods.include?(actor_name.to_s) if respond_to?(:action_methods)
+
+      methods.include?(actor_name.to_sym)
     end
-    
+
     def find_actor(actor_name)
-      return self.method(actor_name) if actor?(actor_name)
+      return method(actor_name) if actor?(actor_name)
 
-      error = MimeActor::ActorNotFound.new(actor_name) 
-      unless self.raise_on_missing_actor
-        logger.warn { "Actor not found: #{error.inspect}" }
-        return
-      end
+      error = MimeActor::ActorNotFound.new(actor_name)
+      raise error if raise_on_missing_actor
 
-      raise error
+      logger.warn { "Actor not found: #{error.inspect}" }
     end
 
     def cue_actor(actor_name, *args)
-      return unless self.actor?(actor_name)
+      return unless actor?(actor_name)
 
-      result = self.public_send(actor_name, *args)
+      result = public_send(actor_name, *args)
       if block_given?
-        yield result 
+        yield result
       else
         result
       end

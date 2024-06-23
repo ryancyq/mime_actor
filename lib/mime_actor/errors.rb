@@ -14,7 +14,7 @@ module MimeActor
     end
 
     def inspect
-      "<#{self.class.name}> #{self.message}"
+      "<#{self.class.name}> #{message}"
     end
   end
 end

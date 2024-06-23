@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'mime_actor/scene'
-require 'mime_actor/stage'
-require 'mime_actor/rescue'
+require "mime_actor/scene"
+require "mime_actor/stage"
+require "mime_actor/rescue"
 
-require 'active_support/concern'
-require 'abstract_controller/rendering'
-require 'action_controller/metal/mime_responds'
+require "active_support/concern"
+require "abstract_controller/rendering"
+require "action_controller/metal/mime_responds"
 
 module MimeActor
   module Act
@@ -22,8 +22,8 @@ module MimeActor
       def dispatch_act(action: nil, format: nil, context: self, &block)
         lambda do
           context.instance_exec(&block)
-        rescue Exception => ex
-          respond_to?(:rescue_actor) && public_send(:rescue_actor, ex, action:, format:, context:) || raise
+        rescue StandardError => e
+          (respond_to?(:rescue_actor) && rescue_actor(e, action:, format:, context:)) || raise
         end
       end
     end
@@ -37,11 +37,11 @@ module MimeActor
       mime_types = acting_scenes.fetch(action, Set.new)
       respond_to do |collector|
         mime_types.each do |mime_type|
-          next unless actor = self.find_actor("#{action}_#{mime_type}")
+          next unless (actor = find_actor("#{action}_#{mime_type}"))
 
           dispatch = self.class.dispatch_act(
-            action: action, 
-            format: mime_type,
+            action:  action,
+            format:  mime_type,
             context: self,
             &actor
           )

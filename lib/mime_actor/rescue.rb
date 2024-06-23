@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'active_support/concern'
+require "active_support/concern"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/object/blank"
@@ -32,7 +32,7 @@ module MimeActor
             unfiltered = format.to_set
             filtered = unfiltered & Mime::SET.symbols.to_set
             rejected = unfiltered - filtered
-            raise ArgumentError, "Unsupported formats: #{rejected.join(', ')}" if rejected.size.positive?
+            raise ArgumentError, "Unsupported formats: #{rejected.join(", ")}" if rejected.size.positive?
           else
             raise ArgumentError, "Format filter can only be Symbol/Enumerable"
           end
@@ -44,25 +44,26 @@ module MimeActor
 
         klazzes.each do |klazz|
           error = if klazz.is_a?(Module)
-            klazz.name
-          elsif klazz.is_a?(String)
-            klazz
-          else
-            raise ArgumentError, "#{klazz.inspect} must be a class/module or a String referencing a class/module"
-          end
+                    klazz.name
+                  elsif klazz.is_a?(String)
+                    klazz
+                  else
+                    raise ArgumentError,
+                          "#{klazz.inspect} must be a class/module or a String referencing a class/module"
+                  end
 
           # append at the end because strategies are read in reverse.
-          self.actor_rescuers << [error, format, action, with]
+          actor_rescuers << [error, format, action, with]
         end
       end
 
       def rescue_actor(error, action: nil, format: nil, context: self, visited: [])
         visited << error
 
-        if rescuer = dispatch_rescuer(error, format:, action:, context:)
+        if (rescuer = dispatch_rescuer(error, format:, action:, context:))
           rescuer.call(error, format, action)
           error
-        elsif error && error.cause && !visited.include?(error.cause)
+        elsif error&.cause && !visited.include?(error.cause)
           rescue_actor(error.cause, format:, action:, context:, visited:)
         end
       end
@@ -75,24 +76,24 @@ module MimeActor
           rescuer_method = context.method(rescuer)
           case rescuer_method.arity
           when 0
-            -> e,f,a { rescuer_method.call }
+            ->(_e, _f, _a) { rescuer_method.call }
           when 1
-            -> e,f,a { rescuer_method.call(e) }
+            ->(e, _f, _a) { rescuer_method.call(e) }
           when 2
-            -> e,f,a { rescuer_method.call(e,f) }
+            ->(e, f, _a) { rescuer_method.call(e, f) }
           else
-            -> e,f,a { rescuer_method.call(e,f,a) }
+            ->(e, f, a) { rescuer_method.call(e, f, a) }
           end
         when Proc
           case rescuer.arity
           when 0
-            -> e,f,a { context.instance_exec(&rescuer) }
+            ->(_e, _f, _a) { context.instance_exec(&rescuer) }
           when 1
-            -> e,f,a { context.instance_exec(e, &rescuer) }
+            ->(e, _f, _a) { context.instance_exec(e, &rescuer) }
           when 2
-            -> e,f,a { context.instance_exec(e, f, &rescuer) }
+            ->(e, f, _a) { context.instance_exec(e, f, &rescuer) }
           else
-            -> e,f,a { context.instance_exec(e, f, a, &rescuer) }
+            ->(e, f, a) { context.instance_exec(e, f, a, &rescuer) }
           end
         end
       end
@@ -103,9 +104,9 @@ module MimeActor
         *_, rescuer = actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
           next if action_filter.present? && !Array.wrap(action_filter).include?(action)
           next if format_filter.present? && !Array.wrap(format_filter).include?(format)
-          next unless klazz = constantize_rescuee(rescuee)
+          next unless (klazz = constantize_rescuee(rescuee))
 
-          klazz === error # klazz is a member of error
+          error.is_a?(klazz)
         end
         rescuer
       end

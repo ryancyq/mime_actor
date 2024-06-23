@@ -41,7 +41,7 @@ RSpec.describe MimeActor::Rescue do
 
       it "accepts multiple classes" do
         error_classes = [stub_class, stub_module, stub_namespace_class, stub_namespace_module]
-        expect { klazz.rescue_actor_from *error_classes, with: :my_handler }.not_to raise_error
+        expect { klazz.rescue_actor_from(*error_classes, with: :my_handler) }.not_to raise_error
         expect(klazz.actor_rescuers).to include(["MyClass", nil, nil, kind_of(Symbol)])
         expect(klazz.actor_rescuers).to include(["OtherModule::AnotherClass", nil, nil, kind_of(Symbol)])
         expect(klazz.actor_rescuers).to include(["MyModule", nil, nil, kind_of(Symbol)])
@@ -49,7 +49,7 @@ RSpec.describe MimeActor::Rescue do
       end
     end
 
-    context "#format" do
+    describe "#format" do
       context "with supported format" do
         it "accepts Symbol" do
           expect { klazz.rescue_actor_from error_class, format: :json, with: :my_handler }.not_to raise_error
@@ -59,9 +59,9 @@ RSpec.describe MimeActor::Rescue do
         end
 
         it "accepts arrray of Symbol" do
-          expect { klazz.rescue_actor_from error_class, format: [:json, :html], with: :my_handler }.not_to raise_error
+          expect { klazz.rescue_actor_from error_class, format: %i[json html], with: :my_handler }.not_to raise_error
           expect(klazz.actor_rescuers).to include(
-            [error_class.name, [:json, :html], nil, kind_of(Symbol)]
+            [error_class.name, %i[json html], nil, kind_of(Symbol)]
           )
         end
       end
@@ -75,15 +75,15 @@ RSpec.describe MimeActor::Rescue do
         end
 
         it "does not accept in the array" do
-          expect { klazz.rescue_actor_from error_class, format: [:json, :my_json, :html, :my_html], with: :my_handler }.to raise_error(
-            ArgumentError, "Unsupported formats: my_json, my_html"
-          )
+          expect do
+            klazz.rescue_actor_from error_class, format: %i[json my_json html my_html], with: :my_handler
+          end.to raise_error(ArgumentError, "Unsupported formats: my_json, my_html")
           expect(klazz.actor_rescuers).to be_empty
         end
       end
     end
 
-    context "#action" do
+    describe "#action" do
       it "accepts Symbol" do
         expect { klazz.rescue_actor_from error_class, action: :index, with: :my_handler }.not_to raise_error
         expect(klazz.actor_rescuers).to include(
@@ -92,14 +92,14 @@ RSpec.describe MimeActor::Rescue do
       end
 
       it "accepts array of Symbol" do
-        expect { klazz.rescue_actor_from error_class, action: [:debug, :load], with: :my_handler }.not_to raise_error
+        expect { klazz.rescue_actor_from error_class, action: %i[debug load], with: :my_handler }.not_to raise_error
         expect(klazz.actor_rescuers).to include(
-          [error_class.name, nil, [:debug, :load], kind_of(Symbol)]
+          [error_class.name, nil, %i[debug load], kind_of(Symbol)]
         )
       end
     end
 
-    context "#with" do
+    describe "#with" do
       describe "when block is not given" do
         it "is required" do
           expect { klazz.rescue_actor_from error_class }.to raise_error(
@@ -117,7 +117,7 @@ RSpec.describe MimeActor::Rescue do
           end.to raise_error(ArgumentError, "Provide only the with: keyword argument or a block")
         end
       end
-      
+
       it "accepts Proc" do
         expect { klazz.rescue_actor_from error_class, with: proc {} }.not_to raise_error
         expect(klazz.actor_rescuers).to include(

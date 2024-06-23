@@ -10,7 +10,7 @@ RSpec.describe MimeActor do
     "MimeActor::Rescue"
   ].each do |module_name|
     it "auto loads #{module_name}" do
-      expect(module_name.safe_constantize).to be_kind_of(Module)
+      expect(module_name.safe_constantize).to be_a(Module)
     end
   end
 end
