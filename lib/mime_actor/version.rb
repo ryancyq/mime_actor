@@ -11,7 +11,7 @@ module MimeActor
 
   module VERSION
     MAJOR = 0
-    MINOR = 1
+    MINOR = 2
     BUILD = 0
     PRE   = nil
 
