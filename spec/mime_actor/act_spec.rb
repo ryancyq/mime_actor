@@ -5,26 +5,6 @@ require "mime_actor/act"
 RSpec.describe MimeActor::Act do
   let(:klazz) { Class.new.include described_class }
 
-  describe "#raise_on_missing_actor" do
-    it "allows class attribute reader" do
-      expect(klazz.raise_on_missing_actor).to be_falsey
-    end
-    
-    it "allows class attribute writter" do
-      expect { klazz.raise_on_missing_actor = true }.not_to raise_error
-    end
-
-    it "allows instance reader" do
-      expect(klazz.new.raise_on_missing_actor).to be_falsey
-    end
-    
-    it "disallows instance writter" do
-      expect { klazz.new.raise_on_missing_actor = true }.to raise_error(
-        NoMethodError, /undefined method `raise_on_missing_actor='/
-      )
-    end
-  end
-
   describe "#dispatch_act" do
     it "invokes within object context" do
       @stub_value = 1
@@ -122,6 +102,7 @@ RSpec.describe MimeActor::Act do
       end
     end
   end
+  
   describe "#play_scene" do
     let(:controller) { klazz.new }
     let(:perform) { controller.send(:play_scene, "create") }
@@ -144,7 +125,7 @@ RSpec.describe MimeActor::Act do
         it "calls dispatch_act" do
           expect(klazz).to receive(:dispatch_act).and_call_original
           expect(controller).to receive(:respond_to) { |&block| block.call stub_collector }
-          expect(controller).to receive(:find_actor).with(:create, :html).and_return(stub_actor)
+          expect(controller).to receive(:find_actor).with("create_html").and_return(stub_actor)
           expect(stub_collector).to receive(:html) { |&block| expect(block.call).to eq "stub_actor" }
           expect { perform }.not_to raise_error
         end
@@ -166,64 +147,6 @@ RSpec.describe MimeActor::Act do
       it "does not call responds_to" do
         expect(controller).not_to receive(:respond_to)
         expect { perform }.not_to raise_error
-      end
-    end
-  end
-
-  describe "#find_actor" do
-    let(:controller) { klazz.new }
-    let(:perform) { controller.send(:find_actor, :create, :json) }
-    let(:stub_logger) { instance_double("ActiveSupport::BroadcastLogger") }
-
-    before { klazz.config.logger = stub_logger }
-
-    context "when actor exists in action_methods" do
-      before do
-        klazz.define_method(:create_json) {}
-        klazz.define_method(:action_methods) { ["create_json"] }
-      end
-    end
-
-    context "when actor does not exist in action_methods" do
-      before do
-        klazz.define_method(:action_methods) { [] }
-      end
-
-      it "logs warning message" do
-        expect(stub_logger).to receive(:warn) do |&block|
-          expect(block.call).to eq(
-            "Actor not found: <MimeActor::ActorNotFound> actor:create_json not found for action:create, format:json"
-          )
-        end
-        expect(perform).to be_nil
-      end
-
-      context "when raise_on_missing_actor" do
-        before { klazz.raise_on_missing_actor = true }
-
-        it "raises error" do
-          expect { perform }.to raise_error(MimeActor::ActorNotFound, ":create_json not found")
-        end
-      end
-
-    end
-
-    context "when action_methods undefined" do
-      it "logs warning message" do
-        expect(stub_logger).to receive(:warn) do |&block|
-          expect(block.call).to eq(
-            "Actor not found: <MimeActor::ActorNotFound> actor:create_json not found for action:create, format:json"
-          )
-        end
-        expect(perform).to be_nil
-      end
-
-      context "when raise_on_missing_actor" do
-        before { klazz.raise_on_missing_actor = true }
-
-        it "raises error" do
-          expect { perform }.to raise_error(MimeActor::ActorNotFound, ":create_json not found")
-        end
       end
     end
   end
