@@ -8,7 +8,7 @@ require "active_support/core_ext/string/inflections"
 require "action_dispatch/http/mime_type"
 
 module MimeActor
-  module Rescuer
+  module Rescue
     extend ActiveSupport::Concern
 
     included do

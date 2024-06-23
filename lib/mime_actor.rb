@@ -10,5 +10,5 @@ module MimeActor
 
   autoload :Act
   autoload :Scene
-  autoload :Rescuer
+  autoload :Rescue
 end

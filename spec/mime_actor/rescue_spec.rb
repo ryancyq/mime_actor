@@ -2,7 +2,7 @@
 
 require "mime_actor"
 
-RSpec.describe MimeActor::Rescuer do
+RSpec.describe MimeActor::Rescue do
   let(:klazz) { Class.new.include described_class }
 
   describe "#rescue_actor_from" do

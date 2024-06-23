@@ -15,7 +15,7 @@ module MimeActor
     include AbstractController::Rendering # required by MimeResponds
     include ActionController::MimeResponds
     include Scene
-    include Rescuer
+    include Rescue
 
     included do
       mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
