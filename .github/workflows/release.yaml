@@ -20,6 +20,10 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Run Rspec
+        run: |
+          bundle exec rake spec
+
       - name: Setup git email and name for tagging
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
