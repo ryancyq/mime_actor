@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'mime_actor/scene'
+require 'mime_actor/rescue'
+
 require 'active_support/concern'
 require 'active_support/configurable'
 require "active_support/core_ext/module/attribute_accessors"

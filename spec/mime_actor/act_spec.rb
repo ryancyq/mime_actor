@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "mime_actor"
+require "mime_actor/act"
 
 RSpec.describe MimeActor::Act do
   let(:klazz) { Class.new.include described_class }
