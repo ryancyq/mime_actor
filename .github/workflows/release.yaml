@@ -6,7 +6,7 @@ on:
     paths: ["lib/mime_actor/version.rb"]
 
 jobs:
-  gem:
+  rubygems:
     runs-on: ubuntu-latest
     permissions:
       contents: write
