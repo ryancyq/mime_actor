@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require "action_controller"
-require "action_dispatch"
 require "mime_actor"
 
 RSpec.describe MimeActor::Scene do
-  let(:klazz) { Class.new(ActionController::Metal).include described_class }
+  let(:klazz) { Class.new.include described_class }
   
-  describe "#act_on_format" do
-    subject(:act) { klazz.act_on_format(*params) }
+  describe "#compose_scene" do
+    subject(:act) { klazz.compose_scene(*params) }
 
     let(:params) { Array.wrap(formats) + [actions] }
     let(:formats) { :xml }
@@ -26,7 +24,7 @@ RSpec.describe MimeActor::Scene do
       let(:actions) { }
 
       it "raises ArgumentError" do
-        expect { act }.to raise_error(ArgumentError, "Action name can't be blank, e.g. on: :create")
+        expect { act }.to raise_error(ArgumentError, "Action name can't be empty, e.g. on: :create")
       end
     end
 
@@ -35,15 +33,15 @@ RSpec.describe MimeActor::Scene do
       let(:actions) { { on: :create } }
 
       it "stores config in class attributes" do
-        expect(klazz.action_formatters).to be_empty
+        expect(klazz.acting_scenes).to be_empty
         expect { act }.not_to raise_error
-        expect(klazz.action_formatters).to include("create" => Set[:html])
+        expect(klazz.acting_scenes).to include("create" => Set[:html])
       end
 
       it "defines the action method" do
-        expect(klazz.action_methods).not_to include("create")
+        expect(klazz.method_defined?(:create)).to be_falsey
         expect { act }.not_to raise_error
-        expect(klazz.action_methods).to include("create")
+        expect(klazz.method_defined?(:create)).to be_truthy
       end
     end
 
@@ -52,15 +50,15 @@ RSpec.describe MimeActor::Scene do
       let(:actions) { { on: :create } }
 
       it "stores config in class attributes" do
-        expect(klazz.action_formatters).to be_empty
+        expect(klazz.acting_scenes).to be_empty
         expect { act }.not_to raise_error
-        expect(klazz.action_formatters).to include("create" => Set[:html, :json])
+        expect(klazz.acting_scenes).to include("create" => Set[:html, :json])
       end
 
       it "defines the action method" do
-        expect(klazz.action_methods).not_to include("create")
+        expect(klazz.method_defined?(:create)).to be_falsey
         expect { act }.not_to raise_error
-        expect(klazz.action_methods).to include("create")
+        expect(klazz.method_defined?(:create)).to be_truthy
       end
     end
 
@@ -69,18 +67,18 @@ RSpec.describe MimeActor::Scene do
       let(:actions) { { on: [:index, :create] } }
 
       it "stores config in class attributes" do
-        expect(klazz.action_formatters).to be_empty
+        expect(klazz.acting_scenes).to be_empty
         expect { act }.not_to raise_error
-        expect(klazz.action_formatters).to include({ 
+        expect(klazz.acting_scenes).to include({ 
           "index" => Set[:html], 
           "create" => Set[:html] 
         })
       end
 
       it "defines the action methods" do
-        expect(klazz.action_methods).not_to include("index", "create")
+        expect(klazz.method_defined?(:create)).to be_falsey
         expect { act }.not_to raise_error
-        expect(klazz.action_methods).to include("index", "create")
+        expect(klazz.method_defined?(:create)).to be_truthy
       end
     end
 
@@ -89,9 +87,9 @@ RSpec.describe MimeActor::Scene do
       let(:actions) { { on: [:index, :create, :update] } }
 
       it "stores config in class attributes" do
-        expect(klazz.action_formatters).to be_empty
+        expect(klazz.acting_scenes).to be_empty
         expect { act }.not_to raise_error
-        expect(klazz.action_formatters).to include({ 
+        expect(klazz.acting_scenes).to include({ 
           "index" => Set[:html, :json, :xml],
           "create" => Set[:html, :json, :xml],
           "update" => Set[:html, :json, :xml] 
@@ -99,28 +97,32 @@ RSpec.describe MimeActor::Scene do
       end
 
       it "defines the action methods" do
-        expect(klazz.action_methods).not_to include("index", "create", "update")
+        expect(klazz.method_defined?(:index)).to be_falsey
+        expect(klazz.method_defined?(:create)).to be_falsey
+        expect(klazz.method_defined?(:update)).to be_falsey
         expect { act }.not_to raise_error
-        expect(klazz.action_methods).to include("index", "create", "update")
+        expect(klazz.method_defined?(:index)).to be_truthy
+        expect(klazz.method_defined?(:create)).to be_truthy
+        expect(klazz.method_defined?(:update)).to be_truthy
       end
     end
 
     context "with multiple times calls" do
       it "merges mappings in class attributes" do
-        expect(klazz.action_formatters).to be_empty
-        klazz.act_on_format(:html, on: [:index, :create])
-        expect(klazz.action_formatters).to include({ 
+        expect(klazz.acting_scenes).to be_empty
+        klazz.compose_scene(:html, on: [:index, :create])
+        expect(klazz.acting_scenes).to include({ 
           "index" => Set[:html],
           "create" => Set[:html]
         })
-        klazz.act_on_format(:xml, on: [:create, :update])
-        expect(klazz.action_formatters).to include({ 
+        klazz.compose_scene(:xml, on: [:create, :update])
+        expect(klazz.acting_scenes).to include({ 
           "index" => Set[:html],
           "create" => Set[:html, :xml],
           "update" => Set[:xml]
         })
-        klazz.act_on_format(:json, :xml, on: [:create, :show])
-        expect(klazz.action_formatters).to include({ 
+        klazz.compose_scene(:json, :xml, on: [:create, :show])
+        expect(klazz.acting_scenes).to include({ 
           "index" => Set[:html],
           "create" => Set[:html, :xml, :json],
           "update" => Set[:xml],
@@ -129,94 +131,49 @@ RSpec.describe MimeActor::Scene do
       end
     end
 
-    context "with action method already defined" do
+    describe "when action method is not defined" do
+      let(:klazz_instance) { klazz.new }
+      let(:formats) { :xml }
+      let(:actions) { { on: :create } }
+
+      it "defines the action method" do
+        expect(klazz.method_defined?(:create)).to be_falsey
+        expect(klazz.singleton_class.method_defined?(:create)).to be_falsey
+        expect { act }.not_to raise_error
+        expect(klazz.method_defined?(:create)).to be_truthy
+        expect(klazz.singleton_class.method_defined?(:create)).to be_falsey
+      end
+
+      context "with #play_scene defined" do
+        before do
+          klazz.define_method(:play_scene) {|a| "play a scene with #{a}" }
+        end
+
+        it "calls the method" do
+          expect { act }.not_to raise_error
+          expect(klazz_instance).to receive(:play_scene).and_call_original
+          expect(klazz_instance.create).to eq "play a scene with create"
+        end
+      end
+
+      context "with #play_scene undefined" do
+        it "does not call the method" do
+          expect { act }.not_to raise_error
+          expect(klazz_instance.create).to be_falsey
+        end
+      end
+    end
+
+    describe "when action method already defined" do
       let(:formats) { :xml }
       let(:actions) { { on: :create } }
 
       before do
-        klazz.define_method(:create) { puts "test" }
+        klazz.singleton_class.define_method(:action_methods) { ["create"] }
       end
 
       it "raises ArgumentError" do
         expect { act }.to raise_error(ArgumentError, "Action method already defined: create")
-      end
-    end
-  end
-
-  describe "when dispatches an action" do
-    subject(:dispatch) { controller.dispatch(action_name, req, res) }
-
-    let(:env) do
-      {
-        "REQUEST_METHOD" => "POST",
-        "HTTP_ACCEPT" => "application/json,application/xml"
-      }
-    end
-    let(:controller) { klazz.new }
-    let(:req) { ActionDispatch::Request.new(env) }
-    let(:res) { ActionDispatch::Response.new.tap { |res| res.request = req } }
-    let(:action_name) { "create" }
-    let(:format) { "json" }
-    let(:actor_name) { "#{action_name}_#{format}" }
-    let(:stub_logger) { instance_double("ActiveSupport::BroadcastLogger") }
-
-    before do
-      klazz.config.logger = stub_logger
-    end
-
-    context "with actor method defined" do
-      let(:action_name) { "debug" }
-      let(:format) { "json" }
-
-      before do
-        klazz.define_method(actor_name) { @stub_value = 1 }
-        klazz.act_on_format format, on: action_name
-      end
-
-      it "invokes the method within the context" do
-        expect(klazz.action_methods).to include("debug_json")
-        expect(@stub_value).to be_nil
-        expect { dispatch }.not_to raise_error
-        expect(@stub_value).to be_nil
-        expect(controller.instance_variable_get(:@stub_value)).to eq 1
-      end
-    end
-
-    context "without actor method defined" do
-      context "when all actor methods not defined" do
-        before { klazz.act_on_format format, on: action_name }
-
-        it "raises UnknownFormat" do
-          allow(stub_logger).to receive(:warn)
-          expect(klazz.action_methods).not_to include(actor_name)
-          expect { dispatch }.to raise_error(ActionController::UnknownFormat)
-        end
-      end
-
-      context "when some actor methods not defined" do
-        before do
-          klazz.define_method(:create_xml) { }
-          klazz.act_on_format format, :xml, on: action_name
-        end
-
-        it "logs the missing actor method" do
-          expect(klazz.action_methods).not_to include(actor_name)
-          expect(stub_logger).to receive(:warn) do |&block|
-            expect(block.call).to eq "Method: create_json could not be found for action: create, format: json"
-          end
-          expect { dispatch }.not_to raise_error
-        end
-
-        context "with raise_on_missing_action_formatter set" do
-          before { klazz.raise_on_missing_action_formatter = true }
-
-          it "raises ActionNotFound" do
-            expect { dispatch }.to raise_error(
-              AbstractController::ActionNotFound, 
-              "Method: create_json could not be found for action: create, format: json"
-            )
-          end
-        end
       end
     end
   end
