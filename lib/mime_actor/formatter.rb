@@ -62,7 +62,17 @@ module MimeActor
         formatters.each do |formatter|
           next unless actor = find_actor(action_name, formatter)
 
-          collector.public_send(formatter, &actor)
+          dispatch = unless self.class.respond_to?(:dispatch_act)
+            actor
+          else
+            self.class.public_send(:dispatch_act,
+              action: action_name.to_sym, 
+              format: formatter.to_sym,
+              context: self,
+              &actor
+            )
+          end
+          collector.public_send(formatter, &dispatch)
         end
       end
     end
