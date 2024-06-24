@@ -1,6 +1,6 @@
 # mime_actor
 
-[![Gem Version](https://badge.fury.io/rb/mime_actor.svg)](https://badge.fury.io/rb/mime_actor)
+[![Gem Version](https://badge.fury.io/rb/mime_actor.png)](https://badge.fury.io/rb/mime_actor)
 [![Build](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml/badge.svg)](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml)
 
 Action rendering and rescue with mime type via configuration in actionpack
