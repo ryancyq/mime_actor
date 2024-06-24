@@ -5,6 +5,7 @@ require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/inflections"
+require "set" # remove when ruby > 3,1
 require "action_dispatch/http/mime_type"
 
 module MimeActor
