@@ -28,7 +28,7 @@ module MimeActor
           raise MimeActor::FormatInvalid, mime_type unless stage_formats.include?(mime_type.to_sym)
 
           actions.each do |action|
-            raise MimeActor::ActionFilterInvalid unless action.is_a?(Symbol)
+            raise MimeActor::ActionFilterInvalid, false unless action.is_a?(Symbol)
             raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && actor?(action)
 
             acting_scenes[action] ||= Set.new

@@ -239,8 +239,11 @@ RSpec.describe MimeActor::Scene do
         klazz.singleton_class.define_method(:action_methods) { ["create"] }
       end
 
-      it "raises ArgumentError" do
-        expect { act }.to raise_error(ArgumentError, "Action method already defined: create")
+      it "raises ActionExisted" do
+        expect { act }.to raise_error(ActionExisted, "Action :create already defined")
+      end
+    end
+  end
       end
     end
   end

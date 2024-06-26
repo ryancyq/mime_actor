@@ -16,8 +16,8 @@ end
 RSpec.shared_examples "composable scene action rejected" do |action_name|
   include_context "scene composition"
 
-  let(:error_class_raised) { ArgumentError }
-  let(:error_message_raised) { "Action can only be Symbol/Enumerable" }
+  let(:error_class_raised) { MimeActor::ActionFilterInvalid }
+  let(:error_message_raised) { "Action filter must be Symbol" }
 
   it "rejects #{action_name || "the action"}" do
     expect(klazz.acting_scenes).to be_empty
@@ -92,7 +92,7 @@ RSpec.shared_examples "composable scene action method" do
     end
 
     it "raises ArgumentError" do
-      expect { compose }.to raise_error(ArgumentError, "Action method already defined: create")
+      expect { compose }.to raise_error(MimeActor::ActionExisted, "Action :create already existed")
     end
   end
 

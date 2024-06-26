@@ -49,8 +49,8 @@ end
 RSpec.shared_examples "rescuable action filter rejected" do |action_name|
   include_context "rescuable filter", :action
 
-  let(:error_class_raised) { ArgumentError }
-  let(:error_message_raised) { "Action filter can only be Symbol/Enumerable" }
+  let(:error_class_raised) { MimeActor::ActionFilterInvalid }
+  let(:error_message_raised) { "Action filter must be Symbol or Enumerable" }
 
   it "accepts #{action_name || "the format"}" do
     expect { rescuable }.to raise_error(error_class_raised, error_message_raised)

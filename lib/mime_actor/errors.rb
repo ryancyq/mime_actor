@@ -65,8 +65,10 @@ module MimeActor
   end
 
   class ActionFilterInvalid < Error
-    def initialize
-      super("Action filter must be Symbol")
+    def initialize(collection = true)
+      types = ["Symbol"]
+      types << "Enumerable" if collection
+      super("Action filter must be #{types.join(" or ")}")
     end
   end
 end
