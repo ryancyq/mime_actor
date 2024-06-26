@@ -29,17 +29,7 @@ module MimeActor
                    [format]
                  end
       @format = formats.first
-      super(generate_message)
-    end
-
-    private
-
-    def generate_message
-      if formats.size > 1
-        "Invalid formats: #{formats.join(", ")}"
-      else
-        "Invalid format: #{format}"
-      end
+      super("Invalid format: #{formats.join(", ")}")
     end
   end
 end

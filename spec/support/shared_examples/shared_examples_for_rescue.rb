@@ -3,8 +3,7 @@
 require "active_support/core_ext/array/wrap"
 
 RSpec.shared_examples "rescuable error filter accepted" do |error_name|
-  let(:error_filters) { Array.wrap(error_filter) }
-  let(:rescuable) { klazz.rescue_actor_from(*error_filters, with: :my_handler) }
+  include_context "rescuable filter"
 
   it "accepts #{error_name || "the error"}" do
     expect { rescuable }.not_to raise_error
@@ -16,41 +15,45 @@ RSpec.shared_examples "rescuable error filter accepted" do |error_name|
 end
 
 RSpec.shared_examples "rescuable format filter accepted" do |format_name|
-  let(:format_filters) { Array.wrap(format_filter) }
-  let(:rescuable) { klazz.rescue_actor_from(StandardError, format: format_filters, with: :my_handler) }
+  include_context "rescuable filter", :format
 
   it "accepts #{format_name || "the format"}" do
     expect { rescuable }.not_to raise_error
-    expect(klazz.actor_rescuers).to include(["StandardError", format_filters, nil, kind_of(Symbol)])
+    error_filters.each do |filter|
+      expect(klazz.actor_rescuers).to include([filter.name, format_params, nil, kind_of(Symbol)])
+    end
   end
 end
 
 RSpec.shared_examples "rescuable format filter rejected" do |format_name|
-  let(:format_filters) { Array.wrap(format_filter) }
-  let(:rescuable) { klazz.rescue_actor_from(StandardError, format: format_filters, with: :my_handler) }
+  include_context "rescuable filter", :format
+
+  let(:error_class_raised) { ArgumentError }
+  let(:error_message_raised) { /Unsupported formats:/ }
 
   it "rejects #{format_name || "the format"}" do
-    expect { rescuable }.to raise_error(ArgumentError, /Unsupported formats:/)
+    expect { rescuable }.to raise_error(error_class_raised, error_message_raised)
     expect(klazz.actor_rescuers).to be_empty
   end
 end
 
 RSpec.shared_examples "rescuable action filter accepted" do |action_name|
-  let(:action_filters) { Array.wrap(action_filter) }
-  let(:rescuable) { klazz.rescue_actor_from(StandardError, action: action_filters, with: :my_handler) }
+  include_context "rescuable filter", :action
 
   it "accepts #{action_name || "the format"}" do
     expect { rescuable }.not_to raise_error
-    expect(klazz.actor_rescuers).to include(["StandardError", nil, action_filters, kind_of(Symbol)])
+    expect(klazz.actor_rescuers).to include(["StandardError", nil, action_params, kind_of(Symbol)])
   end
 end
 
 RSpec.shared_examples "rescuable action filter rejected" do |action_name|
-  let(:action_filters) { Array.wrap(action_filter) }
-  let(:rescuable) { klazz.rescue_actor_from(StandardError, action: action_filters, with: :my_handler) }
+  include_context "rescuable filter", :action
+
+  let(:error_class_raised) { ArgumentError }
+  let(:error_message_raised) { "Action filter can only be Symbol/Enumerable" }
 
   it "accepts #{action_name || "the format"}" do
-    expect { rescuable }.to raise_error(ArgumentError, "Action can only be Symbol")
+    expect { rescuable }.to raise_error(error_class_raised, error_message_raised)
     expect(klazz.actor_rescuers).to be_empty
   end
 end
