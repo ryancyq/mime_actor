@@ -38,7 +38,7 @@ module MimeActor
             rejected = unfiltered - filtered
             raise MimeActor::FormatInvalid, rejected if rejected.size.positive?
           else
-            raise ArgumentError, "Format filter can only be Symbol/Enumerable"
+            raise MimeActor::FormatFilterInvalid
           end
         end
 

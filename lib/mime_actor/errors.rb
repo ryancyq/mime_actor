@@ -44,17 +44,24 @@ module MimeActor
   end
   
   class FormatInvalid < Error
-    attr_reader :format, :formats
+    attr_reader :format
 
     def initialize(format)
-      @formats = case format
+      @format = case format
                  when Set, Array
                    format
                  else
                    [format]
                  end
-      @format = formats.first
-      super("Invalid format: #{formats.join(", ")}")
+      super("Invalid format: #{@format.join(", ")}")
+    end
+  end
+
+  class FormatFilterInvalid < Error
+    def initialize(collection = true)
+      types = ["Symbol"]
+      types << "Enumerable" if collection
+      super("Format filter must be #{types.join(" or ")}")
     end
   end
 
