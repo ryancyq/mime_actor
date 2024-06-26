@@ -13,6 +13,31 @@ RSpec.describe MimeActor::Scene do
       it_behaves_like "composable scene action accepted", "Array of Symbol" do
         let(:action_filters) { %i[index create] }
       end
+      it_behaves_like "composable scene action rejected", "String" do
+        let(:action_filter) { "create" }
+      end
+      it_behaves_like "composable scene action rejected", "Array of String" do
+        let(:action_filters) { %w[index create] }
+      end
+    end
+
+    context "with supported format" do
+      it_behaves_like "composable scene format accepted", "Symbol" do
+        let(:format_filter) { :xml }
+      end
+      it_behaves_like "composable scene format accepted", "Array of Symbol" do
+        let(:format_filters) { %i[html xml] }
+      end
+    end
+
+    context "with unsupported format" do
+      it_behaves_like "composable scene format rejected", "Symbol" do
+        let(:format_filter) { :my_custom }
+      end
+      it_behaves_like "composable scene format rejected", "Array of Symbol" do
+        let(:format_filters) { %i[html my_custom xml] }
+      end
+    end
 
     describe "action method" do
       it_behaves_like "composable scene action method"

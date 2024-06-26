@@ -22,16 +22,14 @@ module MimeActor
         config = options.extract_options!
         actions = Array.wrap(config[:on])
 
-        raise ArgumentError, "Action name can't be empty, e.g. on: :create" if actions.empty?
+        raise MimeActor::ActionFilterRequired if actions.empty?
 
         options.each do |mime_type|
           raise MimeActor::FormatInvalid, mime_type unless stage_formats.include?(mime_type.to_sym)
 
           actions.each do |action|
-            action = action.to_sym
-            if !acting_scenes.key?(action) && actor?(action)
-              raise ArgumentError, "Action method already defined: #{action}"
-            end
+            raise MimeActor::ActionFilterInvalid unless action.is_a?(Symbol)
+            raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && actor?(action)
 
             acting_scenes[action] ||= Set.new
             acting_scenes[action] |= [mime_type.to_sym]

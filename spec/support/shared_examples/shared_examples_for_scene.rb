@@ -26,6 +26,29 @@ RSpec.shared_examples "composable scene action rejected" do |action_name|
   end
 end
 
+RSpec.shared_examples "composable scene format accepted" do |format_name|
+  include_context "scene composition"
+
+  it "accepts #{format_name || "the format"}" do
+    expect(klazz.acting_scenes).to be_empty
+    expect { compose }.not_to raise_error
+    expect(klazz.acting_scenes).not_to be_empty
+    expect(klazz.acting_scenes.values.reduce(:|)).to match_array(format_filters)
+  end
+end
+
+RSpec.shared_examples "composable scene format rejected" do |format_name|
+  include_context "scene composition"
+
+  let(:error_class_raised) { MimeActor::FormatInvalid }
+  let(:error_message_raised) { /Invalid format:/ }
+
+  it "rejects #{format_name || "the format"}" do
+    expect(klazz.acting_scenes).to be_empty
+    expect { compose }.to raise_error(error_class_raised, error_message_raised)
+  end
+end
+
 RSpec.shared_examples "composable scene action method" do
   include_context "scene composition"
 
