@@ -31,10 +31,10 @@ RSpec.describe MimeActor::Act do
       end
     end
 
-    context "with rescue_actor" do
+    describe "rescue_actor" do
       before { klazz.define_method(:rescue_actor) { "rescue" } }
 
-      context "when error is handled" do
+      describe "when error is handled" do
         let(:object_instance) { Object.new }
 
         it "does not bubbles up" do
@@ -57,7 +57,7 @@ RSpec.describe MimeActor::Act do
         end
       end
 
-      context "when error is not handled" do
+      describe "when error is not handled" do
         it "bubbles up" do
           allow(klazz).to receive(:rescue_actor)
           dispatch = klazz.dispatch_act { raise "my error" }
@@ -97,7 +97,7 @@ RSpec.describe MimeActor::Act do
       end
     end
 
-    context "with actor defined" do
+    describe "when actor is defined" do
       before do
         compose_scene
         klazz.define_method(actor_name) { "my actor" }
@@ -118,7 +118,7 @@ RSpec.describe MimeActor::Act do
       end
     end
 
-    context "with actor undefined" do
+    describe "when actor undefined" do
       before { compose_scene }
 
       it "does not calls #dispatch_act" do

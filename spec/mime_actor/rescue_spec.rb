@@ -39,7 +39,7 @@ RSpec.describe MimeActor::Rescue do
     end
 
     describe "#format" do
-      context "with supported format" do
+      describe "supported format" do
         it_behaves_like "rescuable format filter accepted", "Symbol" do
           let(:format_filter) { :json }
         end
@@ -61,7 +61,7 @@ RSpec.describe MimeActor::Rescue do
         end
       end
 
-      context "with unsupported format" do
+      describe "unsupported format" do
         it_behaves_like "rescuable format filter rejected", "Symbol" do
           let(:format_filter) { :my_json }
           let(:error_class_raised) { MimeActor::FormatInvalid }

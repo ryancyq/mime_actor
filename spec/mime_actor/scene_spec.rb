@@ -21,7 +21,7 @@ RSpec.describe MimeActor::Scene do
       end
     end
 
-    context "with supported format" do
+    describe "supported format" do
       it_behaves_like "composable scene format accepted", "Symbol" do
         let(:format_filter) { :xml }
       end
@@ -30,7 +30,7 @@ RSpec.describe MimeActor::Scene do
       end
     end
 
-    context "with unsupported format" do
+    describe "unsupported format" do
       it_behaves_like "composable scene format rejected", "Symbol" do
         let(:format_filter) { :my_custom }
       end
