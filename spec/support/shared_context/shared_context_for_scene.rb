@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+require "active_support/core_ext/array/wrap"
+
+RSpec.shared_context "scene composition" do
+  let(:action_filter) { :create }
+  let(:action_filters) { Array.wrap(action_filter) }
+  let(:action_params) { action_filters.size > 1 ? action_filters : action_filters.first }
+  let(:format_filter) { :html }
+  let(:format_filters) { Array.wrap(format_filter) }
+  let(:compose) { klazz.compose_scene(*format_filters, on: action_params) }
+end

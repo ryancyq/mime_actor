@@ -6,6 +6,20 @@ RSpec.describe MimeActor::Scene do
   let(:klazz) { Class.new.include described_class }
 
   describe "#compose_scene" do
+    describe "#action" do
+      it_behaves_like "composable scene action accepted", "Symbol" do
+        let(:action_filter) { :create }
+      end
+      it_behaves_like "composable scene action accepted", "Array of Symbol" do
+        let(:action_filters) { %i[index create] }
+      end
+
+    describe "action method" do
+      it_behaves_like "composable scene action method"
+    end
+  end
+
+  pending "old_#compose_scene" do
     subject(:act) { klazz.compose_scene(*params) }
 
     let(:params) { Array.wrap(formats) + [actions] }

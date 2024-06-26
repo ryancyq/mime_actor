@@ -5,7 +5,6 @@ require "mime_actor/stage"
 require "active_support/concern"
 require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
-require "active_support/core_ext/hash/indifferent_access"
 require "active_support/core_ext/module/attribute_accessors"
 
 module MimeActor
@@ -15,7 +14,7 @@ module MimeActor
     include Stage
 
     included do
-      mattr_accessor :acting_scenes, instance_writer: false, default: ActiveSupport::HashWithIndifferentAccess.new
+      mattr_accessor :acting_scenes, instance_writer: false, default: {}
     end
 
     module ClassMethods
@@ -29,6 +28,7 @@ module MimeActor
           raise MimeActor::FormatInvalid, mime_type unless stage_formats.include?(mime_type.to_sym)
 
           actions.each do |action|
+            action = action.to_sym
             if !acting_scenes.key?(action) && actor?(action)
               raise ArgumentError, "Action method already defined: #{action}"
             end
