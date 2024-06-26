@@ -42,17 +42,17 @@ module MimeActor
       "Action :#{action} already existed"
     end
   end
-  
+
   class FormatInvalid < Error
     attr_reader :format
 
     def initialize(format)
       @format = case format
-                 when Set, Array
-                   format
-                 else
-                   [format]
-                 end
+                when Set, Array
+                  format
+                else
+                  [format]
+                end
       super("Invalid format: #{@format.join(", ")}")
     end
   end
