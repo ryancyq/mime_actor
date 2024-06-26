@@ -244,7 +244,4 @@ RSpec.describe MimeActor::Scene do
       end
     end
   end
-      end
-    end
-  end
 end
