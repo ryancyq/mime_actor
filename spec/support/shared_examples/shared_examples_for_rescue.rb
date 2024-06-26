@@ -29,7 +29,7 @@ RSpec.shared_examples "rescuable format filter rejected" do |format_name|
   include_context "rescuable filter", :format
 
   let(:error_class_raised) { ArgumentError }
-  let(:error_message_raised) { /Unsupported formats:/ }
+  let(:error_message_raised) { "Format filter can only be Symbol/Enumerable" }
 
   it "rejects #{format_name || "the format"}" do
     expect { rescuable }.to raise_error(error_class_raised, error_message_raised)

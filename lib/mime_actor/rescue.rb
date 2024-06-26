@@ -42,8 +42,14 @@ module MimeActor
           end
         end
 
-        if action.present? && !(action.is_a?(Symbol) || action.is_a?(Enumerable))
-          raise ArgumentError, "Action filter can only be Symbol/Enumerable"
+        if action.present?
+          action_error = ArgumentError.new("Action filter can only be Symbol/Enumerable")
+          case action
+          when Symbol, Enumerable
+            raise action_error if action.is_a?(Enumerable) && !action.reduce { |a| a.is_a?(Symbol) }
+          else
+            raise action_error
+          end
         end
 
         klazzes.each do |klazz|
