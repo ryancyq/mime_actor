@@ -99,3 +99,6 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 end
+
+# Load everything from spec/support
+Dir[File.expand_path("support/**/*.rb", __dir__)].each { |rb| require(rb) }

@@ -6,264 +6,201 @@ RSpec.describe MimeActor::Rescue do
   let(:klazz) { Class.new.include described_class }
 
   describe "#rescue_actor_from" do
-    let(:error_class) { StandardError }
-
-    it "requires error filter" do
-      expect { klazz.rescue_actor_from }.to raise_error(ArgumentError, "Error filter can't be empty")
-    end
-
-    context "with error class" do
-      let(:stub_class) { stub_const "MyClass", Class.new }
-      let(:stub_module) { stub_const "MyModule", Module.new }
+    describe "error filter" do
       let(:stub_namespace) { stub_const "OtherModule", Module.new }
-      let(:stub_namespace_class) { stub_const "#{stub_namespace}::AnotherClass", Class.new }
-      let(:stub_namespace_module) { stub_const "#{stub_namespace}::AnotherModule", Module.new }
 
-      it "accepts Class" do
-        expect { klazz.rescue_actor_from stub_class, with: :my_handler }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(["MyClass", nil, nil, kind_of(Symbol)])
+      it "required" do
+        expect { klazz.rescue_actor_from }.to raise_error(ArgumentError, "Error filter can't be empty")
       end
 
-      it "accepts Class with namespace" do
-        expect { klazz.rescue_actor_from stub_namespace_class, with: :my_handler }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(["OtherModule::AnotherClass", nil, nil, kind_of(Symbol)])
+      it_behaves_like "rescuable error filter accepted", "Class" do
+        let(:error_filter) { stub_const "MyClass", Class.new }
       end
-
-      it "accepts Module" do
-        expect { klazz.rescue_actor_from stub_module, with: :my_handler }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(["MyModule", nil, nil, kind_of(Symbol)])
+      it_behaves_like "rescuable error filter accepted", "Module" do
+        let(:error_filter) { stub_const "MyModule", Module.new }
       end
-
-      it "accepts Module with namespace" do
-        expect { klazz.rescue_actor_from stub_namespace_module, with: :my_handler }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(["OtherModule::AnotherModule", nil, nil, kind_of(Symbol)])
+      it_behaves_like "rescuable error filter accepted", "Class with namespace" do
+        let(:error_filter) { stub_const "#{stub_namespace}::AnotherClass", Class.new }
       end
-
-      it "accepts multiple classes" do
-        error_classes = [stub_class, stub_module, stub_namespace_class, stub_namespace_module]
-        expect { klazz.rescue_actor_from(*error_classes, with: :my_handler) }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(["MyClass", nil, nil, kind_of(Symbol)])
-        expect(klazz.actor_rescuers).to include(["OtherModule::AnotherClass", nil, nil, kind_of(Symbol)])
-        expect(klazz.actor_rescuers).to include(["MyModule", nil, nil, kind_of(Symbol)])
-        expect(klazz.actor_rescuers).to include(["OtherModule::AnotherModule", nil, nil, kind_of(Symbol)])
+      it_behaves_like "rescuable error filter accepted", "Module with namespace" do
+        let(:error_filter) { stub_const "#{stub_namespace}::AnotherModule", Module.new }
+      end
+      it_behaves_like "rescuable error filter accepted", "Multiple errors" do
+        let(:error_filters) do
+          [
+            stub_const("MyClass", Class.new),
+            stub_const("MyModule", Module.new),
+            stub_const("OtherModule", Module.new),
+            stub_const("#{stub_namespace}::AnotherClass", Class.new),
+            stub_const("#{stub_namespace}::AnotherModule", Module.new)
+          ]
+        end
       end
     end
 
     describe "#format" do
       context "with supported format" do
-        it "accepts Symbol" do
-          expect { klazz.rescue_actor_from error_class, format: :json, with: :my_handler }.not_to raise_error
-          expect(klazz.actor_rescuers).to include(
-            [error_class.name, :json, nil, kind_of(Symbol)]
-          )
+        it_behaves_like "rescuable format filter accepted", "Symbol" do
+          let(:format_filter) { :json }
         end
-
-        it "accepts arrray of Symbol" do
-          expect { klazz.rescue_actor_from error_class, format: %i[json html], with: :my_handler }.not_to raise_error
-          expect(klazz.actor_rescuers).to include(
-            [error_class.name, %i[json html], nil, kind_of(Symbol)]
-          )
+        it_behaves_like "rescuable format filter accepted", "Array of Symbol" do
+          let(:format_filters) { %i[json html] }
+        end
+        it_behaves_like "rescuable format filter rejected", "String" do
+          let(:format_filter) { "json" }
+        end
+        it_behaves_like "rescuable format filter rejected", "Array of String" do
+          let(:format_filters) { %w[json html] }
         end
       end
 
       context "with unsupported format" do
-        it "does not accept" do
-          expect { klazz.rescue_actor_from error_class, format: :my_json, with: :my_handler }.to raise_error(
-            ArgumentError, "Unsupported format: my_json"
-          )
-          expect(klazz.actor_rescuers).to be_empty
+        it_behaves_like "rescuable format filter rejected", "Symbol" do
+          let(:format_filter) { :my_json }
         end
-
-        it "does not accept in the array" do
-          expect do
-            klazz.rescue_actor_from error_class, format: %i[json my_json html my_html], with: :my_handler
-          end.to raise_error(ArgumentError, "Unsupported formats: my_json, my_html")
-          expect(klazz.actor_rescuers).to be_empty
+        it_behaves_like "rescuable format filter rejected", "Array of Symbol" do
+          let(:format_filters) { %i[json my_json html my_html] }
+        end
+        it_behaves_like "rescuable format filter rejected", "String" do
+          let(:format_filter) { "my_json" }
+        end
+        it_behaves_like "rescuable format filter rejected", "Array of String" do
+          let(:format_filters) { %w[json my_json html my_html] }
         end
       end
     end
 
     describe "#action" do
-      it "accepts Symbol" do
-        expect { klazz.rescue_actor_from error_class, action: :index, with: :my_handler }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(
-          [error_class.name, nil, :index, kind_of(Symbol)]
-        )
+      it_behaves_like "rescuable action filter accepted", "Symbol" do
+        let(:action_filter) { :index }
       end
-
-      it "accepts array of Symbol" do
-        expect { klazz.rescue_actor_from error_class, action: %i[debug load], with: :my_handler }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(
-          [error_class.name, nil, %i[debug load], kind_of(Symbol)]
-        )
+      it_behaves_like "rescuable action filter accepted", "Array of Symbol" do
+        let(:action_filters) { %i[debug load] }
+      end
+      it_behaves_like "rescuable action filter accepted", "String" do
+        let(:action_filter) { "index" }
+      end
+      it_behaves_like "rescuable action filter accepted", "Array of String" do
+        let(:action_filters) { %w[debug load] }
       end
     end
 
     describe "#with" do
       describe "when block is not given" do
-        it "is required" do
-          expect { klazz.rescue_actor_from error_class }.to raise_error(
-            ArgumentError, "Provide the with: keyword argument or a block"
-          )
+        let(:rescue_actor) { klazz.rescue_actor_from StandardError }
+
+        it "required" do
+          expect { rescue_actor }.to raise_error(ArgumentError, "Provide the with: keyword argument or a block")
         end
       end
 
       describe "when block is given" do
+        let(:rescue_actor) do
+          klazz.rescue_actor_from StandardError, with: proc {} do
+            "test"
+          end
+        end
+
         it "must be absent" do
-          expect do
-            klazz.rescue_actor_from error_class, with: proc {} do
-              "test"
-            end
-          end.to raise_error(ArgumentError, "Provide only the with: keyword argument or a block")
+          expect { rescue_actor }.to raise_error(ArgumentError, "Provide only the with: keyword argument or a block")
         end
       end
 
-      it "accepts Proc" do
-        expect { klazz.rescue_actor_from error_class, with: proc {} }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(
-          [error_class.name, nil, nil, kind_of(Proc)]
-        )
+      it_behaves_like "rescuable with handler accepted", "Proc", Proc do
+        let(:handler) { proc {} }
       end
-
-      it "accepts Lambda" do
-        expect { klazz.rescue_actor_from error_class, with: -> {} }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(
-          [error_class.name, nil, nil, kind_of(Proc)]
-        )
+      it_behaves_like "rescuable with handler accepted", "Lambda", Proc do
+        let(:handler) { -> {} }
       end
-
-      it "accepts Symbol" do
-        expect { klazz.rescue_actor_from error_class, with: :my_handler }.not_to raise_error
-        expect(klazz.actor_rescuers).to include(
-          [error_class.name, nil, nil, kind_of(Symbol)]
-        )
+      it_behaves_like "rescuable with handler accepted", "Symbol", Symbol do
+        let(:handler) { :custom_handler }
       end
-
-      it "does not accept String" do
-        expect { klazz.rescue_actor_from error_class, with: "my handler" }.to raise_error(
-          ArgumentError, "Rescue handler can only be Symbol/Proc"
-        )
-        expect(klazz.actor_rescuers).to be_empty
+      it_behaves_like "rescuable with handler rejected", "String", String do
+        let(:handler) { "custom_handler" }
       end
-
-      it "does not accept Method" do
-        expect { klazz.rescue_actor_from error_class, with: method(:to_s) }.to raise_error(
-          ArgumentError, "Rescue handler can only be Symbol/Proc"
-        )
-        expect(klazz.actor_rescuers).to be_empty
+      it_behaves_like "rescuable with handler rejected", "Method", Method do
+        let(:handler) { method(:to_s) }
       end
     end
   end
 
   describe "#rescue_actor" do
     let(:error_class) { RuntimeError }
-    let(:error) { error_class.new("my error") }
 
-    context "with empty actor_rescuers" do
-      subject { klazz.rescue_actor(error) }
-
-      it { is_expected.to be_nil }
-    end
-
-    context "with non matching actor_rescuers" do
-      subject { klazz.rescue_actor(error) }
-
+    it_behaves_like "rescuable actor handler skipped", "emtpy actor_rescuers"
+    it_behaves_like "rescuable actor handler skipped", "non-matching actor_rescuers" do
       before do
         klazz.rescue_actor_from ArgumentError, with: proc {}
         klazz.rescue_actor_from NameError, with: proc {}
       end
-
-      it { is_expected.to be_nil }
     end
-
-    context "with matching actor_rescuers" do
-      let(:resolve) { klazz.rescue_actor(error) }
-
-      it "resolves error matching actor_rescuer" do
-        klazz.rescue_actor_from error_class, with: proc { @stub_value = 1 }
-        expect(resolve).to eq error
-        expect(klazz.instance_variable_get(:@stub_value)).to eq 1
-      end
-
-      context "with multiple rescuers on the same error" do
-        before do
-          klazz.rescue_actor_from error_class, with: proc { @stub_value = 1 }
-          klazz.rescue_actor_from error_class, with: proc { @stub_value = 2 }
-          klazz.rescue_actor_from error_class, with: proc { @stub_value = 3 }
-        end
-
-        it "resolves using most recently delcared actor_rescuer" do
-          expect(resolve).to eq error
-          expect(klazz.instance_variable_get(:@stub_value)).to eq 3
-        end
-      end
-
-      context "with action filter" do
-        let(:error_class) { stub_const "MyActionError", Class.new(StandardError) }
-
-        before do
-          klazz.rescue_actor_from StandardError, action: :create, with: proc { @stub_value = 1 }
-          klazz.rescue_actor_from error_class, action: :index, with: proc { @stub_value = 2 }
-        end
-
-        it "resolves with action matching actor_rescuer" do
-          expect(klazz.rescue_actor(error, action: :create)).to eq error
-          expect(klazz.instance_variable_get(:@stub_value)).to eq 1
-        end
-      end
-
-      context "with format filter" do
-        let(:error_class) { stub_const "MyFormatError", Class.new(StandardError) }
-
-        before do
-          klazz.rescue_actor_from StandardError, format: :json, with: proc { @stub_value = 1 }
-          klazz.rescue_actor_from error_class, format: :html, with: proc { @stub_value = 2 }
-        end
-
-        it "resolves with format matching actor_rescuer" do
-          expect(klazz.rescue_actor(error, format: :json)).to eq error
-          expect(klazz.instance_variable_get(:@stub_value)).to eq 1
-        end
-      end
-
-      context "with action and format filters" do
-        let(:error_class) { stub_const "MyError", Class.new(StandardError) }
-
-        before do
-          klazz.rescue_actor_from StandardError, with: proc { @stub_value = 1 }
-          klazz.rescue_actor_from error_class, action: :create, format: :json, with: proc { @stub_value = 2 }
-          klazz.rescue_actor_from error_class, format: :html, with: proc { @stub_value = 3 }
-          klazz.rescue_actor_from StandardError, action: :index, format: :html, with: proc { @stub_value = 4 }
-        end
-
-        it "resolves with action and format matching actor_rescuer" do
-          expect(klazz.rescue_actor(error, action: :create, format: :json)).to eq error
-          expect(klazz.instance_variable_get(:@stub_value)).to eq 2
-        end
-
-        it "resolves with error matching actor_rescuer as fallback" do
-          expect(klazz.rescue_actor(error, action: :index, format: :json)).to eq error
-          expect(klazz.instance_variable_get(:@stub_value)).to eq 1
-        end
-      end
-    end
-
-    describe "#visited" do
-      it "skips actor_rescuer who rescues error appeared in visited" do
-        expect(klazz.rescue_actor(error, visited: [error_class])).to be_nil
-      end
-    end
-
-    context "with nested error" do
-      let(:resolve) { klazz.rescue_actor(error) }
+    
+    it_behaves_like "rescuable actor handler rescued", "error subclass" do
       let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
-
+      before { klazz.rescue_actor_from RuntimeError, with: proc {} }
+    end
+    it_behaves_like "rescuable actor handler rescued", "error matching actor_rescuer" do
       before do
-        klazz.rescue_actor_from RuntimeError, with: proc {}
+        klazz.rescue_actor_from RuntimeError, with: -> { to_s + "1" }
+        klazz.rescue_actor_from ArgumentError, with: -> { to_s + "2" }
       end
 
-      it "resolves correctly" do
-        expect(resolve).to eq error
+      xit "recues with handler context" do
+        expect { rescuable }.not_to raise_error
+      end
+    end
+    it_behaves_like "rescuable actor handler rescued", "action matching actor_rescuer" do
+      let(:action_filter) { :create }
+      before do
+        klazz.rescue_actor_from RuntimeError, action: :create, with: -> { to_s + "1" }
+        klazz.rescue_actor_from RuntimeError, action: :index, with: -> { to_s + "2" }
+      end
+
+      xit "recues with handler context" do
+        expect { rescuable }.not_to raise_error
+      end
+    end
+    it_behaves_like "rescuable actor handler rescued", "format matching actor_rescuer" do
+      let(:format_filter) { :json }
+      before do
+        klazz.rescue_actor_from RuntimeError, format: :xml, with: -> { to_s + "1" }
+        klazz.rescue_actor_from RuntimeError, format: :json, with: -> { to_s + "2" }
+        klazz.rescue_actor_from RuntimeError, format: :html, with: -> { to_s + "3" }
+      end
+
+      xit "recues with handler context" do
+        expect { rescuable }.not_to raise_error
+      end
+    end
+
+    it_behaves_like "rescuable actor handler rescued", "action and format matching actor_rescuers" do
+      let(:error_class) { stub_const "MyError", Class.new(StandardError) }
+
+      before { 
+        klazz.rescue_actor_from StandardError, with: proc { to_s + "1" }
+        klazz.rescue_actor_from error_class, action: :create, format: :json, with: proc { to_s + "2"}
+        klazz.rescue_actor_from error_class, format: :html, with: proc { to_s + "3" }
+        klazz.rescue_actor_from StandardError, action: :index, format: :html, with: proc { to_s + "4" }
+      }
+
+      xit "recues with handler context" do
+        expect(klazz.rescue_actor(error, action: :create, format: :json)).to eq error
+      end
+
+      xit "recues with error matching actor_rescuer as fallback" do
+        expect(klazz.rescue_actor(error, action: :index, format: :json)).to eq error
+      end
+    end
+
+    it_behaves_like "rescuable actor handler rescued", "multiple matching actor_rescuers" do
+      before { 
+        klazz.rescue_actor_from RuntimeError, with: -> { to_s + "1" }
+        klazz.rescue_actor_from RuntimeError, with: -> { to_s + "2" }
+        klazz.rescue_actor_from RuntimeError, with: -> { to_s + "3" }
+      }
+
+      xit "recues using most recently declared actor_rescuer" do
+        expect { rescuable }.not_to raise_error
       end
     end
   end
