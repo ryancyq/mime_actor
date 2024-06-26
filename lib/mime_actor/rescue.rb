@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 
+require "mime_actor/errors"
+require "mime_actor/stage"
+
 require "active_support/concern"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/inflections"
-require "set" # remove when ruby > 3,1
-require "action_dispatch/http/mime_type"
 
 module MimeActor
   module Rescue
     extend ActiveSupport::Concern
+
+    include Stage
 
     included do
       mattr_accessor :actor_rescuers, instance_writer: false, default: []
@@ -28,12 +31,12 @@ module MimeActor
         if format.present?
           case format
           when Symbol
-            raise ArgumentError, "Unsupported format: #{format}" unless Mime::SET.symbols.include?(format.to_sym)
+            raise MimeActor::FormatInvalid, format unless stage_formats.include?(format.to_sym)
           when Enumerable
             unfiltered = format.to_set
-            filtered = unfiltered & Mime::SET.symbols.to_set
+            filtered = unfiltered & stage_formats
             rejected = unfiltered - filtered
-            raise ArgumentError, "Unsupported formats: #{rejected.join(", ")}" if rejected.size.positive?
+            raise MimeActor::FormatInvalid, rejected if rejected.size.positive?
           else
             raise ArgumentError, "Format filter can only be Symbol/Enumerable"
           end

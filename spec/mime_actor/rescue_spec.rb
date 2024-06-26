@@ -134,7 +134,7 @@ RSpec.describe MimeActor::Rescue do
         klazz.rescue_actor_from NameError, with: proc {}
       end
     end
-    
+
     it_behaves_like "rescuable actor handler rescued", "error subclass" do
       let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
       before { klazz.rescue_actor_from RuntimeError, with: proc {} }

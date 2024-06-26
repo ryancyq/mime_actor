@@ -7,8 +7,6 @@ require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/hash/indifferent_access"
 require "active_support/core_ext/module/attribute_accessors"
-require "set" # remove when ruby > 3,1
-require "action_dispatch/http/mime_type"
 
 module MimeActor
   module Scene
@@ -28,7 +26,7 @@ module MimeActor
         raise ArgumentError, "Action name can't be empty, e.g. on: :create" if actions.empty?
 
         options.each do |mime_type|
-          raise ArgumentError, "Unsupported format: #{mime_type}" unless Mime::SET.symbols.include?(mime_type.to_sym)
+          raise MimeActor::FormatInvalid, mime_type unless stage_formats.include?(mime_type.to_sym)
 
           actions.each do |action|
             if !acting_scenes.key?(action) && actor?(action)

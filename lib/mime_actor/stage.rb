@@ -5,6 +5,8 @@ require "mime_actor/errors"
 require "active_support/concern"
 require "active_support/configurable"
 require "active_support/core_ext/module/attribute_accessors"
+require "set" # required by mime_type with ruby <= 3.1
+require "action_dispatch/http/mime_type"
 require "abstract_controller/logger"
 
 module MimeActor
@@ -16,6 +18,7 @@ module MimeActor
 
     included do
       mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
+      mattr_accessor :stage_formats, instance_writer: false, default: Mime::SET.symbols.to_set
     end
 
     module ClassMethods
