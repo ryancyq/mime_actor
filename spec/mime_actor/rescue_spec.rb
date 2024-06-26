@@ -172,6 +172,10 @@ RSpec.describe MimeActor::Rescue do
         expect { rescuable }.not_to raise_error
       end
     end
+    it_behaves_like "rescuable actor handler skipped", "error in visited" do
+      let(:visited_errors) { [error_instance] }
+      before { klazz.rescue_actor_from RuntimeError, with: proc {} }
+    end
 
     it_behaves_like "rescuable actor handler rescued", "action and format matching actor_rescuers" do
       let(:error_class) { stub_const "MyError", Class.new(StandardError) }

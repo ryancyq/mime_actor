@@ -59,12 +59,13 @@ module MimeActor
       end
 
       def rescue_actor(error, action: nil, format: nil, context: self, visited: [])
-        visited << error
+        return if visited.include?(error)
 
+        visited << error
         if (rescuer = dispatch_rescuer(error, format:, action:, context:))
           rescuer.call(error, format, action)
           error
-        elsif error&.cause && !visited.include?(error.cause)
+        elsif error&.cause
           rescue_actor(error.cause, format:, action:, context:, visited:)
         end
       end
