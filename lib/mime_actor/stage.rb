@@ -18,9 +18,13 @@ module MimeActor
 
     module ClassMethods
       def actor?(actor_name)
-        return action_methods.include?(actor_name.to_s) if singleton_methods.include?(:action_methods)
-
-        instance_methods.include?(actor_name.to_sym)
+        # exclude public methods from ancestors
+        found = public_instance_methods(false).include?(actor_name.to_sym)
+        # exclude private methods from ancestors
+        if !found && private_instance_methods(false).include?(actor_name.to_sym)
+          logger.debug { "actor must be public method, #{actor_name} is private method" }
+        end
+        found
       end
 
       def dispatch_cue(action: nil, format: nil, context: self, &block)
@@ -30,12 +34,6 @@ module MimeActor
           (respond_to?(:rescue_actor) && rescue_actor(e, action:, format:, context:)) || raise
         end
       end
-    end
-
-    def actor?(actor_name)
-      return action_methods.include?(actor_name.to_s) if respond_to?(:action_methods)
-
-      methods.include?(actor_name.to_sym)
     end
 
     def cue_actor(actor_name, *args)
