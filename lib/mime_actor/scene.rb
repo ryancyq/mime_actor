@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "mime_actor/stage"
+require "mime_actor/validator"
 
 require "active_support/concern"
 require "active_support/core_ext/array/extract_options"
@@ -12,6 +13,7 @@ module MimeActor
     extend ActiveSupport::Concern
 
     include Stage
+    include Validator
 
     included do
       mattr_accessor :acting_scenes, instance_writer: false, default: {}
@@ -20,19 +22,23 @@ module MimeActor
     module ClassMethods
       def compose_scene(*options)
         config = options.extract_options!
-        actions = Array.wrap(config[:on])
+        validate!(:formats, options)
 
-        raise MimeActor::ActionFilterRequired if actions.empty?
+        actions = config[:on]
+        if !actions
+          raise ArgumentError, "action is required"
+        elsif actions.is_a?(Enumerable)
+          validate!(:actions, actions)
+        else
+          validate!(:action, actions)
+        end
 
-        options.each do |mime_type|
-          raise MimeActor::FormatInvalid, mime_type unless stage_formats.include?(mime_type.to_sym)
-
-          actions.each do |action|
-            raise MimeActor::ActionFilterInvalid, false unless action.is_a?(Symbol)
+        options.each do |format|
+          Array.wrap(actions).each do |action|
             raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && actor?(action)
 
             acting_scenes[action] ||= Set.new
-            acting_scenes[action] |= [mime_type.to_sym]
+            acting_scenes[action] |= [format]
 
             next if actor?(action)
 

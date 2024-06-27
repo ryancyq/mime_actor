@@ -16,8 +16,8 @@ end
 RSpec.shared_examples "composable scene action rejected" do |action_name|
   include_context "with scene composition"
 
-  let(:error_class_raised) { MimeActor::ActionFilterInvalid }
-  let(:error_message_raised) { "Action filter must be Symbol" }
+  let(:error_class_raised) { ArgumentError }
+  let(:error_message_raised) { "action must be a Symbol" }
 
   it "rejects #{action_name || "the action"}" do
     expect(klazz.acting_scenes).to be_empty
@@ -40,12 +40,13 @@ end
 RSpec.shared_examples "composable scene format rejected" do |format_name|
   include_context "with scene composition"
 
-  let(:error_class_raised) { MimeActor::FormatInvalid }
-  let(:error_message_raised) { /Invalid format:/ }
+  let(:error_class_raised) { NameError }
+  let(:error_message_raised) { /invalid formats, got:/ }
 
   it "rejects #{format_name || "the format"}" do
     expect(klazz.acting_scenes).to be_empty
     expect { compose }.to raise_error(error_class_raised, error_message_raised)
+    expect(klazz.acting_scenes).to be_empty
   end
 end
 
@@ -93,7 +94,7 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
 
     it "raises #{MimeActor::ActionExisted}" do
       expect { compose }.to raise_error(
-        MimeActor::ActionExisted, "Action :#{expected_scenes.keys.first} already existed"
+        MimeActor::ActionExisted, "action :#{expected_scenes.keys.first} already existed"
       )
     end
   end

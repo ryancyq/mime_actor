@@ -39,7 +39,7 @@ module MimeActor
 
   class ActionExisted < ActionError
     def generate_message
-      "Action :#{action} already existed"
+      "action :#{action} already existed"
     end
   end
 end

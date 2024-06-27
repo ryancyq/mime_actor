@@ -9,8 +9,7 @@ RSpec.describe MimeActor::Scene do
     describe "#action" do
       it_behaves_like "composable scene action rejected", "nil" do
         let(:action_filter) { nil }
-        let(:error_class_raised) { MimeActor::ActionFilterRequired }
-        let(:error_message_raised) { "Action filter is required" }
+        let(:error_message_raised) { "action is required" }
       end
       it_behaves_like "composable scene action accepted", "Symbol" do
         let(:action_filter) { :create }
@@ -23,6 +22,13 @@ RSpec.describe MimeActor::Scene do
       end
       it_behaves_like "composable scene action rejected", "Array of String" do
         let(:action_filters) { %w[index create] }
+        let(:error_class_raised) { NameError }
+        let(:error_message_raised) { "invalid actions, got: index, create" }
+      end
+      it_behaves_like "composable scene action rejected", "Array of String/Symbol" do
+        let(:action_filters) { [:index, "create"] }
+        let(:error_class_raised) { NameError }
+        let(:error_message_raised) { "invalid actions, got: create" }
       end
       it_behaves_like "composable scene action accepted", "#new" do
         let(:action_filter) { :new }
