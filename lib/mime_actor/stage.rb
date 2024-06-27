@@ -18,7 +18,6 @@ module MimeActor
 
     included do
       mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
-      mattr_accessor :stage_formats, instance_writer: false, default: Mime::SET.symbols.to_set
     end
 
     module ClassMethods
