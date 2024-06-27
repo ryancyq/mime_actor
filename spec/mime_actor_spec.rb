@@ -7,7 +7,10 @@ RSpec.describe MimeActor do
   [
     "MimeActor::Act",
     "MimeActor::Scene",
-    "MimeActor::Rescue"
+    "MimeActor::Stage",
+    "MimeActor::Rescue",
+    "MimeActor::Validator",
+    "MimeActor::Logging"
   ].each do |module_name|
     it "auto loads #{module_name}" do
       expect(module_name.safe_constantize).to be_a(Module)
