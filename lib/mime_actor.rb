@@ -13,4 +13,5 @@ module MimeActor
   autoload :Stage
   autoload :Rescue
   autoload :Validator
+  autoload :Logging
 end
