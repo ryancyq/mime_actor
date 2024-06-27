@@ -10,7 +10,7 @@ RSpec.describe MimeActor::Rescue do
       let(:stub_namespace) { stub_const "OtherModule", Module.new }
 
       it "required" do
-        expect { klazz.rescue_actor_from }.to raise_error(ArgumentError, "Error filter can't be empty")
+        expect { klazz.rescue_actor_from }.to raise_error(ArgumentError, "error filter is required")
       end
 
       it_behaves_like "rescuable error filter accepted", "Class" do
@@ -51,39 +51,39 @@ RSpec.describe MimeActor::Rescue do
         end
         it_behaves_like "rescuable format filter rejected", "Array of String" do
           let(:format_filters) { %w[json html] }
-          let(:error_class_raised) { MimeActor::FormatInvalid }
-          let(:error_message_raised) { "Invalid format: json, html" }
+          let(:error_class_raised) { NameError }
+          let(:error_message_raised) { "invalid formats, got: json, html" }
         end
         it_behaves_like "rescuable format filter rejected", "Array of Symbol/String" do
           let(:format_filters) { [:json, "html"] }
-          let(:error_class_raised) { MimeActor::FormatInvalid }
-          let(:error_message_raised) { "Invalid format: html" }
+          let(:error_class_raised) { NameError }
+          let(:error_message_raised) { "invalid formats, got: html" }
         end
       end
 
       describe "unsupported format" do
         it_behaves_like "rescuable format filter rejected", "Symbol" do
           let(:format_filter) { :my_json }
-          let(:error_class_raised) { MimeActor::FormatInvalid }
-          let(:error_message_raised) { "Invalid format: my_json" }
+          let(:error_class_raised) { NameError }
+          let(:error_message_raised) { "invalid format, got: my_json" }
         end
         it_behaves_like "rescuable format filter rejected", "Array of Symbol" do
           let(:format_filters) { %i[json my_json html my_html] }
-          let(:error_class_raised) { MimeActor::FormatInvalid }
-          let(:error_message_raised) { "Invalid format: my_json, my_html" }
+          let(:error_class_raised) { NameError }
+          let(:error_message_raised) { "invalid formats, got: my_json, my_html" }
         end
         it_behaves_like "rescuable format filter rejected", "String" do
           let(:format_filter) { "my_json" }
         end
         it_behaves_like "rescuable format filter rejected", "Array of String" do
           let(:format_filters) { %w[json my_json html my_html] }
-          let(:error_class_raised) { MimeActor::FormatInvalid }
-          let(:error_message_raised) { "Invalid format: json, my_json, html, my_html" }
+          let(:error_class_raised) { NameError }
+          let(:error_message_raised) { "invalid formats, got: json, my_json, html, my_html" }
         end
         it_behaves_like "rescuable format filter rejected", "Array of Symbol/String" do
           let(:format_filters) { [:json, :my_json, "html", "my_html"] }
-          let(:error_class_raised) { MimeActor::FormatInvalid }
-          let(:error_message_raised) { "Invalid format: my_json, html, my_html" }
+          let(:error_class_raised) { NameError }
+          let(:error_message_raised) { "invalid formats, got: my_json, html, my_html" }
         end
       end
     end
@@ -100,6 +100,8 @@ RSpec.describe MimeActor::Rescue do
       end
       it_behaves_like "rescuable action filter rejected", "Array of String" do
         let(:action_filters) { %w[debug load] }
+        let(:error_class_raised) { NameError }
+        let(:error_message_raised) { "invalid actions, got: debug, load" }
       end
     end
 
@@ -108,7 +110,7 @@ RSpec.describe MimeActor::Rescue do
         let(:rescue_actor) { klazz.rescue_actor_from StandardError }
 
         it "required" do
-          expect { rescue_actor }.to raise_error(ArgumentError, "Provide the with: keyword argument or a block")
+          expect { rescue_actor }.to raise_error(ArgumentError, "provide the with: keyword argument or a block")
         end
       end
 
@@ -120,7 +122,7 @@ RSpec.describe MimeActor::Rescue do
         end
 
         it "must be absent" do
-          expect { rescue_actor }.to raise_error(ArgumentError, "Provide only the with: keyword argument or a block")
+          expect { rescue_actor }.to raise_error(ArgumentError, "provide either the with: keyword argument or a block")
         end
       end
 

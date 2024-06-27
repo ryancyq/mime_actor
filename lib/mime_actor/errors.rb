@@ -42,40 +42,4 @@ module MimeActor
       "Action :#{action} already existed"
     end
   end
-
-  class FormatInvalid < Error
-    attr_reader :format
-
-    def initialize(format)
-      @format = case format
-                when Set, Array
-                  format
-                else
-                  [format]
-                end
-      super("Invalid format: #{@format.join(", ")}")
-    end
-  end
-
-  class FormatFilterInvalid < Error
-    def initialize(collection = true)
-      types = ["Symbol"]
-      types << "Enumerable" if collection
-      super("Format filter must be #{types.join(" or ")}")
-    end
-  end
-
-  class ActionFilterRequired < Error
-    def initialize
-      super("Action filter is required")
-    end
-  end
-
-  class ActionFilterInvalid < Error
-    def initialize(collection = true)
-      types = ["Symbol"]
-      types << "Enumerable" if collection
-      super("Action filter must be #{types.join(" or ")}")
-    end
-  end
 end

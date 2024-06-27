@@ -28,8 +28,8 @@ end
 RSpec.shared_examples "rescuable format filter rejected" do |format_name|
   include_context "with rescuable filter", :format
 
-  let(:error_class_raised) { MimeActor::FormatFilterInvalid }
-  let(:error_message_raised) { "Format filter must be Symbol or Enumerable" }
+  let(:error_class_raised) { ArgumentError }
+  let(:error_message_raised) { "format must be a Symbol" }
 
   it "rejects #{format_name || "the format"}" do
     expect { rescuable }.to raise_error(error_class_raised, error_message_raised)
@@ -49,8 +49,8 @@ end
 RSpec.shared_examples "rescuable action filter rejected" do |action_name|
   include_context "with rescuable filter", :action
 
-  let(:error_class_raised) { MimeActor::ActionFilterInvalid }
-  let(:error_message_raised) { "Action filter must be Symbol or Enumerable" }
+  let(:error_class_raised) { ArgumentError }
+  let(:error_message_raised) { "action must be a Symbol" }
 
   it "accepts #{action_name || "the format"}" do
     expect { rescuable }.to raise_error(error_class_raised, error_message_raised)
@@ -69,9 +69,11 @@ end
 
 RSpec.shared_examples "rescuable with handler rejected" do |handler_name, _handler_type|
   let(:rescuable) { klazz.rescue_actor_from(StandardError, with: handler) }
+  let(:error_class_raised) { ArgumentError }
+  let(:error_message_raised) { /with handler must be a Symbol or Proc, got:/ }
 
   it "rejects #{handler_name || "the handler"}" do
-    expect { rescuable }.to raise_error(ArgumentError, "Rescue handler can only be Symbol/Proc")
+    expect { rescuable }.to raise_error(error_class_raised, error_message_raised)
     expect(klazz.actor_rescuers).to be_empty
   end
 end

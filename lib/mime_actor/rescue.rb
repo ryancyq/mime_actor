@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "mime_actor/errors"
 require "mime_actor/stage"
+require "mime_actor/validator"
 
 require "active_support/concern"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
-require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/inflections"
 
 module MimeActor
@@ -14,6 +13,7 @@ module MimeActor
     extend ActiveSupport::Concern
 
     include Stage
+    include Validator
 
     included do
       mattr_accessor :actor_rescuers, instance_writer: false, default: []
@@ -21,44 +21,36 @@ module MimeActor
 
     module ClassMethods
       def rescue_actor_from(*klazzes, action: nil, format: nil, with: nil, &block)
-        raise ArgumentError, "Error filter can't be empty" if klazzes.empty?
-        raise ArgumentError, "Provide only the with: keyword argument or a block" if with.present? && block_given?
-        raise ArgumentError, "Provide the with: keyword argument or a block" unless with.present? || block_given?
+        raise ArgumentError, "error filter is required" if klazzes.empty?
 
+        validate!(:with, with, block)
         with = block if block_given?
-        raise ArgumentError, "Rescue handler can only be Symbol/Proc" unless with.is_a?(Proc) || with.is_a?(Symbol)
 
         if format.present?
-          case format
-          when Symbol
-            raise MimeActor::FormatInvalid, format unless stage_formats.include?(format.to_sym)
-          when Enumerable
-            unfiltered = format.to_set
-            filtered = unfiltered & stage_formats
-            rejected = unfiltered - filtered
-            raise MimeActor::FormatInvalid, rejected if rejected.size.positive?
+          if format.is_a?(Enumerable)
+            validate!(:formats, format)
           else
-            raise MimeActor::FormatFilterInvalid
+            validate!(:format, format)
           end
         end
 
         if action.present?
-          case action
-          when Symbol, Enumerable
-            raise MimeActor::ActionFilterInvalid if action.is_a?(Enumerable) && !action.reduce { |a| a.is_a?(Symbol) }
+          if action.is_a?(Enumerable)
+            validate!(:actions, action)
           else
-            raise MimeActor::ActionFilterInvalid
+            validate!(:action, action)
           end
         end
 
         klazzes.each do |klazz|
-          error = if klazz.is_a?(Module)
+          error = case klazz
+                  when Module
                     klazz.name
-                  elsif klazz.is_a?(String)
+                  when String
                     klazz
                   else
-                    raise ArgumentError,
-                          "#{klazz.inspect} must be a class/module or a String referencing a class/module"
+                    message = "#{klazz.inspect} must be a Class/Module or a String referencing a Class/Module"
+                    raise ArgumentError, message
                   end
 
           # append at the end because strategies are read in reverse.
