@@ -12,4 +12,5 @@ module MimeActor
   autoload :Scene
   autoload :Stage
   autoload :Rescue
+  autoload :Validator
 end
