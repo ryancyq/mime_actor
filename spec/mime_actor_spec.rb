@@ -5,7 +5,7 @@ require "mime_actor"
 
 RSpec.describe MimeActor do
   [
-    "MimeActor::Act",
+    "MimeActor::Action",
     "MimeActor::Scene",
     "MimeActor::Stage",
     "MimeActor::Rescue",
