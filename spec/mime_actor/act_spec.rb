@@ -10,7 +10,7 @@ RSpec.describe MimeActor::Act do
   describe "ActiveSupport#on_load" do
     it "allows customization" do
       expect do
-        ActiveSupport.on_load :mime_actor do |config|
+        ActiveSupport.on_load :mime_actor do
           def patch
             "patch my stuff"
           end
