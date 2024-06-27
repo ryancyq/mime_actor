@@ -10,7 +10,7 @@ require "abstract_controller/rendering"
 require "action_controller/metal/mime_responds"
 
 module MimeActor
-  module Act
+  module Action
     extend ActiveSupport::Concern
 
     include AbstractController::Rendering # required by MimeResponds

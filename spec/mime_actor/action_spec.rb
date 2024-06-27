@@ -4,7 +4,7 @@ require "mime_actor/act"
 
 require "active_support/logger"
 
-RSpec.describe MimeActor::Act do
+RSpec.describe MimeActor::Action do
   let(:klazz) { Class.new.include described_class }
 
   describe "ActiveSupport#on_load" do
