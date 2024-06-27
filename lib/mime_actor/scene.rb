@@ -44,11 +44,11 @@ module MimeActor
 
             class_eval(
               # def index
-              #   self.cue_actor(:play_scene, :index)
+              #   self.respond_to?(:start_scene) && self.start_scene(:index)
               # end
               <<-RUBY, __FILE__, __LINE__ + 1
                 def #{action}
-                  self.cue_actor(:play_scene, :#{action})
+                  self.respond_to?(:start_scene) && self.start_scene(:#{action})
                 end
               RUBY
             )

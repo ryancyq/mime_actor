@@ -95,27 +95,27 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
     end
   end
 
-  describe "when #play_scene is defined for #{scene_name || "the scene"}" do
+  describe "when #start_scene is defined for #{scene_name || "the scene"}" do
     let(:klazz_instance) { klazz.new }
 
-    before { klazz.define_method(:play_scene) { |action_name| "play a scene with #{action_name}" } }
+    before { klazz.define_method(:start_scene) { |action_name| "start a scene with #{action_name}" } }
 
     it "called by the newly defined action method" do
       expect { compose }.not_to raise_error
-      allow(klazz_instance).to receive(:play_scene).and_call_original
+      allow(klazz_instance).to receive(:start_scene).and_call_original
       expected_scenes.each_key do |action_name|
-        expect(klazz_instance.send(action_name)).to eq "play a scene with #{action_name}"
-        expect(klazz_instance).to have_received(:play_scene).with(action_name)
+        expect(klazz_instance.send(action_name)).to eq "start a scene with #{action_name}"
+        expect(klazz_instance).to have_received(:start_scene).with(action_name)
       end
     end
   end
 
-  describe "when #play_scene is undefined for #{scene_name || "the scene"}" do
+  describe "when #start_scene is undefined for #{scene_name || "the scene"}" do
     let(:klazz_instance) { klazz.new }
 
     it "does not get called by the newly defined action method" do
+      expect(klazz).not_to be_method_defined(:start_scene)
       expect { compose }.not_to raise_error
-      expect(klazz).not_to be_method_defined(:play_scene)
       expected_scenes.each_key do |action_name|
         expect(klazz_instance.send(action_name)).to be_falsey
       end

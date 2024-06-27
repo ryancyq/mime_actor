@@ -1,20 +1,16 @@
 # frozen_string_literal: true
 
 require "mime_actor/errors"
+require "mime_actor/logging"
 
 require "active_support/concern"
-require "active_support/configurable"
 require "active_support/core_ext/module/attribute_accessors"
-require "set" # required by mime_type with ruby <= 3.1
-require "action_dispatch/http/mime_type"
-require "abstract_controller/logger"
 
 module MimeActor
   module Stage
     extend ActiveSupport::Concern
 
-    include ActiveSupport::Configurable
-    include AbstractController::Logger
+    include Logging
 
     included do
       mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
@@ -26,6 +22,14 @@ module MimeActor
 
         instance_methods.include?(actor_name.to_sym)
       end
+
+      def dispatch_cue(action: nil, format: nil, context: self, &block)
+        lambda do
+          context.instance_exec(&block)
+        rescue StandardError => e
+          (respond_to?(:rescue_actor) && rescue_actor(e, action:, format:, context:)) || raise
+        end
+      end
     end
 
     def actor?(actor_name)
@@ -34,17 +38,13 @@ module MimeActor
       methods.include?(actor_name.to_sym)
     end
 
-    def find_actor(actor_name)
-      return method(actor_name) if actor?(actor_name)
-
-      error = MimeActor::ActorNotFound.new(actor_name)
-      raise error if raise_on_missing_actor
-
-      logger.warn { "Actor not found: #{error.inspect}" }
-    end
-
     def cue_actor(actor_name, *args)
-      return unless actor?(actor_name)
+      unless self.class.actor?(actor_name)
+        raise MimeActor::ActorNotFound, actor_name if raise_on_missing_actor
+
+        logger.warn { "actor not found, got: #{actor_name}" }
+        return
+      end
 
       result = public_send(actor_name, *args)
       if block_given?

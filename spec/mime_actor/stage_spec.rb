@@ -139,124 +139,91 @@ RSpec.describe MimeActor::Stage do
     end
   end
 
-  describe "#find_actor" do
-    subject(:find) { controller.find_actor(actor_name) }
+  describe "#dispatch_cue" do
+    let(:stub_proc) { proc { to_s } }
 
-    let(:controller) { klazz.new }
-    let(:stub_logger) { instance_double(ActiveSupport::Logger) }
+    it "returns a Proc" do
+      dispatch = klazz.dispatch_cue(&stub_proc)
+      expect(dispatch).to be_a(Proc)
+      expect(dispatch).not_to eq stub_proc
+    end
 
-    before { klazz.config.logger = stub_logger }
+    context "with context" do
+      let(:object_class) { stub_const "MyObject", Class.new }
+      let(:object_instance) { object_class.new }
 
-    context "when actor exists" do
-      before { klazz.define_method(:supporting_actor) { "supporting" } }
-
-      context "with actor name in Symbol" do
-        let(:actor_name) { :supporting_actor }
-
-        it { is_expected.to eq controller.method(:supporting_actor) }
+      it "invokes under class context" do
+        dispatch = klazz.dispatch_cue(context: object_class, &stub_proc)
+        expect(dispatch.call).to eq "MyObject"
+        expect(stub_proc.call).to match(/RSpec::.*DispatchCue::WithContext:/)
       end
 
-      context "with actor name in String" do
-        let(:actor_name) { "supporting_actor" }
-
-        it { is_expected.to eq controller.method(:supporting_actor) }
+      it "invokes under object context" do
+        dispatch = klazz.dispatch_cue(context: object_instance, &stub_proc)
+        expect(dispatch.call).to match(/MyObject:/)
+        expect(stub_proc.call).to match(/RSpec::.*DispatchCue::WithContext/)
       end
     end
 
-    context "when actor does not exist" do
-      context "with actor name in Symbol" do
-        let(:actor_name) { :supporting_actor }
+    describe "rescue_actor" do
+      before { klazz.define_singleton_method(:rescue_actor) { |*_args| "rescue" } }
 
-        it "logs warning message" do
-          allow(stub_logger).to receive(:warn)
-          expect(find).to be_nil
-          expect(stub_logger).to have_received(:warn) do |&block|
-            expect(block.call).to eq(
-              "Actor not found: <MimeActor::ActorNotFound> :supporting_actor not found"
+      describe "when error is handled" do
+        let(:object_instance) { Object.new }
+
+        it "does not bubbles up" do
+          allow(klazz).to receive(:rescue_actor).and_return(true)
+          dispatch = klazz.dispatch_cue(
+            action:  :abc,
+            format:  "xyz",
+            context: object_instance
+          ) { raise "my error" }
+
+          expect { dispatch.call }.not_to raise_error
+          expect(klazz).to have_received(:rescue_actor).with(
+            kind_of(RuntimeError),
+            a_hash_including(
+              action:  :abc,
+              format:  "xyz",
+              context: object_instance
             )
-          end
-        end
-
-        context "when raise_on_missing_actor" do
-          before { klazz.raise_on_missing_actor = true }
-
-          it "raises error" do
-            expect { find }.to raise_error(MimeActor::ActorNotFound, ":supporting_actor not found")
-          end
-        end
-      end
-
-      context "with actor name in String" do
-        let(:actor_name) { "supporting_actor" }
-
-        it "logs warning message" do
-          allow(stub_logger).to receive(:warn)
-          expect(find).to be_nil
-          expect(stub_logger).to have_received(:warn) do |&block|
-            expect(block.call).to eq(
-              "Actor not found: <MimeActor::ActorNotFound> :supporting_actor not found"
-            )
-          end
-        end
-
-        context "when raise_on_missing_actor" do
-          before { klazz.raise_on_missing_actor = true }
-
-          it "raises error" do
-            expect { find }.to raise_error(MimeActor::ActorNotFound, ":supporting_actor not found")
-          end
-        end
-      end
-    end
-
-    context "when actor exists in action_methods" do
-      let(:actor_name) { :create_json }
-
-      before do
-        klazz.define_method(:create_json) { "create" }
-        klazz.define_method(:action_methods) { ["create_json"] }
-      end
-
-      it { is_expected.to eq controller.method(:create_json) }
-    end
-
-    context "when actor does not exist in action_methods" do
-      let(:actor_name) { :missing_actor }
-
-      before do
-        klazz.define_method(:action_methods) { [] }
-      end
-
-      it "logs warning message" do
-        allow(stub_logger).to receive(:warn)
-        expect(find).to be_nil
-        expect(stub_logger).to have_received(:warn) do |&block|
-          expect(block.call).to eq(
-            "Actor not found: <MimeActor::ActorNotFound> :missing_actor not found"
           )
         end
       end
 
-      context "when raise_on_missing_actor" do
-        before { klazz.raise_on_missing_actor = true }
+      describe "when error is not handled" do
+        it "bubbles up" do
+          allow(klazz).to receive(:rescue_actor)
+          dispatch = klazz.dispatch_cue { raise "my error" }
 
-        it "raises error" do
-          expect { find }.to raise_error(MimeActor::ActorNotFound, ":missing_actor not found")
+          expect { dispatch.call }.to raise_error do |ex|
+            expect(ex).to be_a(RuntimeError)
+            expect(ex.message).to eq "my error"
+          end
+          expect(klazz).to have_received(:rescue_actor)
         end
       end
     end
   end
 
   describe "#cue_actor" do
-    subject { controller.cue_actor(actor_name, *acting_instructions) }
-
-    let(:controller) { klazz.new }
+    let(:cue) { klazz_instance.cue_actor(actor_name, *acting_instructions) }
+    let(:klazz_instance) { klazz.new }
     let(:acting_instructions) { [] }
+    let(:stub_logger) { instance_double(ActiveSupport::Logger) }
+
+    before { klazz.config.logger = stub_logger }
 
     context "when actor does not exist" do
       let(:actor_name) { :unknown_actor }
 
-      it { is_expected.to be_nil }
+      it "returns nil" do
+        allow(stub_logger).to receive(:warn).and_yield
+        expect(cue).to be_nil
+        expect(stub_logger).to have_received(:warn) do |&block|
+          expect(block.call).to eq "actor not found, got: unknown_actor"
+        end
+      end
     end
 
     context "when actor exists" do
@@ -271,7 +238,9 @@ RSpec.describe MimeActor::Stage do
           end
         end
 
-        it { is_expected.to eq "shed tears of joy when overheard the news" }
+        it "returns result from actor" do
+          expect(cue).to eq "shed tears of joy when overheard the news"
+        end
       end
 
       context "without insturctions" do
@@ -279,11 +248,13 @@ RSpec.describe MimeActor::Stage do
           klazz.define_method(actor_name) { "a meaningless truth" }
         end
 
-        it { is_expected.to eq "a meaningless truth" }
+        it "returns result from actor" do
+          expect(cue).to eq "a meaningless truth"
+        end
       end
 
       context "with block passed" do
-        let(:cue) { controller.cue_actor(actor_name, *acting_instructions, &another_block) }
+        let(:cue) { klazz_instance.cue_actor(actor_name, *acting_instructions, &another_block) }
         let(:another_block) { ->(num) { num**num } }
 
         before do

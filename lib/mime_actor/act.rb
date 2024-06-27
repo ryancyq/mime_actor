@@ -14,38 +14,27 @@ module MimeActor
 
     include AbstractController::Rendering # required by MimeResponds
     include ActionController::MimeResponds
+
     include Scene
     include Stage
     include Rescue
+    include Logging
 
-    module ClassMethods
-      def dispatch_act(action: nil, format: nil, context: self, &block)
-        lambda do
-          context.instance_exec(&block)
-        rescue StandardError => e
-          (respond_to?(:rescue_actor) && rescue_actor(e, action:, format:, context:)) || raise
-        end
-      end
-    end
-
-    private
-
-    def play_scene(action)
+    def start_scene(action)
       action = action&.to_sym
-      return unless acting_scenes.key?(action)
+      formats = acting_scenes.fetch(action, Set.new)
 
-      mime_types = acting_scenes.fetch(action, Set.new)
+      if formats.empty?
+        logger.warn { "format is empty, action: #{action}" }
+        return
+      end
+
       respond_to do |collector|
-        mime_types.each do |mime_type|
-          next unless (actor = find_actor("#{action}_#{mime_type}"))
-
-          dispatch = self.class.dispatch_act(
-            action:  action,
-            format:  mime_type,
-            context: self,
-            &actor
-          )
-          collector.public_send(mime_type, &dispatch)
+        formats.each do |format|
+          dispatch = self.class.dispatch_cue(action: action, format: format, context: self) do
+            cue_actor("#{action}_#{format}")
+          end
+          collector.public_send(format, &dispatch)
         end
       end
     end
