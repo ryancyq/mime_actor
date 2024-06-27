@@ -2,14 +2,25 @@
 
 require "active_support/core_ext/array/wrap"
 
-RSpec.shared_examples "rescuable error filter" do |error_name|
+RSpec.shared_examples "rescuable error filter" do |error_name, acceptance: true|
   include_context "with rescuable filter"
 
-  it "accepts #{error_name || "the error"}" do
-    expect { rescuable }.not_to raise_error
+  if acceptance
+    it "accepts #{error_name || "the error"}" do
+      expect { rescuable }.not_to raise_error
 
-    error_filters.each do |filter|
-      expect(klazz.actor_rescuers).to include([filter.name, nil, nil, kind_of(Symbol)])
+      error_filters.each do |filter|
+        filter_name = filter.respond_to?(:name) ? filter.name : filter
+        expect(klazz.actor_rescuers).to include([filter_name, nil, nil, kind_of(Symbol)])
+      end
+    end
+  else
+    let(:error_class_raised) { ArgumentError }
+    let(:error_message_raised) { "" }
+
+    it "rejects #{error_name || "the error"}" do
+      expect { rescuable }.to raise_error(error_class_raised, error_message_raised)
+      expect(klazz.actor_rescuers).to be_empty
     end
   end
 end

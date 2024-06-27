@@ -17,6 +17,7 @@ RSpec.shared_context "with rescuable filter" do |*filters|
     let(:format_filters) { Array.wrap(format_filter) }
     let(:format_params) { format_filters.size > 1 ? format_filters : format_filters.first }
   end
+
   let(:rescuable) do
     options = {
       action: filters.include?(:action) ? action_params : nil,
