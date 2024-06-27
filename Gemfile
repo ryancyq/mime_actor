@@ -10,6 +10,8 @@ gem "rake", ">= 10.0"
 
 group :development, :test do
   gem "rspec", "~> 3.12"
+  gem "simplecov", "~> 0.21.2", require: false
+  gem "simplecov-cobertura", require: false
 end
 
 group :development do
