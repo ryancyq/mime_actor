@@ -3,7 +3,7 @@
 require "active_support/core_ext/array/wrap"
 
 RSpec.shared_examples "rescuable error filter accepted" do |error_name|
-  include_context "rescuable filter"
+  include_context "with rescuable filter"
 
   it "accepts #{error_name || "the error"}" do
     expect { rescuable }.not_to raise_error
@@ -15,7 +15,7 @@ RSpec.shared_examples "rescuable error filter accepted" do |error_name|
 end
 
 RSpec.shared_examples "rescuable format filter accepted" do |format_name|
-  include_context "rescuable filter", :format
+  include_context "with rescuable filter", :format
 
   it "accepts #{format_name || "the format"}" do
     expect { rescuable }.not_to raise_error
@@ -26,7 +26,7 @@ RSpec.shared_examples "rescuable format filter accepted" do |format_name|
 end
 
 RSpec.shared_examples "rescuable format filter rejected" do |format_name|
-  include_context "rescuable filter", :format
+  include_context "with rescuable filter", :format
 
   let(:error_class_raised) { MimeActor::FormatFilterInvalid }
   let(:error_message_raised) { "Format filter must be Symbol or Enumerable" }
@@ -38,7 +38,7 @@ RSpec.shared_examples "rescuable format filter rejected" do |format_name|
 end
 
 RSpec.shared_examples "rescuable action filter accepted" do |action_name|
-  include_context "rescuable filter", :action
+  include_context "with rescuable filter", :action
 
   it "accepts #{action_name || "the format"}" do
     expect { rescuable }.not_to raise_error
@@ -47,7 +47,7 @@ RSpec.shared_examples "rescuable action filter accepted" do |action_name|
 end
 
 RSpec.shared_examples "rescuable action filter rejected" do |action_name|
-  include_context "rescuable filter", :action
+  include_context "with rescuable filter", :action
 
   let(:error_class_raised) { MimeActor::ActionFilterInvalid }
   let(:error_message_raised) { "Action filter must be Symbol or Enumerable" }
@@ -77,7 +77,7 @@ RSpec.shared_examples "rescuable with handler rejected" do |handler_name, _handl
 end
 
 RSpec.shared_examples "rescuable actor handler rescued" do |actor_handler_name|
-  include_context "rescuable actor handler"
+  include_context "with rescuable actor handler"
 
   it "rescues #{actor_handler_name || "the actor handler"}" do
     expect(rescuable).to eq error_instance
@@ -85,7 +85,7 @@ RSpec.shared_examples "rescuable actor handler rescued" do |actor_handler_name|
 end
 
 RSpec.shared_examples "rescuable actor handler skipped" do |actor_handler_name|
-  include_context "rescuable actor handler"
+  include_context "with rescuable actor handler"
 
   it "skips #{actor_handler_name || "the actor handler"}" do
     expect(rescuable).to be_nil

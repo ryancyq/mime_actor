@@ -15,6 +15,19 @@ Style/BlockComments:
   Exclude:
     - spec/*_helper.rb
 
+Metrics/AbcSize:
+  Enabled: false
+  
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  CountAsOne: ['array', 'heredoc', 'method_call']
+  Max: 15
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
@@ -32,7 +45,14 @@ Layout/HashAlignment:
   EnforcedColonStyle: table
 
 RSpec/MultipleExpectations:
-  Enabled: false
+  Max: 6
 
 RSpec/ExampleLength:
-  Enabled: false
+  CountAsOne: ['array', 'heredoc', 'method_call']
+  Max: 10
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+RSpec/NestedGroups:
+  Max: 5

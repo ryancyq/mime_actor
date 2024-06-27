@@ -2,7 +2,7 @@
 
 require "active_support/core_ext/array/wrap"
 
-RSpec.shared_context "rescuable filter" do |*filters|
+RSpec.shared_context "with rescuable filter" do |*filters|
   let(:error_filter) { StandardError }
   let(:error_filters) { Array.wrap(error_filter) }
 
@@ -27,7 +27,7 @@ RSpec.shared_context "rescuable filter" do |*filters|
   end
 end
 
-RSpec.shared_context "rescuable actor handler" do
+RSpec.shared_context "with rescuable actor handler" do
   let(:error_instance) { error_class.new "my error" }
   let(:action_filter) { nil }
   let(:format_filter) { nil }

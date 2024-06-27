@@ -3,7 +3,7 @@
 require "active_support/core_ext/array/wrap"
 
 RSpec.shared_examples "composable scene action accepted" do |action_name|
-  include_context "scene composition"
+  include_context "with scene composition"
 
   it "accepts #{action_name || "the action"}" do
     expect(klazz.acting_scenes).to be_empty
@@ -14,7 +14,7 @@ RSpec.shared_examples "composable scene action accepted" do |action_name|
 end
 
 RSpec.shared_examples "composable scene action rejected" do |action_name|
-  include_context "scene composition"
+  include_context "with scene composition"
 
   let(:error_class_raised) { MimeActor::ActionFilterInvalid }
   let(:error_message_raised) { "Action filter must be Symbol" }
@@ -27,7 +27,7 @@ RSpec.shared_examples "composable scene action rejected" do |action_name|
 end
 
 RSpec.shared_examples "composable scene format accepted" do |format_name|
-  include_context "scene composition"
+  include_context "with scene composition"
 
   it "accepts #{format_name || "the format"}" do
     expect(klazz.acting_scenes).to be_empty
@@ -38,7 +38,7 @@ RSpec.shared_examples "composable scene format accepted" do |format_name|
 end
 
 RSpec.shared_examples "composable scene format rejected" do |format_name|
-  include_context "scene composition"
+  include_context "with scene composition"
 
   let(:error_class_raised) { MimeActor::FormatInvalid }
   let(:error_message_raised) { /Invalid format:/ }
@@ -50,7 +50,7 @@ RSpec.shared_examples "composable scene format rejected" do |format_name|
 end
 
 RSpec.shared_examples "composable scene action method" do |scene_name|
-  include_context "scene composition"
+  include_context "with scene composition"
 
   let(:expected_scenes) do
     action_filters.each_with_object({}) do |action_name, result|
