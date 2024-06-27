@@ -139,11 +139,24 @@ RSpec.describe MimeActor::Stage do
     context "when actor does not exist" do
       let(:actor_name) { :unknown_actor }
 
+      before { allow(stub_logger).to receive(:warn).and_yield }
+
       it "returns nil" do
-        allow(stub_logger).to receive(:warn).and_yield
+        expect(cue).to be_nil
+      end
+
+      it "logs a warning message" do
         expect(cue).to be_nil
         expect(stub_logger).to have_received(:warn) do |&block|
           expect(block.call).to eq "actor not found, got: unknown_actor"
+        end
+      end
+
+      context "when raise_on_missing_actor is set" do
+        before { klazz.raise_on_missing_actor = true }
+
+        it "raises #{MimeActor::ActorNotFound}" do
+          expect { cue }.to raise_error(MimeActor::ActorNotFound, ":unknown_actor not found")
         end
       end
     end
