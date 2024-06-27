@@ -5,6 +5,7 @@ require "mime_actor/stage"
 require "mime_actor/rescue"
 
 require "active_support/concern"
+require "active_support/lazy_load_hooks"
 require "abstract_controller/rendering"
 require "action_controller/metal/mime_responds"
 
@@ -38,5 +39,7 @@ module MimeActor
         end
       end
     end
+
+    ActiveSupport.run_load_hooks(:mime_actor, self)
   end
 end

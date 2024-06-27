@@ -5,6 +5,21 @@ require "mime_actor/act"
 RSpec.describe MimeActor::Act do
   let(:klazz) { Class.new.include described_class }
 
+  describe "ActiveSupport#on_load" do
+    it "allows customization" do
+      expect do
+        ActiveSupport.on_load :mime_actor do |config|
+          def patch
+            "patch my stuff"
+          end
+        end
+      end.not_to raise_error
+
+      expect(described_class).to be_method_defined(:patch)
+      expect(klazz.new.patch).to eq "patch my stuff"
+    end
+  end
+
   describe "#start_scene" do
     let(:start) { klazz_instance.start_scene(:create) }
     let(:klazz_instance) { klazz.new }
