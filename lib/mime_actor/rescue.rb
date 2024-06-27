@@ -26,19 +26,19 @@ module MimeActor
         validate!(:with, with, block)
         with = block if block_given?
 
-        if format.present?
-          if format.is_a?(Enumerable)
-            validate!(:formats, format)
-          else
-            validate!(:format, format)
-          end
-        end
-
         if action.present?
           if action.is_a?(Enumerable)
             validate!(:actions, action)
           else
             validate!(:action, action)
+          end
+        end
+
+        if format.present?
+          if format.is_a?(Enumerable)
+            validate!(:formats, format)
+          else
+            validate!(:format, format)
           end
         end
 
