@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "mime_actor/act"
+require "mime_actor/action"
 
 require "active_support/logger"
 
