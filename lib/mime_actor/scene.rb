@@ -34,7 +34,7 @@ module MimeActor
 
         options.each do |format|
           Array.wrap(actions).each do |action|
-            action_defined = instance_methods.include?(action.to_sym) || private_instance_methods.include?(action.to_sym)
+            action_defined = (instance_methods + private_instance_methods).include?(action.to_sym)
             raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && action_defined
 
             acting_scenes[action] ||= Set.new
