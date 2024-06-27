@@ -2,51 +2,47 @@
 
 require "active_support/core_ext/array/wrap"
 
-RSpec.shared_examples "composable scene action accepted" do |action_name|
+RSpec.shared_examples "composable scene action" do |action_name, acceptance: true|
   include_context "with scene composition"
 
-  it "accepts #{action_name || "the action"}" do
-    expect(klazz.acting_scenes).to be_empty
-    expect { compose }.not_to raise_error
-    expect(klazz.acting_scenes).not_to be_empty
-    expect(klazz.acting_scenes.keys).to match_array(action_filters)
+  if acceptance
+    it "accepts #{action_name || "the action"}" do
+      expect(klazz.acting_scenes).to be_empty
+      expect { compose }.not_to raise_error
+      expect(klazz.acting_scenes).not_to be_empty
+      expect(klazz.acting_scenes.keys).to match_array(action_filters)
+    end
+  else
+    let(:error_class_raised) { ArgumentError }
+    let(:error_message_raised) { "action must be a Symbol" }
+
+    it "rejects #{action_name || "the action"}" do
+      expect(klazz.acting_scenes).to be_empty
+      expect { compose }.to raise_error(error_class_raised, error_message_raised)
+      expect(klazz.acting_scenes.keys).not_to include([])
+    end
   end
 end
 
-RSpec.shared_examples "composable scene action rejected" do |action_name|
+RSpec.shared_examples "composable scene format" do |format_name, acceptance: true|
   include_context "with scene composition"
 
-  let(:error_class_raised) { ArgumentError }
-  let(:error_message_raised) { "action must be a Symbol" }
+  if acceptance
+    it "accepts #{format_name || "the format"}" do
+      expect(klazz.acting_scenes).to be_empty
+      expect { compose }.not_to raise_error
+      expect(klazz.acting_scenes).not_to be_empty
+      expect(klazz.acting_scenes.values.reduce(:|)).to match_array(format_filters)
+    end
+  else
+    let(:error_class_raised) { NameError }
+    let(:error_message_raised) { /invalid formats, got:/ }
 
-  it "rejects #{action_name || "the action"}" do
-    expect(klazz.acting_scenes).to be_empty
-    expect { compose }.to raise_error(error_class_raised, error_message_raised)
-    expect(klazz.acting_scenes.keys).not_to include([])
-  end
-end
-
-RSpec.shared_examples "composable scene format accepted" do |format_name|
-  include_context "with scene composition"
-
-  it "accepts #{format_name || "the format"}" do
-    expect(klazz.acting_scenes).to be_empty
-    expect { compose }.not_to raise_error
-    expect(klazz.acting_scenes).not_to be_empty
-    expect(klazz.acting_scenes.values.reduce(:|)).to match_array(format_filters)
-  end
-end
-
-RSpec.shared_examples "composable scene format rejected" do |format_name|
-  include_context "with scene composition"
-
-  let(:error_class_raised) { NameError }
-  let(:error_message_raised) { /invalid formats, got:/ }
-
-  it "rejects #{format_name || "the format"}" do
-    expect(klazz.acting_scenes).to be_empty
-    expect { compose }.to raise_error(error_class_raised, error_message_raised)
-    expect(klazz.acting_scenes).to be_empty
+    it "rejects #{format_name || "the format"}" do
+      expect(klazz.acting_scenes).to be_empty
+      expect { compose }.to raise_error(error_class_raised, error_message_raised)
+      expect(klazz.acting_scenes).to be_empty
+    end
   end
 end
 

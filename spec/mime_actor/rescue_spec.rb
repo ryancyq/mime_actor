@@ -13,19 +13,19 @@ RSpec.describe MimeActor::Rescue do
         expect { klazz.rescue_actor_from }.to raise_error(ArgumentError, "error filter is required")
       end
 
-      it_behaves_like "rescuable error filter accepted", "Class" do
+      it_behaves_like "rescuable error filter", "Class" do
         let(:error_filter) { stub_const "MyClass", Class.new }
       end
-      it_behaves_like "rescuable error filter accepted", "Module" do
+      it_behaves_like "rescuable error filter", "Module" do
         let(:error_filter) { stub_const "MyModule", Module.new }
       end
-      it_behaves_like "rescuable error filter accepted", "Class with namespace" do
+      it_behaves_like "rescuable error filter", "Class with namespace" do
         let(:error_filter) { stub_const "#{stub_namespace}::AnotherClass", Class.new }
       end
-      it_behaves_like "rescuable error filter accepted", "Module with namespace" do
+      it_behaves_like "rescuable error filter", "Module with namespace" do
         let(:error_filter) { stub_const "#{stub_namespace}::AnotherModule", Module.new }
       end
-      it_behaves_like "rescuable error filter accepted", "Multiple errors" do
+      it_behaves_like "rescuable error filter", "Multiple errors" do
         let(:error_filters) do
           [
             stub_const("MyClass", Class.new),
@@ -40,21 +40,21 @@ RSpec.describe MimeActor::Rescue do
 
     describe "#format" do
       describe "supported format" do
-        it_behaves_like "rescuable format filter accepted", "Symbol" do
+        it_behaves_like "rescuable format filter", "Symbol" do
           let(:format_filter) { :json }
         end
-        it_behaves_like "rescuable format filter accepted", "Array of Symbol" do
+        it_behaves_like "rescuable format filter", "Array of Symbol" do
           let(:format_filters) { %i[json html] }
         end
-        it_behaves_like "rescuable format filter rejected", "String" do
+        it_behaves_like "rescuable format filter", "String", acceptance: false do
           let(:format_filter) { "json" }
         end
-        it_behaves_like "rescuable format filter rejected", "Array of String" do
+        it_behaves_like "rescuable format filter", "Array of String", acceptance: false do
           let(:format_filters) { %w[json html] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: json, html" }
         end
-        it_behaves_like "rescuable format filter rejected", "Array of Symbol/String" do
+        it_behaves_like "rescuable format filter", "Array of Symbol/String", acceptance: false do
           let(:format_filters) { [:json, "html"] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: html" }
@@ -62,25 +62,25 @@ RSpec.describe MimeActor::Rescue do
       end
 
       describe "unsupported format" do
-        it_behaves_like "rescuable format filter rejected", "Symbol" do
+        it_behaves_like "rescuable format filter", "Symbol", acceptance: false do
           let(:format_filter) { :my_json }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid format, got: my_json" }
         end
-        it_behaves_like "rescuable format filter rejected", "Array of Symbol" do
+        it_behaves_like "rescuable format filter", "Array of Symbol", acceptance: false do
           let(:format_filters) { %i[json my_json html my_html] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: my_json, my_html" }
         end
-        it_behaves_like "rescuable format filter rejected", "String" do
+        it_behaves_like "rescuable format filter", "String", acceptance: false do
           let(:format_filter) { "my_json" }
         end
-        it_behaves_like "rescuable format filter rejected", "Array of String" do
+        it_behaves_like "rescuable format filter", "Array of String", acceptance: false do
           let(:format_filters) { %w[json my_json html my_html] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: json, my_json, html, my_html" }
         end
-        it_behaves_like "rescuable format filter rejected", "Array of Symbol/String" do
+        it_behaves_like "rescuable format filter", "Array of Symbol/String", acceptance: false do
           let(:format_filters) { [:json, :my_json, "html", "my_html"] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: my_json, html, my_html" }
@@ -89,16 +89,16 @@ RSpec.describe MimeActor::Rescue do
     end
 
     describe "#action" do
-      it_behaves_like "rescuable action filter accepted", "Symbol" do
+      it_behaves_like "rescuable action filter", "Symbol" do
         let(:action_filter) { :index }
       end
-      it_behaves_like "rescuable action filter accepted", "Array of Symbol" do
+      it_behaves_like "rescuable action filter", "Array of Symbol" do
         let(:action_filters) { %i[debug load] }
       end
-      it_behaves_like "rescuable action filter rejected", "String" do
+      it_behaves_like "rescuable action filter", "String", acceptance: false do
         let(:action_filter) { "index" }
       end
-      it_behaves_like "rescuable action filter rejected", "Array of String" do
+      it_behaves_like "rescuable action filter", "Array of String", acceptance: false do
         let(:action_filters) { %w[debug load] }
         let(:error_class_raised) { NameError }
         let(:error_message_raised) { "invalid actions, got: debug, load" }
@@ -126,19 +126,19 @@ RSpec.describe MimeActor::Rescue do
         end
       end
 
-      it_behaves_like "rescuable with handler accepted", "Proc", Proc do
+      it_behaves_like "rescuable with handler", "Proc", Proc do
         let(:handler) { proc {} }
       end
-      it_behaves_like "rescuable with handler accepted", "Lambda", Proc do
+      it_behaves_like "rescuable with handler", "Lambda", Proc do
         let(:handler) { -> {} }
       end
-      it_behaves_like "rescuable with handler accepted", "Symbol", Symbol do
+      it_behaves_like "rescuable with handler", "Symbol", Symbol do
         let(:handler) { :custom_handler }
       end
-      it_behaves_like "rescuable with handler rejected", "String", String do
+      it_behaves_like "rescuable with handler", "String", String, acceptance: false do
         let(:handler) { "custom_handler" }
       end
-      it_behaves_like "rescuable with handler rejected", "Method", Method do
+      it_behaves_like "rescuable with handler", "Method", Method, acceptance: false do
         let(:handler) { method(:to_s) }
       end
     end
@@ -147,19 +147,19 @@ RSpec.describe MimeActor::Rescue do
   describe "#rescue_actor" do
     let(:error_class) { RuntimeError }
 
-    it_behaves_like "rescuable actor handler skipped", "emtpy actor_rescuers"
-    it_behaves_like "rescuable actor handler skipped", "non-matching actor_rescuers" do
+    it_behaves_like "rescuable actor handler", "emtpy actor_rescuers", acceptance: false
+    it_behaves_like "rescuable actor handler", "non-matching actor_rescuers", acceptance: false do
       before do
         klazz.rescue_actor_from ArgumentError, with: proc {}
         klazz.rescue_actor_from NameError, with: proc {}
       end
     end
 
-    it_behaves_like "rescuable actor handler rescued", "error subclass" do
+    it_behaves_like "rescuable actor handler", "error subclass" do
       let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
       before { klazz.rescue_actor_from RuntimeError, with: proc {} }
     end
-    it_behaves_like "rescuable actor handler rescued", "error matching actor_rescuer" do
+    it_behaves_like "rescuable actor handler", "error matching actor_rescuer" do
       before do
         klazz.rescue_actor_from RuntimeError, with: -> { to_s + "1" }
         klazz.rescue_actor_from ArgumentError, with: -> { to_s + "2" }
@@ -169,7 +169,7 @@ RSpec.describe MimeActor::Rescue do
         expect { rescuable }.not_to raise_error
       end
     end
-    it_behaves_like "rescuable actor handler rescued", "action matching actor_rescuer" do
+    it_behaves_like "rescuable actor handler", "action matching actor_rescuer" do
       let(:action_filter) { :create }
       before do
         klazz.rescue_actor_from RuntimeError, action: :create, with: -> { to_s + "1" }
@@ -180,7 +180,7 @@ RSpec.describe MimeActor::Rescue do
         expect { rescuable }.not_to raise_error
       end
     end
-    it_behaves_like "rescuable actor handler rescued", "format matching actor_rescuer" do
+    it_behaves_like "rescuable actor handler", "format matching actor_rescuer" do
       let(:format_filter) { :json }
       before do
         klazz.rescue_actor_from RuntimeError, format: :xml, with: -> { to_s + "1" }
@@ -192,12 +192,12 @@ RSpec.describe MimeActor::Rescue do
         expect { rescuable }.not_to raise_error
       end
     end
-    it_behaves_like "rescuable actor handler skipped", "error in visited" do
+    it_behaves_like "rescuable actor handler", "error in visited", acceptance: false do
       let(:visited_errors) { [error_instance] }
       before { klazz.rescue_actor_from RuntimeError, with: proc {} }
     end
 
-    it_behaves_like "rescuable actor handler rescued", "action and format matching actor_rescuers" do
+    it_behaves_like "rescuable actor handler", "action and format matching actor_rescuers" do
       let(:error_class) { stub_const "MyError", Class.new(StandardError) }
 
       before { 
@@ -216,7 +216,7 @@ RSpec.describe MimeActor::Rescue do
       end
     end
 
-    it_behaves_like "rescuable actor handler rescued", "multiple matching actor_rescuers" do
+    it_behaves_like "rescuable actor handler", "multiple matching actor_rescuers" do
       before { 
         klazz.rescue_actor_from RuntimeError, with: -> { to_s + "1" }
         klazz.rescue_actor_from RuntimeError, with: -> { to_s + "2" }

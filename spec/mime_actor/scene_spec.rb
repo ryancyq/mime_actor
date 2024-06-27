@@ -7,48 +7,48 @@ RSpec.describe MimeActor::Scene do
 
   describe "#compose_scene" do
     describe "#action" do
-      it_behaves_like "composable scene action rejected", "nil" do
+      it_behaves_like "composable scene action", "nil", acceptance: false do
         let(:action_filter) { nil }
         let(:error_message_raised) { "action is required" }
       end
-      it_behaves_like "composable scene action accepted", "Symbol" do
+      it_behaves_like "composable scene action", "Symbol" do
         let(:action_filter) { :create }
       end
-      it_behaves_like "composable scene action accepted", "Array of Symbol" do
+      it_behaves_like "composable scene action", "Array of Symbol" do
         let(:action_filters) { %i[index create] }
       end
-      it_behaves_like "composable scene action rejected", "String" do
+      it_behaves_like "composable scene action", "String", acceptance: false do
         let(:action_filter) { "create" }
       end
-      it_behaves_like "composable scene action rejected", "Array of String" do
+      it_behaves_like "composable scene action", "Array of String", acceptance: false do
         let(:action_filters) { %w[index create] }
         let(:error_class_raised) { NameError }
         let(:error_message_raised) { "invalid actions, got: index, create" }
       end
-      it_behaves_like "composable scene action rejected", "Array of String/Symbol" do
+      it_behaves_like "composable scene action", "Array of String/Symbol", acceptance: false do
         let(:action_filters) { [:index, "create"] }
         let(:error_class_raised) { NameError }
         let(:error_message_raised) { "invalid actions, got: create" }
       end
-      it_behaves_like "composable scene action accepted", "#new" do
+      it_behaves_like "composable scene action", "#new" do
         let(:action_filter) { :new }
       end
     end
 
     describe "supported format" do
-      it_behaves_like "composable scene format accepted", "Symbol" do
+      it_behaves_like "composable scene format", "Symbol" do
         let(:format_filter) { :xml }
       end
-      it_behaves_like "composable scene format accepted", "Array of Symbol" do
+      it_behaves_like "composable scene format", "Array of Symbol" do
         let(:format_filters) { %i[html xml] }
       end
     end
 
     describe "unsupported format" do
-      it_behaves_like "composable scene format rejected", "Symbol" do
+      it_behaves_like "composable scene format", "Symbol", acceptance: false do
         let(:format_filter) { :my_custom }
       end
-      it_behaves_like "composable scene format rejected", "Array of Symbol" do
+      it_behaves_like "composable scene format", "Array of Symbol", acceptance: false do
         let(:format_filters) { %i[html my_custom xml] }
       end
     end
