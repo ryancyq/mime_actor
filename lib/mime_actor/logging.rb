@@ -12,7 +12,7 @@ module MimeActor
     include ActiveSupport::Configurable
 
     included do
-      config_accessor :logger { ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(STDOUT)) }
+      config_accessor :logger, default: ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(STDOUT))
     end
 
     private
