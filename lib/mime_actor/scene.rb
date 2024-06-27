@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "mime_actor/stage"
+require "mime_actor/errors"
 require "mime_actor/validator"
 
 require "active_support/concern"
@@ -12,7 +12,6 @@ module MimeActor
   module Scene
     extend ActiveSupport::Concern
 
-    include Stage
     include Validator
 
     included do
@@ -35,12 +34,13 @@ module MimeActor
 
         options.each do |format|
           Array.wrap(actions).each do |action|
-            raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && actor?(action)
+            action_defined = instance_methods.include?(action.to_sym) || private_instance_methods.include?(action.to_sym)
+            raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && action_defined
 
             acting_scenes[action] ||= Set.new
             acting_scenes[action] |= [format]
 
-            next if actor?(action)
+            next if action_defined
 
             class_eval(
               # def index
