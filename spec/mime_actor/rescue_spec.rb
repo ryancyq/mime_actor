@@ -36,6 +36,13 @@ RSpec.describe MimeActor::Rescue do
           ]
         end
       end
+      it_behaves_like "rescuable error filter", "String" do
+        let(:error_filter) { "Object" }
+      end
+      it_behaves_like "rescuable error filter", "Integer", acceptance: false do
+        let(:error_filter) { 100 }
+        let(:error_message_raised) { "100 must be a Class/Module or a String referencing a Class/Module" }
+      end
     end
 
     describe "#format" do
