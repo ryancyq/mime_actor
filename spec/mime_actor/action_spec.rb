@@ -54,7 +54,7 @@ RSpec.describe MimeActor::Action do
       it "logs missing formats" do
         expect { start }.not_to raise_error
         expect(stub_logger).to have_received(:warn) do |&block|
-          expect(block.call).to eq "format is empty, action: create"
+          expect(block.call).to eq "format is empty for action :create"
         end
       end
     end
