@@ -40,7 +40,7 @@ module MimeActor
       unless self.class.actor?(actor_name)
         raise MimeActor::ActorNotFound, actor_name if raise_on_missing_actor
 
-        logger.warn { "actor not found, got: #{actor_name}" }
+        logger.warn { "actor not found, expected :#{actor_name}" }
         return
       end
 
