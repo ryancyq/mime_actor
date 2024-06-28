@@ -44,6 +44,8 @@ RSpec.describe MimeActor::Stage do
 
         it { is_expected.to be_truthy }
       end
+
+      pending "as private method"
     end
 
     context "when actor does not exist" do
@@ -200,6 +202,10 @@ RSpec.describe MimeActor::Stage do
           expect(cue).to eq 27
         end
       end
+
+      pending "actor is private method"
+
+      pending "actor is MimeActor internal method"
     end
   end
 end
