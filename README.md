@@ -4,23 +4,88 @@
 [![codecov](https://codecov.io/gh/ryancyq/mime_actor/graph/badge.svg?token=4C091RHXC3)](https://codecov.io/gh/ryancyq/mime_actor)
 [![Build](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml/badge.svg)](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml)
 
-Action rendering and rescue with mime type via configuration in actionpack
+Render + Rescue handlers for different MIME types in Rails
+
+## Usage
+
+MimeActor allows you to do something like below:
+```rb
+class EventsController < ActionController::Base
+    # AbstractController::Callbacks here to load model with params
+    before_action only: :index { @events = Event.all }
+    before_action only: [:show, :update] { @event = Event.find(params.require(:event_id)) }
+
+    compose_scene :html, :json, on: :index
+    compose_scene :html, :json, on: [:show, :update]
+
+    rescue_actor_from ActiveRecord::RecordNotFound, format: :json do |ex|
+        render status: :bad_request, json: { error: "Resouce not found" }
+    end
+
+    rescue_actor_from ActiveRecord::RecordNotFound, format: :html, action: :show do |ex|
+        redirect_to events_path
+    end
+
+    rescue_actor_from ActiveRecord::RecordNotFound, format: :html, action: :update do |ex|
+        render :edit
+    end
+
+    def index_html
+        @event_categories = EventCategory.all
+        render :index # render html using @events and @event_categories
+    end
+
+    def index_json
+        render json: @events # render json using #as_json
+    end
+
+    def show_html
+        render :show # render html using @event
+    end
+
+    def update_html
+        redirect_to event_path(@event.id) # redirect to show upon sucessful update
+    end
+
+    def show_json
+        render json: @event # render json using #as_json
+    end
+
+    def update_json
+        # ...
+        render json: @event # render json using #as_json
+    end
+end
+```
+
+## Features
+
+- Action customisation for ActionController per MIME type
+- Customisation are deduplicated automatically when configured multiple times
+- Flexible rescue handler definition for the combination of Action/MIME type or both
+- Built on top of `ActionController::Metal::MimeResponds`
+- Fully compatible with other `ActionController` functionalities 
+
+## Requirements
+
+- Ruby: MRI 3.1+
+- Rails: 5.0+
 
 ## Installation
 
 Install the gem and add to the application's Gemfile by executing:
-
-    $ bundle add mime_actor
+```sh
+bundle add mime_actor
+```
 
 If bundler is not being used to manage dependencies, install the gem by executing:
-
-    $ gem install mime_actor
-
-## Getting Started
+```sh
+gem install mime_actor
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
