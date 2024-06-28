@@ -26,10 +26,6 @@ class EventsController < ActionController::Base
         redirect_to events_path
     end
 
-    rescue_actor_from ActiveRecord::RecordNotFound, format: :html, action: :update do |ex|
-        render :edit
-    end
-
     def index_html
         @event_categories = EventCategory.all
         render :index # render html using @events and @event_categories
@@ -45,6 +41,8 @@ class EventsController < ActionController::Base
 
     def update_html
         redirect_to event_path(@event.id) # redirect to show upon sucessful update
+    rescue ActiveRecord::RecordNotFound
+        render :edit
     end
 
     def show_json
