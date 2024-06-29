@@ -15,7 +15,9 @@ module MimeActor
   #
   # Scene provides configuration for `action` + `format` definitions
   #
+  # @example register a `html` format on action `index`
   #     compose_scene :html, on: :index
+  # @example register `html`, `json` formats on actions `index`, `show`
   #     compose_scene :html, :json , on: [:index, :show]
   #
   # NOTE: Calling the same `action`/`format` multiple times will overwrite previous `action` + `format` definitions.
@@ -30,8 +32,16 @@ module MimeActor
     end
 
     module ClassMethods
-      ##
       # Register `action` + `format` definitions.
+      #
+      # @param options [Array]
+      # @option options [Array] klazzes the collection of `format`
+      # @option options [Hash] on the collection of `action`
+      #
+      # @example register a `html` format on action `index`
+      #   compose_scene :html, on: :index
+      # @example register `html`, `json` formats on actions `index`, `show`
+      #   compose_scene :html, :json , on: [:index, :show]
       #
       # For each unique `action` being registered, it will have a corresponding `action` method being defined.
       def compose_scene(*options)

@@ -27,8 +27,21 @@ module MimeActor
     include Rescue
     include Logging
 
-    ##
     # The core logic where rendering logics are collected as `Proc` through configuration and passed over to `ActionController::MimeResponds`
+    #
+    # @param action the `action` of the controller
+    #
+    # @example process `create` action
+    #   start_scene(:create)
+    #
+    #   # it is equivalent to the following if `create` action is configured with `html` and `json` formats
+    #   def create
+    #     respond_to |format|
+    #       format.html { public_send(:create_html) }
+    #       format.json { public_send(:create_json) }
+    #     end
+    #   end
+    #
     def start_scene(action)
       action = action&.to_sym
       formats = acting_scenes.fetch(action, Set.new)

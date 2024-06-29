@@ -15,6 +15,9 @@ module MimeActor
   #
   # Simillar to `ActionController::Rescue` but with additional filtering logic on `action`/`format`.
   #
+  # @example Rescue RuntimeError when raised for any action with `json` format
+  #   rescue_actor_from RuntimeError, format: :json, with: :handle_json_error
+  #
   module Rescue
     extend ActiveSupport::Concern
 
@@ -26,14 +29,21 @@ module MimeActor
     end
 
     module ClassMethods
-      ##
       # Registers a rescue handler for the given error classes with `action`/`format` filter
       #
-      #     rescue_actor_from StandardError, format: :json, action: :show do |ex|
-      #       render status: :bad_request, json: { error: ex.message }
-      #     end
+      # @param klazzes the error classes to rescue
+      # @param action the `action` filter
+      # @param format the `format` filter
+      # @param with the rescue hanlder when `block` is not provided
+      # @param block the `block` to evaluate when `with` is not provided
+      #
+      # @example Rescue StandardError when raised for any action with `html` format
+      #   rescue_actor_from StandardError, format: :html, with: :handle_html_error
       #     
-      #     rescue_actor_from StandardError, format: :html, with: :handle_html_error
+      # @example Rescue StandardError when raised for `show` action with `json` format
+      #   rescue_actor_from StandardError, format: :json, action: :show do |ex|
+      #     render status: :bad_request, json: { error: ex.message }
+      #   end
       #
       def rescue_actor_from(*klazzes, action: nil, format: nil, with: nil, &block)
         raise ArgumentError, "error filter is required" if klazzes.empty?
@@ -73,9 +83,16 @@ module MimeActor
         end
       end
 
-      ##
       # Resolve the error provided with the registered handlers.
-      # The handled error will be returned to indicate successful handling
+      #
+      # The handled error will be returned to indicate successful handling.
+      #
+      # @param error the error instance to rescue
+      # @param action the `action` filter
+      # @param format the `format` filter
+      # @param context the context to evaluate for rescue handler
+      # @param visited the errors to skip after no rescue handler matched the filter
+      #
       def rescue_actor(error, action: nil, format: nil, context: self, visited: [])
         return if visited.include?(error)
 

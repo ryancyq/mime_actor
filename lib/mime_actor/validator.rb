@@ -11,12 +11,12 @@ module MimeActor
   #
   # Validator provides validation rules for `action`, `format`, and `with` handlers by default.
   #
-  #     # raise error when rule is violated
-  #     validate!(:action, action_param)
+  # @example Raise error when rule is violated
+  #   validate!(:action, action_param)
   #     
-  #     # return the error when rule is violated
-  #     ex = validate_action(action_param)
-  #     raise ex if error
+  # @example Return the error when rule is violated
+  #   ex = validate_action(action_param)
+  #   raise ex if error
   #
   module Validator
     extend ActiveSupport::Concern
@@ -26,8 +26,9 @@ module MimeActor
     end
 
     module ClassMethods
-      ##
       # Raise the error returned by validator if any.
+      #
+      # @param rule the name of validator
       def validate!(rule, *args)
         validator = "validate_#{rule}"
         raise NameError, "Validator not found, got: #{validator}" unless respond_to?(validator, true)
@@ -36,29 +37,33 @@ module MimeActor
         raise error if error
       end
 
-      ##
-      # validate `action` must be a Symbol
+      # Validate `action` must be a Symbol
+      #
+      # @param unchecked the `action` to be validated
       def validate_action(unchecked)
         ArgumentError.new("action must be a Symbol") unless unchecked.is_a?(Symbol)
       end
 
-      ##
-      # validate `actions` must be a collection of Symbol
+      # Validate `actions` must be a collection of Symbol
+      #
+      # @param unchecked the `actions` to be validated
       def validate_actions(unchecked)
         rejected = unchecked.reject { |action| action.is_a?(Symbol) }
         NameError.new("invalid actions, got: #{rejected.join(", ")}") if rejected.size.positive?
       end
 
-      ##
-      # validate `format` must be a Symbol and a valid MIME type
+      # Validate `format` must be a Symbol and a valid MIME type
+      #
+      # @param unchecked the `format` to be validated
       def validate_format(unchecked)
         return ArgumentError.new("format must be a Symbol") unless unchecked.is_a?(Symbol)
 
         NameError.new("invalid format, got: #{unchecked}") unless scene_formats.include?(unchecked)
       end
 
-      ##
-      # validate `formats` must be an collection of Symbol which each of them is a valid MIME type
+      # Validate `formats` must be an collection of Symbol which each of them is a valid MIME type
+      #
+      # @param unchecked the `formats` to be validated
       def validate_formats(unchecked)
         unfiltered = unchecked.to_set
         filtered = unfiltered & scene_formats
@@ -67,8 +72,10 @@ module MimeActor
         NameError.new("invalid formats, got: #{rejected.join(", ")}") if rejected.size.positive?
       end
 
-      ##
-      # validate `with` or `block` must be provided and if `with` is provided, it must be a Symbol or Proc
+      # Validate `with` or `block` must be provided and if `with` is provided, it must be a Symbol or Proc
+      #
+      # @param unchecked the `with` to be validated
+      # @param block the `block` to be valiated
       def validate_with(unchecked, block)
         if unchecked.present? && block.present?
           return ArgumentError.new("provide either the with: keyword argument or a block")
