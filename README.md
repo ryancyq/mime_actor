@@ -57,6 +57,8 @@ class EventsController < ActionController::Base
 end
 ```
 
+Seems useful? See the [Comparison][doc_comparison] on how it can improve your existing code
+
 ## Features
 
 - Action customisation for [ActionController][doc_action_controller] per MIME type
@@ -106,3 +108,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/ryancy
 
 [doc_action_controller]: https://rubydoc.info/gems/actionpack/ActionController/Metal
 [doc_action_controller_mime_responds]: https://rubydoc.info/gems/actionpack/ActionController/MimeResponds
+[doc_comparison]: https://github.com/ryancyq/mime_actor/blob/main/COMPARE.md
