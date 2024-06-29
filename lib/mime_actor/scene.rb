@@ -13,12 +13,12 @@ require "active_support/core_ext/module/attribute_accessors"
 module MimeActor
   # # MimeActor Scene
   #
-  # Scene provides configuration for Action + Format definitions
+  # Scene provides configuration for `action` + `format` definitions
   #
-  # compose_scene :html, on: :index
-  # compose_scene :html, :json , on: [:index, :show]
+  #     compose_scene :html, on: :index
+  #     compose_scene :html, :json , on: [:index, :show]
   #
-  # NOTE: Calling the same action/format multiple times will overwrite previous Action + Format definitions.
+  # NOTE: Calling the same `action`/`format` multiple times will overwrite previous `action` + `format` definitions.
   #
   module Scene
     extend ActiveSupport::Concern
@@ -31,9 +31,9 @@ module MimeActor
 
     module ClassMethods
       ##
-      # Register Action + Format definitions.
+      # Register `action` + `format` definitions.
       #
-      # For each unique action being registered, it will have a corresponding method being defined.
+      # For each unique `action` being registered, it will have a corresponding `action` method being defined.
       def compose_scene(*options)
         config = options.extract_options!
         validate!(:formats, options)

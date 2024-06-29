@@ -13,7 +13,7 @@ require "active_support/core_ext/string/inflections"
 module MimeActor
   # # MimeActor Rescue
   #
-  # Simillar to ActionController::Rescue but with additional filtering logic on Action/Format.
+  # Simillar to `ActionController::Rescue` but with additional filtering logic on `action`/`format`.
   #
   module Rescue
     extend ActiveSupport::Concern
@@ -27,13 +27,13 @@ module MimeActor
 
     module ClassMethods
       ##
-      # Registers a rescue handler for the given error classes with action/format filter
+      # Registers a rescue handler for the given error classes with `action`/`format` filter
       #
-      # rescue_actor_from StandardError, format: :json, action: :show do |ex|
-      #   render status: :bad_request, json: { error: ex.message }
-      # end
-      #
-      # rescue_actor_from StandardError, format: :html, with: :handle_html_error
+      #     rescue_actor_from StandardError, format: :json, action: :show do |ex|
+      #       render status: :bad_request, json: { error: ex.message }
+      #     end
+      #     
+      #     rescue_actor_from StandardError, format: :html, with: :handle_html_error
       #
       def rescue_actor_from(*klazzes, action: nil, format: nil, with: nil, &block)
         raise ArgumentError, "error filter is required" if klazzes.empty?

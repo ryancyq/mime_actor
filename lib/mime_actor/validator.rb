@@ -9,14 +9,14 @@ require "action_dispatch/http/mime_type"
 module MimeActor
   # # MimeActor Validator
   #
-  # Validator provides validation rules for action, format, and rescue handlers by default.
+  # Validator provides validation rules for `action`, `format`, and `with` handlers by default.
   #
-  # # raise error when rule is violated
-  # validate!(:action, action_param)
-  #
-  # # return the error when rule is violated
-  # ex = validate_action(action_param)
-  # raise ex if error
+  #     # raise error when rule is violated
+  #     validate!(:action, action_param)
+  #     
+  #     # return the error when rule is violated
+  #     ex = validate_action(action_param)
+  #     raise ex if error
   #
   module Validator
     extend ActiveSupport::Concern
@@ -27,7 +27,7 @@ module MimeActor
 
     module ClassMethods
       ##
-      # Raise the error returned by validator if present.
+      # Raise the error returned by validator if any.
       def validate!(rule, *args)
         validator = "validate_#{rule}"
         raise NameError, "Validator not found, got: #{validator}" unless respond_to?(validator, true)
@@ -37,20 +37,20 @@ module MimeActor
       end
 
       ##
-      # validate :action must be a Symbol
+      # validate `action` must be a Symbol
       def validate_action(unchecked)
         ArgumentError.new("action must be a Symbol") unless unchecked.is_a?(Symbol)
       end
 
       ##
-      # validate :actions must be an Array of Symbol
+      # validate `actions` must be a collection of Symbol
       def validate_actions(unchecked)
         rejected = unchecked.reject { |action| action.is_a?(Symbol) }
         NameError.new("invalid actions, got: #{rejected.join(", ")}") if rejected.size.positive?
       end
 
       ##
-      # validate :format must be a Symbol + a valid MIME type
+      # validate `format` must be a Symbol and a valid MIME type
       def validate_format(unchecked)
         return ArgumentError.new("format must be a Symbol") unless unchecked.is_a?(Symbol)
 
@@ -58,7 +58,7 @@ module MimeActor
       end
 
       ##
-      # validate :formats must be an Array of Symbol which each of them is a valid MIME type
+      # validate `formats` must be an collection of Symbol which each of them is a valid MIME type
       def validate_formats(unchecked)
         unfiltered = unchecked.to_set
         filtered = unfiltered & scene_formats
@@ -68,7 +68,7 @@ module MimeActor
       end
 
       ##
-      # validate :with or &block must be provided + :with must be a Symbol or Proc
+      # validate `with` or `block` must be provided and if `with` is provided, it must be a Symbol or Proc
       def validate_with(unchecked, block)
         if unchecked.present? && block.present?
           return ArgumentError.new("provide either the with: keyword argument or a block")

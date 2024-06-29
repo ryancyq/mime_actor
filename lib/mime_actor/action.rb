@@ -12,9 +12,9 @@ require "action_controller/metal/mime_responds"
 module MimeActor
   # # MimeActor Action
   #
-  # Action is the recommended Module to be included in ActionController.
+  # `Action` is the recommended `Module` to be included in the `ActionController`.
   #
-  # Provides intuitive way of action rendering for a specific MIME type with rescue handlers.
+  # Provides intuitive way of `action` rendering for a specific MIME type with rescue handlers.
   #
   module Action
     extend ActiveSupport::Concern
@@ -28,7 +28,7 @@ module MimeActor
     include Logging
 
     ##
-    # The core logic where rendering logics are collected as Proc through configuration and passed over to ActionController::MimeResponds
+    # The core logic where rendering logics are collected as `Proc` through configuration and passed over to `ActionController::MimeResponds`
     def start_scene(action)
       action = action&.to_sym
       formats = acting_scenes.fetch(action, Set.new)
