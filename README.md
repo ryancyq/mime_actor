@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/ryancyq/mime_actor/graph/badge.svg?token=4C091RHXC3)](https://codecov.io/gh/ryancyq/mime_actor)
 [![Build](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml/badge.svg)](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml)
 
-Render + Rescue handlers for different MIME types in Rails
+Action Render + Rescue handlers for different MIME types in Rails
 
 ## Usage
 
