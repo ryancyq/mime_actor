@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mime_actor (0.5.1)
+    mime_actor (0.5.2)
       actionpack (>= 5.0)
       activesupport (>= 5.0)
       rake (>= 11.0)
