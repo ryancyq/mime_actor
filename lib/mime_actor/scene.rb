@@ -80,6 +80,8 @@ module MimeActor
           end
         end
       end
+
+      alias act_on_format compose_scene
     end
   end
 end
