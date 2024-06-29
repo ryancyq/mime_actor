@@ -1,8 +1,8 @@
 # mime_actor
 
-[![Gem Version](https://badge.fury.io/rb/mime_actor.png)](https://badge.fury.io/rb/mime_actor)
-[![codecov](https://codecov.io/gh/ryancyq/mime_actor/graph/badge.svg?token=4C091RHXC3)](https://codecov.io/gh/ryancyq/mime_actor)
-[![Build](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml/badge.svg)](https://github.com/ryancyq/mime_actor/actions/workflows/build.yml)
+[![Version][rubygems_badge]][rubygems]
+[![CI][ci_badge]][ci_workflows]
+[![Coverage][coverage_badge]][coverage]
 
 Action Render + Rescue handlers for different MIME types in Rails
 
@@ -58,11 +58,11 @@ end
 
 ## Features
 
-- Action customisation for ActionController per MIME type
+- Action customisation for [ActionController][doc_action_controller] per MIME type
 - Customisation are deduplicated automatically when configured multiple times
 - Flexible rescue handler definition for the combination of Action/MIME type or both
-- Built on top of `ActionController::Metal::MimeResponds`
-- Fully compatible with other `ActionController` functionalities 
+- Built on top of [ActionController::Metal::MimeResponds][doc_action_controller_mime_responds]
+- Fully compatible with other [ActionController][doc_action_controller] functionalities 
 
 ## Requirements
 
@@ -93,3 +93,13 @@ Please see [LICENSE](https://github.com/ryancyq/mime_actor/blob/main/LICENSE) fo
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/ryancyq/mime_actor.
+
+[rubygems_badge]: https://img.shields.io/gem/v/mime_actor.svg
+[rubygems]: https://rubygems.org/gems/mime_actor
+[ci_badge]: https://github.com/ryancyq/mime_actor/actions/workflows/build.yml/badge.svg
+[ci_workflows]: https://github.com/ryancyq/mime_actor/actions/workflows/
+[coverage_badge]: https://codecov.io/gh/ryancyq/mime_actor/graph/badge.svg?token=4C091RHXC3
+[coverage]: https://codecov.io/gh/ryancyq/mime_actor
+
+[doc_action_controller]: https://rubydoc.info/gems/actionpack/ActionController/Metal
+[doc_action_controller_mime_responds]: https://rubydoc.info/gems/actionpack/ActionController/MimeResponds
