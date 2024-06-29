@@ -10,7 +10,7 @@ require "active_support/tagged_logging"
 
 module MimeActor
   # # MimeActor Logging
-  # 
+  #
   # Provides a configurable logger.
   module Logging
     extend ActiveSupport::Concern

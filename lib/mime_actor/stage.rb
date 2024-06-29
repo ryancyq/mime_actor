@@ -48,7 +48,7 @@ module MimeActor
       #   dispatch = self.class.dispatch_cue(action: :create, format: :json, context: self) do
       #       puts "completed the dispatch"
       #   end
-      #   
+      #
       #   dispatch.call == "completed the dispatch" # true
       #
       def dispatch_cue(action: nil, format: nil, context: self, &block)
@@ -63,7 +63,7 @@ module MimeActor
     end
 
     # Calls the `actor` method if defined, supports passing arguments to the `actor` method.
-    # 
+    #
     # If a block is given, the result from the `actor` method will be yieled to the block.
     #
     # @param actor_name
