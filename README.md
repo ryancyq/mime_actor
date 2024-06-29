@@ -67,6 +67,10 @@ Seems useful? See the [Comparison][doc_comparison] on how it can improve your ex
 - Built on top of [ActionController::Metal::MimeResponds][doc_action_controller_mime_responds]
 - Fully compatible with other [ActionController][doc_action_controller] functionalities 
 
+## Documentation
+
+You can find the documentation on [RubyDoc][doc_mime_actor].
+
 ## Requirements
 
 - Ruby: MRI 3.1+
@@ -106,6 +110,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/ryancy
 [maintainability_badge]: https://api.codeclimate.com/v1/badges/06689606dc3f3945dc1b/maintainability
 [maintainability]: https://codeclimate.com/github/ryancyq/mime_actor/maintainability
 
+[doc_mime_actor]: https://rubydoc.info/gems/mime_actor
 [doc_action_controller]: https://rubydoc.info/gems/actionpack/ActionController/Metal
 [doc_action_controller_mime_responds]: https://rubydoc.info/gems/actionpack/ActionController/MimeResponds
 [doc_comparison]: https://github.com/ryancyq/mime_actor/blob/main/COMPARE.md
