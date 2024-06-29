@@ -3,6 +3,7 @@
 [![Version][rubygems_badge]][rubygems]
 [![CI][ci_badge]][ci_workflows]
 [![Coverage][coverage_badge]][coverage]
+[![Maintainability][maintainability_badge]][maintainability]
 
 Action Render + Rescue handlers for different MIME types in Rails
 
@@ -100,6 +101,8 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/ryancy
 [ci_workflows]: https://github.com/ryancyq/mime_actor/actions/workflows/
 [coverage_badge]: https://codecov.io/gh/ryancyq/mime_actor/graph/badge.svg?token=4C091RHXC3
 [coverage]: https://codecov.io/gh/ryancyq/mime_actor
+[maintainability_badge]: https://api.codeclimate.com/v1/badges/06689606dc3f3945dc1b/maintainability
+[maintainability]: https://codeclimate.com/github/ryancyq/mime_actor/maintainability
 
 [doc_action_controller]: https://rubydoc.info/gems/actionpack/ActionController/Metal
 [doc_action_controller_mime_responds]: https://rubydoc.info/gems/actionpack/ActionController/MimeResponds
