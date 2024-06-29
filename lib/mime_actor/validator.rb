@@ -13,7 +13,7 @@ module MimeActor
   #
   # @example Raise error when rule is violated
   #   validate!(:action, action_param)
-  #     
+  #
   # @example Return the error when rule is violated
   #   ex = validate_action(action_param)
   #   raise ex if error

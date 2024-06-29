@@ -16,9 +16,9 @@ module MimeActor
   # Scene provides configuration for `action` + `format` definitions
   #
   # @example register a `html` format on action `index`
-  #     compose_scene :html, on: :index
+  #     act_on_format :html, on: :index
   # @example register `html`, `json` formats on actions `index`, `show`
-  #     compose_scene :html, :json , on: [:index, :show]
+  #     act_on_format :html, :json , on: [:index, :show]
   #
   # NOTE: Calling the same `action`/`format` multiple times will overwrite previous `action` + `format` definitions.
   #
@@ -80,6 +80,8 @@ module MimeActor
           end
         end
       end
+
+      alias act_on_format compose_scene
     end
   end
 end

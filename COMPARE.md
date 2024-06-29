@@ -27,7 +27,7 @@ class EventsController < ActionController::Base
     before_action only: :index { @events = Event.all }
 
     # dynamically defines the action method according to on: argument
-    compose_scene :html, :json, on: :index 
+    act_on_format :html, :json, on: :index 
 
     def index_html
         @event_categories = EventCategory.all
@@ -92,7 +92,7 @@ class EventsController < ActionController::Base
     # AbstractController::Callbacks here to load model with params
     before_action only: [:show, :update] { @event = Event.find(params.require(:event_id)) }
 
-    compose_scene :html, :json, on: [:show, :update]
+    act_on_format :html, :json, on: [:show, :update]
 
     rescue_actor_from ActiveRecord::RecordNotFound, format: :json do |ex|
         render status: :bad_request, json: { error: ex.message }

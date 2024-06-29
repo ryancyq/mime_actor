@@ -39,7 +39,7 @@ module MimeActor
       #
       # @example Rescue StandardError when raised for any action with `html` format
       #   rescue_actor_from StandardError, format: :html, with: :handle_html_error
-      #     
+      #
       # @example Rescue StandardError when raised for `show` action with `json` format
       #   rescue_actor_from StandardError, format: :json, action: :show do |ex|
       #     render status: :bad_request, json: { error: ex.message }
