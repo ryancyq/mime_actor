@@ -64,6 +64,10 @@ RSpec.describe MimeActor::Stage do
   describe "#dispatch_cue" do
     let(:stub_proc) { proc { to_s } }
 
+    it "requires block" do
+      expect { klazz.dispatch_cue }.to raise_error(ArgumentError, "block must be provided")
+    end
+
     it "returns a Proc" do
       dispatch = klazz.dispatch_cue(&stub_proc)
       expect(dispatch).to be_a(Proc)

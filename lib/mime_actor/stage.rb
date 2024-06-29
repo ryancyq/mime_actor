@@ -28,6 +28,8 @@ module MimeActor
       end
 
       def dispatch_cue(action: nil, format: nil, context: self, &block)
+        raise ArgumentError, "block must be provided" unless block_given?
+
         lambda do
           context.instance_exec(&block)
         rescue StandardError => e
