@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :markup: markdown
+
 require "mime_actor/errors"
 require "mime_actor/logging"
 
@@ -7,6 +9,10 @@ require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
 
 module MimeActor
+  # # MimeActor Stage
+  #
+  # Stage provides helpers for actor lookup and invocation.
+  #
   module Stage
     extend ActiveSupport::Concern
 
@@ -17,6 +23,8 @@ module MimeActor
     end
 
     module ClassMethods
+      ##
+      # Determine if the name belongs to a public instance method excluding methods inherited from ancesstors
       def actor?(actor_name)
         # exclude public methods from ancestors
         found = public_instance_methods(false).include?(actor_name.to_sym)
@@ -27,6 +35,8 @@ module MimeActor
         found
       end
 
+      ##
+      # Wraps the given block with lambda, rescue any error raised from the block via #rescue_actor if defined, otherwise, error will be re-raised
       def dispatch_cue(action: nil, format: nil, context: self, &block)
         raise ArgumentError, "block must be provided" unless block_given?
 
@@ -38,6 +48,10 @@ module MimeActor
       end
     end
 
+    ##
+    # Call the actor method if defined, supports passing arguments to the actor method.
+    # 
+    # If a block is given, the result from the actor method will be yieled to the block
     def cue_actor(actor_name, *args)
       unless self.class.actor?(actor_name)
         raise MimeActor::ActorNotFound, actor_name if raise_on_missing_actor

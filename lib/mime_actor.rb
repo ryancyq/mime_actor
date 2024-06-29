@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# :markup: markdown
+# :include: ../README.md
+
 require "mime_actor/version"
 require "mime_actor/errors"
 

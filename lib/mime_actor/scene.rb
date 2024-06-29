@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :markup: markdown
+
 require "mime_actor/errors"
 require "mime_actor/validator"
 
@@ -9,6 +11,15 @@ require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
 
 module MimeActor
+  # # MimeActor Scene
+  #
+  # Scene provides configuration for Action + Format definitions
+  #
+  # compose_scene :html, on: :index
+  # compose_scene :html, :json , on: [:index, :show]
+  #
+  # NOTE: Calling the same action/format multiple times will overwrite previous Action + Format definitions.
+  #
   module Scene
     extend ActiveSupport::Concern
 
@@ -19,6 +30,10 @@ module MimeActor
     end
 
     module ClassMethods
+      ##
+      # Register Action + Format definitions.
+      #
+      # For each unique action being registered, it will have a corresponding method being defined.
       def compose_scene(*options)
         config = options.extract_options!
         validate!(:formats, options)

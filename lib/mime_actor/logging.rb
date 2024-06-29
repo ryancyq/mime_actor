@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :markup: markdown
+
 require "active_support/concern"
 require "active_support/configurable"
 require "active_support/isolated_execution_state" # required by active_support/logger
@@ -7,6 +9,9 @@ require "active_support/logger"
 require "active_support/tagged_logging"
 
 module MimeActor
+  # # MimeActor Logging
+  # 
+  # Provides a configurable logger.
   module Logging
     extend ActiveSupport::Concern
 

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :markup: markdown
+
 require "mime_actor/stage"
 require "mime_actor/validator"
 
@@ -9,6 +11,10 @@ require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/string/inflections"
 
 module MimeActor
+  # # MimeActor Rescue
+  #
+  # Simillar to ActionController::Rescue but with additional filtering logic on Action/Format.
+  #
   module Rescue
     extend ActiveSupport::Concern
 
@@ -20,6 +26,15 @@ module MimeActor
     end
 
     module ClassMethods
+      ##
+      # Registers a rescue handler for the given error classes with action/format filter
+      #
+      # rescue_actor_from StandardError, format: :json, action: :show do |ex|
+      #   render status: :bad_request, json: { error: ex.message }
+      # end
+      #
+      # rescue_actor_from StandardError, format: :html, with: :handle_html_error
+      #
       def rescue_actor_from(*klazzes, action: nil, format: nil, with: nil, &block)
         raise ArgumentError, "error filter is required" if klazzes.empty?
 
@@ -58,6 +73,9 @@ module MimeActor
         end
       end
 
+      ##
+      # Resolve the error provided with the registered handlers.
+      # The handled error will be returned to indicate successful handling
       def rescue_actor(error, action: nil, format: nil, context: self, visited: [])
         return if visited.include?(error)
 
