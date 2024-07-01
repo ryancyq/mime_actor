@@ -101,26 +101,14 @@ module MimeActor
         case rescuer = find_rescuer(error, format:, action:)
         when Symbol
           rescuer_method = context.method(rescuer)
-          case rescuer_method.arity
-          when 0
-            ->(_e, _f, _a) { rescuer_method.call }
-          when 1
-            ->(e, _f, _a) { rescuer_method.call(e) }
-          when 2
-            ->(e, f, _a) { rescuer_method.call(e, f) }
-          else
-            ->(e, f, a) { rescuer_method.call(e, f, a) }
+          lambda do |*args|
+            passable_args = rescuer_method.arity.negative? ? args : args.take(rescuer_method.arity)
+            rescuer_method.call(*passable_args)
           end
         when Proc
-          case rescuer.arity
-          when 0
-            ->(_e, _f, _a) { context.instance_exec(&rescuer) }
-          when 1
-            ->(e, _f, _a) { context.instance_exec(e, &rescuer) }
-          when 2
-            ->(e, f, _a) { context.instance_exec(e, f, &rescuer) }
-          else
-            ->(e, f, a) { context.instance_exec(e, f, a, &rescuer) }
+          lambda do |*args|
+            passable_args = rescuer.arity.negative? ? args : args.take(rescuer.arity)
+            context.instance_exec(*passable_args, &rescuer)
           end
         end
       end
