@@ -22,7 +22,7 @@ module MimeActor
       mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
     end
 
-    module ClassMethods
+    class_methods do
       # Determine if the `actor_name` belongs to a public instance method excluding methods inherited from ancestors
       #
       # @param actor_name

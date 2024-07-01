@@ -25,7 +25,7 @@ module MimeActor
       mattr_accessor :scene_formats, instance_writer: false, default: Mime::SET.symbols.to_set
     end
 
-    module ClassMethods
+    class_methods do
       # Raise the error returned by validator if any.
       #
       # @param rule the name of validator

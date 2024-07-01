@@ -31,7 +31,7 @@ module MimeActor
       mattr_accessor :acting_scenes, instance_writer: false, default: {}
     end
 
-    module ClassMethods
+    class_methods do
       # Register `action` + `format` definitions.
       #
       # @param options [Array]

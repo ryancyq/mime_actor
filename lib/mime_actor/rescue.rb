@@ -28,7 +28,7 @@ module MimeActor
       mattr_accessor :actor_rescuers, instance_writer: false, default: []
     end
 
-    module ClassMethods
+    class_methods do
       # Registers a rescue handler for the given error classes with `action`/`format` filter
       #
       # @param klazzes the error classes to rescue

@@ -19,6 +19,10 @@ Style/BlockComments:
 Metrics/AbcSize:
   Enabled: false
   
+Metrics/BlockLength:
+  AllowedMethods:
+    - class_methods
+
 Metrics/CyclomaticComplexity:
   Enabled: false
 
