@@ -5,12 +5,12 @@ require "mime_actor/rescue"
 RSpec.describe MimeActor::Rescue do
   let(:klazz) { Class.new.include described_class }
 
-  describe "#rescue_actor_from" do
+  describe "#rescue_act_from" do
     describe "error filter" do
       let(:stub_namespace) { stub_const "OtherModule", Module.new }
 
       it "required" do
-        expect { klazz.rescue_actor_from }.to raise_error(ArgumentError, "error filter is required")
+        expect { klazz.rescue_act_from }.to raise_error(ArgumentError, "error filter is required")
       end
 
       it_behaves_like "rescuable error filter", "Class" do
@@ -114,7 +114,7 @@ RSpec.describe MimeActor::Rescue do
 
     describe "#with" do
       describe "when block is not given" do
-        let(:rescue_actor) { klazz.rescue_actor_from StandardError }
+        let(:rescue_actor) { klazz.rescue_act_from StandardError }
 
         it "required" do
           expect { rescue_actor }.to raise_error(ArgumentError, "provide the with: keyword argument or a block")
@@ -123,7 +123,7 @@ RSpec.describe MimeActor::Rescue do
 
       describe "when block is given" do
         let(:rescue_actor) do
-          klazz.rescue_actor_from StandardError, with: proc {} do
+          klazz.rescue_act_from StandardError, with: proc {} do
             "test"
           end
         end
@@ -158,20 +158,20 @@ RSpec.describe MimeActor::Rescue do
 
     it_behaves_like "rescuable actor handler", "non-matching actor_rescuers", acceptance: false do
       before do
-        klazz.rescue_actor_from ArgumentError, with: proc {}
-        klazz.rescue_actor_from NameError, with: proc {}
+        klazz.rescue_act_from ArgumentError, with: proc {}
+        klazz.rescue_act_from NameError, with: proc {}
       end
     end
 
     it_behaves_like "rescuable actor handler", "error subclass" do
       let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
-      before { klazz.rescue_actor_from RuntimeError, with: proc {} }
+      before { klazz.rescue_act_from RuntimeError, with: proc {} }
     end
 
     it_behaves_like "rescuable actor handler", "error matching actor_rescuer" do
       before do
-        klazz.rescue_actor_from RuntimeError, with: -> { equal?(1) }
-        klazz.rescue_actor_from ArgumentError, with: -> { equal?(2) }
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(1) }
+        klazz.rescue_act_from ArgumentError, with: -> { equal?(2) }
       end
 
       it "rescues with handler context" do
@@ -185,8 +185,8 @@ RSpec.describe MimeActor::Rescue do
       let(:action_filter) { :create }
 
       before do
-        klazz.rescue_actor_from RuntimeError, action: :create, with: -> { equal?(1) }
-        klazz.rescue_actor_from RuntimeError, action: :index, with: -> { equal?(2) }
+        klazz.rescue_act_from RuntimeError, action: :create, with: -> { equal?(1) }
+        klazz.rescue_act_from RuntimeError, action: :index, with: -> { equal?(2) }
       end
 
       it "rescues with handler context" do
@@ -200,9 +200,9 @@ RSpec.describe MimeActor::Rescue do
       let(:format_filter) { :json }
 
       before do
-        klazz.rescue_actor_from RuntimeError, format: :xml, with: -> { equal?(1) }
-        klazz.rescue_actor_from RuntimeError, format: :json, with: -> { equal?(2) }
-        klazz.rescue_actor_from RuntimeError, format: :html, with: -> { equal?(3) }
+        klazz.rescue_act_from RuntimeError, format: :xml, with: -> { equal?(1) }
+        klazz.rescue_act_from RuntimeError, format: :json, with: -> { equal?(2) }
+        klazz.rescue_act_from RuntimeError, format: :html, with: -> { equal?(3) }
       end
 
       it "rescues with handler context" do
@@ -214,7 +214,7 @@ RSpec.describe MimeActor::Rescue do
 
     it_behaves_like "rescuable actor handler", "error in visited", acceptance: false do
       let(:visited_errors) { [error_instance] }
-      before { klazz.rescue_actor_from RuntimeError, with: proc {} }
+      before { klazz.rescue_act_from RuntimeError, with: proc {} }
     end
 
     it_behaves_like "rescuable actor handler", "action and format matching actor_rescuers" do
@@ -224,10 +224,10 @@ RSpec.describe MimeActor::Rescue do
       let(:format_filter) { :json }
 
       before do
-        klazz.rescue_actor_from StandardError, with: proc { equal?(1) }
-        klazz.rescue_actor_from error_class, action: :create, format: :json, with: proc { equal?(2) }
-        klazz.rescue_actor_from error_class, format: :html, with: proc { equal?(3) }
-        klazz.rescue_actor_from StandardError, action: :index, format: :html, with: proc { equal?(4) }
+        klazz.rescue_act_from StandardError, with: proc { equal?(1) }
+        klazz.rescue_act_from error_class, action: :create, format: :json, with: proc { equal?(2) }
+        klazz.rescue_act_from error_class, format: :html, with: proc { equal?(3) }
+        klazz.rescue_act_from StandardError, action: :index, format: :html, with: proc { equal?(4) }
       end
 
       it "rescues with handler context" do
@@ -249,9 +249,9 @@ RSpec.describe MimeActor::Rescue do
       let(:rescue_context) { Object.new }
 
       before do
-        klazz.rescue_actor_from RuntimeError, with: -> { equal?(1) }
-        klazz.rescue_actor_from RuntimeError, with: -> { equal?(2) }
-        klazz.rescue_actor_from RuntimeError, with: -> { equal?(3) }
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(1) }
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(2) }
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(3) }
       end
 
       it "rescues using most recently declared actor_rescuer" do

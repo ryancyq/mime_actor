@@ -16,7 +16,7 @@ module MimeActor
   # Simillar to `ActionController::Rescue` but with additional filtering logic on `action`/`format`.
   #
   # @example Rescue RuntimeError when raised for any action with `json` format
-  #   rescue_actor_from RuntimeError, format: :json, with: :handle_json_error
+  #   rescue_act_from RuntimeError, format: :json, with: :handle_json_error
   #
   module Rescue
     extend ActiveSupport::Concern
@@ -38,14 +38,14 @@ module MimeActor
       # @param block the `block` to evaluate when `with` is not provided
       #
       # @example Rescue StandardError when raised for any action with `html` format
-      #   rescue_actor_from StandardError, format: :html, with: :handle_html_error
+      #   rescue_act_from StandardError, format: :html, with: :handle_html_error
       #
       # @example Rescue StandardError when raised for `show` action with `json` format
-      #   rescue_actor_from StandardError, format: :json, action: :show do |ex|
+      #   rescue_act_from StandardError, format: :json, action: :show do |ex|
       #     render status: :bad_request, json: { error: ex.message }
       #   end
       #
-      def rescue_actor_from(*klazzes, action: nil, format: nil, with: nil, &block)
+      def rescue_act_from(*klazzes, action: nil, format: nil, with: nil, &block)
         raise ArgumentError, "error filter is required" if klazzes.empty?
 
         validate!(:with, with, block)

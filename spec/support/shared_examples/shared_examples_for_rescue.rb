@@ -66,7 +66,7 @@ RSpec.shared_examples "rescuable action filter" do |action_name, acceptance: tru
 end
 
 RSpec.shared_examples "rescuable with handler" do |handler_name, handler_type, acceptance: true|
-  let(:rescuable) { klazz.rescue_actor_from(StandardError, with: handler) }
+  let(:rescuable) { klazz.rescue_act_from(StandardError, with: handler) }
 
   if acceptance
     it "accepts #{handler_name || "the handler"}" do

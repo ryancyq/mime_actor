@@ -94,11 +94,11 @@ class EventsController < ActionController::Base
 
     act_on_format :html, :json, on: [:show, :update]
 
-    rescue_actor_from ActiveRecord::RecordNotFound, format: :json do |ex|
+    rescue_act_from ActiveRecord::RecordNotFound, format: :json do |ex|
         render status: :bad_request, json: { error: ex.message }
     end
 
-    rescue_actor_from ActiveRecord::RecordNotFound, format: :html, action: :show do |ex|
+    rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show do |ex|
         redirect_to events_path
     end
 

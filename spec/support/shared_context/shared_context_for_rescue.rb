@@ -24,7 +24,7 @@ RSpec.shared_context "with rescuable filter" do |*filters|
       format: filters.include?(:format) ? format_params : nil,
       with:   :my_handler
     }
-    klazz.rescue_actor_from(*error_filters, **options)
+    klazz.rescue_act_from(*error_filters, **options)
   end
 end
 
