@@ -68,15 +68,8 @@ module MimeActor
         end
 
         klazzes.each do |klazz|
-          error = case klazz
-                  when Module
-                    klazz.name
-                  when String
-                    klazz
-                  else
-                    message = "#{klazz.inspect} must be a Class/Module or a String referencing a Class/Module"
-                    raise ArgumentError, message
-                  end
+          validate!(:klazz, klazz)
+          error = klazz.is_a?(Module) ? klazz.name : klazz
 
           # append at the end because strategies are read in reverse.
           actor_rescuers << [error, format, action, with]
