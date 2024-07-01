@@ -35,7 +35,7 @@ module MimeActor
       # @param klazzes the error classes to rescue
       # @param action the `action` filter
       # @param format the `format` filter
-      # @param with the rescue hanlder when `block` is not provided
+      # @param with the rescue handler when `block` is not provided
       # @param block the `block` to evaluate when `with` is not provided
       #
       # @example Rescue StandardError when raised for any action with `html` format
@@ -50,8 +50,11 @@ module MimeActor
         raise ArgumentError, "error filter is required" if klazzes.empty?
         raise ArgumentError, "provide either the with: argument or a block" unless with.present? ^ block_given?
 
-        with = block if block_given?
-        validate!(:with, with)
+        if block_given?
+          with = block
+        else
+          validate!(:with, with)
+        end
 
         if action.present?
           action.is_a?(Enumerable) ? validate!(:actions, action) : validate!(:action, action)
