@@ -8,6 +8,7 @@ require "mime_actor/validator"
 require "active_support/concern"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
+require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/inflections"
 
 module MimeActor
