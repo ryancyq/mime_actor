@@ -31,7 +31,7 @@ module MimeActor
       mattr_accessor :acting_scenes, instance_writer: false, default: {}
     end
 
-    class_methods do
+    module ClassMethods
       # Register `action` + `format` definitions.
       #
       # @param formats the collection of `format`
@@ -62,9 +62,7 @@ module MimeActor
 
       alias_method :act_on_format, :respond_act_to
 
-      private
-
-      def compose_scene(action, format)
+      private def compose_scene(action, format)
         action_defined = (instance_methods + private_instance_methods).include?(action.to_sym)
         raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && action_defined
 
@@ -74,7 +72,7 @@ module MimeActor
         define_scene(action) unless action_defined
       end
 
-      def define_scene(action)
+      private def define_scene(action)
         class_eval(
           # def index
           #   self.respond_to?(:start_scene) && self.start_scene(:index)
