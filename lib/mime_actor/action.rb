@@ -5,6 +5,7 @@ require "mime_actor/stage"
 require "mime_actor/rescue"
 
 require "active_support/concern"
+require "active_support/core_ext/object/blank"
 require "active_support/lazy_load_hooks"
 require "abstract_controller/rendering"
 require "action_controller/metal/mime_responds"
@@ -44,17 +45,17 @@ module MimeActor
     #
     def start_scene(action)
       action = action&.to_sym
-      formats = acting_scenes.fetch(action, Set.new)
+      formats = acting_scenes.fetch(action, {})
 
       if formats.empty?
-        logger.warn { "format is empty for action #{action.inspect}" }
+        logger.warn { "format is empty for action: #{action.inspect}" }
         return
       end
 
       respond_to do |collector|
-        formats.each do |format|
+        formats.each do |format, actor|
           dispatch = self.class.dispatch_cue(action: action, format: format, context: self) do
-            cue_actor("#{action}_#{format}")
+            cue_actor(actor.presence || "#{action}_#{format}")
           end
           collector.public_send(format, &dispatch)
         end
