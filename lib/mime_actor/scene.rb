@@ -16,9 +16,9 @@ module MimeActor
   # Scene provides configuration for `action` + `format` definitions
   #
   # @example register a `html` format on action `index`
-  #     act_on_format :html, on: :index
+  #     respond_act_to :html, on: :index
   # @example register `html`, `json` formats on actions `index`, `show`
-  #     act_on_format :html, :json , on: [:index, :show]
+  #     respond_act_to :html, :json , on: [:index, :show]
   #
   # NOTE: Calling the same `action`/`format` multiple times will overwrite previous `action` + `format` definitions.
   #
@@ -38,12 +38,12 @@ module MimeActor
       # @param on the collection of `action`
       #
       # @example register a `html` format on action `index`
-      #   act_on_format :html, on: :index
+      #   respond_act_to :html, on: :index
       # @example register `html`, `json` formats on actions `index`, `show`
-      #   act_on_format :html, :json , on: [:index, :show]
+      #   respond_act_to :html, :json , on: [:index, :show]
       #
       # For each unique `action` being registered, it will have a corresponding `action` method being defined.
-      def act_on_format(*formats, on: nil)
+      def respond_act_to(*formats, on: nil)
         validate!(:formats, formats)
 
         case actions = on

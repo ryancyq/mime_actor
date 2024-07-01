@@ -16,8 +16,8 @@ class EventsController < ActionController::Base
     before_action only: :index { @events = Event.all }
     before_action only: [:show, :update] { @event = Event.find(params.require(:event_id)) }
 
-    act_on_format :html, :json, on: :index
-    act_on_format :html, :json, on: [:show, :update]
+    respond_act_to :html, :json, on: :index
+    respond_act_to :html, :json, on: [:show, :update]
 
     rescue_act_from ActiveRecord::RecordNotFound, format: :json do |ex|
         render status: :bad_request, json: { error: "Resouce not found" }

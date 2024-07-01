@@ -5,7 +5,7 @@ require "mime_actor/scene"
 RSpec.describe MimeActor::Scene do
   let(:klazz) { Class.new.include described_class }
 
-  describe "#act_on_format" do
+  describe "#respond_act_to" do
     describe "#action" do
       it_behaves_like "composable scene action", "nil", acceptance: false do
         let(:action_filter) { nil }
@@ -75,18 +75,18 @@ RSpec.describe MimeActor::Scene do
     describe "when is called multiple times" do
       it "merges the scenes" do
         expect(klazz.acting_scenes).to be_empty
-        klazz.act_on_format(:html, on: %i[index create])
+        klazz.respond_act_to(:html, on: %i[index create])
         expect(klazz.acting_scenes).to include(
           index:  Set[:html],
           create: Set[:html]
         )
-        klazz.act_on_format(:xml, on: %i[create update])
+        klazz.respond_act_to(:xml, on: %i[create update])
         expect(klazz.acting_scenes).to include(
           index:  Set[:html],
           create: Set[:html, :xml],
           update: Set[:xml]
         )
-        klazz.act_on_format(:json, :xml, on: %i[create show])
+        klazz.respond_act_to(:json, :xml, on: %i[create show])
         expect(klazz.acting_scenes).to include(
           index:  Set[:html],
           create: Set[:html, :xml, :json],
