@@ -11,8 +11,8 @@ module MimeActor
 
   module VERSION
     MAJOR = 0
-    MINOR = 5
-    BUILD = 4
+    MINOR = 6
+    BUILD = 0
     PRE   = nil
 
     STRING = [MAJOR, MINOR, BUILD, PRE].compact.join(".")
