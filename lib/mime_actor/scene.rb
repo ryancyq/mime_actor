@@ -61,6 +61,8 @@ module MimeActor
       def respond_act_to(*formats, on: nil, with: nil, &block)
         validate!(:formats, formats)
 
+        raise ArgumentError, "provide either the with: argument or a block" if with.present? && block_given?
+
         if block_given?
           with = block
         elsif with.present?
