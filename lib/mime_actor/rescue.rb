@@ -52,19 +52,11 @@ module MimeActor
         with = block if block_given?
 
         if action.present?
-          if action.is_a?(Enumerable)
-            validate!(:actions, action)
-          else
-            validate!(:action, action)
-          end
+          action.is_a?(Enumerable) ? validate!(:actions, action) : validate!(:action, action)
         end
 
         if format.present?
-          if format.is_a?(Enumerable)
-            validate!(:formats, format)
-          else
-            validate!(:format, format)
-          end
+          format.is_a?(Enumerable) ? validate!(:formats, format) : validate!(:format, format)
         end
 
         klazzes.each do |klazz|
