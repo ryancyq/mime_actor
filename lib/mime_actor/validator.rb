@@ -83,9 +83,7 @@ module MimeActor
         unless unchecked.present? || block.present?
           return ArgumentError.new("provide the with: keyword argument or a block")
         end
-
-        return if block.present?
-        return if unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
+        return if block.present? || unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
 
         ArgumentError.new("with handler must be a Symbol or Proc, got: #{unchecked.inspect}")
       end
