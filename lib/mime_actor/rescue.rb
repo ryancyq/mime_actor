@@ -48,9 +48,10 @@ module MimeActor
       #
       def rescue_act_from(*klazzes, action: nil, format: nil, with: nil, &block)
         raise ArgumentError, "error filter is required" if klazzes.empty?
+        raise ArgumentError, "provide either the with: argument or a block" unless with.present? ^ block_given?
 
-        validate!(:with, with, block)
         with = block if block_given?
+        validate!(:with, with)
 
         if action.present?
           action.is_a?(Enumerable) ? validate!(:actions, action) : validate!(:action, action)
