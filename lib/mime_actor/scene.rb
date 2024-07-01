@@ -34,9 +34,8 @@ module MimeActor
     class_methods do
       # Register `action` + `format` definitions.
       #
-      # @param options [Array]
-      # @option options [Array] klazzes the collection of `format`
-      # @option options [Hash] on the collection of `action`
+      # @param formats the collection of `format`
+      # @param on the collection of `action`
       #
       # @example register a `html` format on action `index`
       #   act_on_format :html, on: :index
@@ -44,11 +43,10 @@ module MimeActor
       #   act_on_format :html, :json , on: [:index, :show]
       #
       # For each unique `action` being registered, it will have a corresponding `action` method being defined.
-      def act_on_format(*options)
-        config = options.extract_options!
-        validate!(:formats, options)
+      def act_on_format(*formats, on: nil)
+        validate!(:formats, formats)
 
-        case actions = config[:on]
+        case actions = on
         when Enumerable
           validate!(:actions, actions)
         when Symbol, String
@@ -58,7 +56,7 @@ module MimeActor
         end
 
         Array.wrap(actions).each do |action|
-          options.each { |format| compose_scene(action, format) }
+          formats.each { |format| compose_scene(action, format) }
         end
       end
 
