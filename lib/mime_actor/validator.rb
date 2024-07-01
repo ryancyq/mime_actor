@@ -3,6 +3,7 @@
 # :markup: markdown
 
 require "active_support/concern"
+require "active_support/core_ext/object/blank"
 require "set" # required by mime_type with ruby <= 3.1
 require "action_dispatch/http/mime_type"
 
