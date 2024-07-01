@@ -72,6 +72,15 @@ module MimeActor
         NameError.new("invalid formats, got: #{rejected.join(", ")}") if rejected.size.positive?
       end
 
+      # Validate `klazz` must be a Class/Module or a String referencing a Class/Module
+      #
+      # @param unchecked the `klazz` to be validated
+      def validate_klazz(unchecked)
+        return if unchecked.is_a?(Module) || unchecked.is_a?(String)
+
+        ArgumentError.new("#{unchecked.inspect} must be a Class/Module or a String referencing a Class/Module")
+      end
+
       # Validate `with` or `block` must be provided and if `with` is provided, it must be a Symbol or Proc
       #
       # @param unchecked the `with` to be validated

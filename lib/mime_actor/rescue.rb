@@ -52,31 +52,16 @@ module MimeActor
         with = block if block_given?
 
         if action.present?
-          if action.is_a?(Enumerable)
-            validate!(:actions, action)
-          else
-            validate!(:action, action)
-          end
+          action.is_a?(Enumerable) ? validate!(:actions, action) : validate!(:action, action)
         end
 
         if format.present?
-          if format.is_a?(Enumerable)
-            validate!(:formats, format)
-          else
-            validate!(:format, format)
-          end
+          format.is_a?(Enumerable) ? validate!(:formats, format) : validate!(:format, format)
         end
 
         klazzes.each do |klazz|
-          error = case klazz
-                  when Module
-                    klazz.name
-                  when String
-                    klazz
-                  else
-                    message = "#{klazz.inspect} must be a Class/Module or a String referencing a Class/Module"
-                    raise ArgumentError, message
-                  end
+          validate!(:klazz, klazz)
+          error = klazz.is_a?(Module) ? klazz.name : klazz
 
           # append at the end because strategies are read in reverse.
           actor_rescuers << [error, format, action, with]

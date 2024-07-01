@@ -48,13 +48,13 @@ module MimeActor
         config = options.extract_options!
         validate!(:formats, options)
 
-        actions = config[:on]
-        if !actions
-          raise ArgumentError, "action is required"
-        elsif actions.is_a?(Enumerable)
+        case actions = config[:on]
+        when Enumerable
           validate!(:actions, actions)
-        else
+        when Symbol, String
           validate!(:action, actions)
+        else
+          raise ArgumentError, "action is required"
         end
 
         Array.wrap(actions).each do |action|
