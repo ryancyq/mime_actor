@@ -31,7 +31,7 @@ module MimeActor
       # @param rule the name of validator
       def validate!(rule, *args)
         validator = "validate_#{rule}"
-        raise NameError, "Validator not found, got: #{validator}" unless respond_to?(validator, true)
+        raise NameError, "Validator not found, got: #{validator.inspect}" unless respond_to?(validator, true)
 
         error = send(validator, *args)
         raise error if error
@@ -49,7 +49,7 @@ module MimeActor
       # @param unchecked the `actions` to be validated
       def validate_actions(unchecked)
         rejected = unchecked.reject { |action| action.is_a?(Symbol) }
-        NameError.new("invalid actions, got: #{rejected.join(", ")}") if rejected.size.positive?
+        NameError.new("invalid actions, got: #{rejected.map(&:inspect).join(", ")}") if rejected.size.positive?
       end
 
       # Validate `format` must be a Symbol and a valid MIME type
@@ -58,7 +58,7 @@ module MimeActor
       def validate_format(unchecked)
         return ArgumentError.new("format must be a Symbol") unless unchecked.is_a?(Symbol)
 
-        NameError.new("invalid format, got: #{unchecked}") unless scene_formats.include?(unchecked)
+        NameError.new("invalid format, got: #{unchecked.inspect}") unless scene_formats.include?(unchecked)
       end
 
       # Validate `formats` must be an collection of Symbol which each of them is a valid MIME type
@@ -69,7 +69,7 @@ module MimeActor
         filtered = unfiltered & scene_formats
         rejected = unfiltered - filtered
 
-        NameError.new("invalid formats, got: #{rejected.join(", ")}") if rejected.size.positive?
+        NameError.new("invalid formats, got: #{rejected.map(&:inspect).join(", ")}") if rejected.size.positive?
       end
 
       # Validate `klazz` must be a Class/Module or a String referencing a Class/Module

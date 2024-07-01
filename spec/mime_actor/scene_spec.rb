@@ -31,12 +31,12 @@ RSpec.describe MimeActor::Scene do
       it_behaves_like "composable scene action", "Array of String", acceptance: false do
         let(:action_filters) { %w[index create] }
         let(:error_class_raised) { NameError }
-        let(:error_message_raised) { "invalid actions, got: index, create" }
+        let(:error_message_raised) { "invalid actions, got: \"index\", \"create\"" }
       end
       it_behaves_like "composable scene action", "Array of String/Symbol", acceptance: false do
         let(:action_filters) { [:index, "create"] }
         let(:error_class_raised) { NameError }
-        let(:error_message_raised) { "invalid actions, got: create" }
+        let(:error_message_raised) { "invalid actions, got: \"create\"" }
       end
       it_behaves_like "composable scene action", "#new" do
         let(:action_filter) { :new }
