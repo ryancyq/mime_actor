@@ -5,6 +5,14 @@ require "mime_actor/scene"
 RSpec.describe MimeActor::Scene do
   let(:klazz) { Class.new.include described_class }
 
+  describe "#act_on_format" do
+    it "alias #respond_act_to" do
+      expect(klazz).not_to be_method_defined(:act_on_format)
+      expect(klazz.singleton_class).to be_method_defined(:act_on_format)
+      expect(klazz.method(:act_on_format)).to eq klazz.method(:respond_act_to)
+    end
+  end
+
   describe "#respond_act_to" do
     describe "#action" do
       it_behaves_like "composable scene action", "nil", acceptance: false do

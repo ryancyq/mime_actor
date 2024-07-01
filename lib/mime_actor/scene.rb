@@ -60,6 +60,8 @@ module MimeActor
         end
       end
 
+      alias_method :act_on_format, :respond_act_to
+
       private
 
       def compose_scene(action, format)
