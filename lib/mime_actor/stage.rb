@@ -37,7 +37,8 @@ module MimeActor
         found
       end
 
-      # Wraps the given `block` with a `lambda`, rescue any error raised from the `block` via `rescue_actor` if defined, otherwise, error will be re-raised
+      # Wraps the given `block` with a `lambda`, rescue any error raised from the `block`.
+      # Otherwise, error will be re-raised.
       #
       # @param action the `action` to be passed on to `rescue_actor`
       # @param format the `format` to be passed on to `rescue_actor`

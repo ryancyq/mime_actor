@@ -27,7 +27,7 @@ module MimeActor
     include Rescue
     include Logging
 
-    # The core logic where rendering logics are collected as `Proc` through configuration and passed over to `ActionController::MimeResponds`
+    # The core logic where rendering logics are collected as `Proc` and passed over to `ActionController::MimeResponds`
     #
     # @param action the `action` of the controller
     #
