@@ -9,6 +9,7 @@ require "active_support/concern"
 require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
+require "active_support/core_ext/object/blank"
 
 module MimeActor
   # # MimeActor Scene
@@ -16,9 +17,15 @@ module MimeActor
   # Scene provides configuration for `action` + `format` definitions
   #
   # @example register a `html` format on action `index`
-  #     respond_act_to :html, on: :index
+  #   respond_act_to :html, on: :index
   # @example register `html`, `json` formats on actions `index`, `show`
-  #     respond_act_to :html, :json , on: [:index, :show]
+  #   respond_act_to :html, :json , on: [:index, :show]
+  # @example register a `html` format on action `index` with respond handler method
+  #   respond_act_to :html, on: :index, with: :render_html
+  # @example register a `html` format on action `index` with respond handler proc
+  #   respond_act_to :html, on: :index do
+  #     render :index
+  #   end
   #
   # NOTE: Calling the same `action`/`format` multiple times will overwrite previous `action` + `format` definitions.
   #
@@ -36,15 +43,29 @@ module MimeActor
       #
       # @param formats the collection of `format`
       # @param on the collection of `action`
+      # @param with the respond handler when `block` is not provided
+      # @param block the `block` to evaluate when `with` is not provided
       #
       # @example register a `html` format on action `index`
       #   respond_act_to :html, on: :index
       # @example register `html`, `json` formats on actions `index`, `show`
       #   respond_act_to :html, :json , on: [:index, :show]
+      # @example register a `html` format on action `index` with respond handler method
+      #   respond_act_to :html, on: :index, with: :render_html
+      # @example register a `html` format on action `index` with respond handler proc
+      #   respond_act_to :html, on: :index do
+      #     render :index
+      #   end
       #
       # For each unique `action` being registered, it will have a corresponding `action` method being defined.
-      def respond_act_to(*formats, on: nil)
+      def respond_act_to(*formats, on: nil, with: nil, &block)
         validate!(:formats, formats)
+
+        if block_given?
+          with = block
+        elsif with.present?
+          validate!(:with, with)
+        end
 
         case actions = on
         when Enumerable
@@ -56,7 +77,7 @@ module MimeActor
         end
 
         Array.wrap(actions).each do |action|
-          formats.each { |format| compose_scene(action, format) }
+          formats.each { |format| compose_scene(action, format, with) }
         end
       end
 
@@ -64,12 +85,12 @@ module MimeActor
 
       private
 
-      def compose_scene(action, format)
+      def compose_scene(action, format, actor)
         action_defined = (instance_methods + private_instance_methods).include?(action.to_sym)
         raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && action_defined
 
-        acting_scenes[action] ||= Set.new
-        acting_scenes[action] |= [format]
+        acting_scenes[action] ||= {}
+        acting_scenes[action][format] = actor
 
         define_scene(action) unless action_defined
       end
