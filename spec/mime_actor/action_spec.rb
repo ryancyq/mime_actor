@@ -25,16 +25,16 @@ RSpec.describe MimeActor::Action do
   describe "#start_scene" do
     let(:start) { klazz_instance.start_scene(:create) }
     let(:klazz_instance) { klazz.new }
-    let(:compose_scene) { klazz.compose_scene :html, on: :create }
     let(:actor_name) { "create_html" }
     let(:stub_collector) { instance_double(ActionController::MimeResponds::Collector) }
     let(:stub_logger) { instance_double(ActiveSupport::Logger) }
 
-    before { klazz.config.logger = stub_logger }
+    before do
+      klazz.act_on_format :html, on: :create
+      klazz.config.logger = stub_logger
+    end
 
     context "with acting_scenes" do
-      before { compose_scene }
-
       it "calls #responds_to" do
         allow(klazz_instance).to receive(:respond_to)
         expect { start }.not_to raise_error
@@ -43,7 +43,10 @@ RSpec.describe MimeActor::Action do
     end
 
     context "without acting_scenes" do
-      before { allow(stub_logger).to receive(:warn) }
+      before do
+        klazz.acting_scenes.clear
+        allow(stub_logger).to receive(:warn)
+      end
 
       it "does not call #responds_to" do
         allow(klazz_instance).to receive(:respond_to)
@@ -60,10 +63,7 @@ RSpec.describe MimeActor::Action do
     end
 
     describe "when actor is defined" do
-      before do
-        compose_scene
-        klazz.define_method(actor_name) { "my actor" }
-      end
+      before { klazz.define_method(actor_name) { "my actor" } }
 
       it "calls #dispatch_cue" do
         allow(klazz).to receive(:dispatch_cue).and_call_original
@@ -79,8 +79,6 @@ RSpec.describe MimeActor::Action do
     end
 
     describe "when actor undefined" do
-      before { compose_scene }
-
       it "calls #dispatch_cue" do
         allow(klazz).to receive(:dispatch_cue)
         allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)

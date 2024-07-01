@@ -39,12 +39,12 @@ module MimeActor
       # @option options [Hash] on the collection of `action`
       #
       # @example register a `html` format on action `index`
-      #   compose_scene :html, on: :index
+      #   act_on_format :html, on: :index
       # @example register `html`, `json` formats on actions `index`, `show`
-      #   compose_scene :html, :json , on: [:index, :show]
+      #   act_on_format :html, :json , on: [:index, :show]
       #
       # For each unique `action` being registered, it will have a corresponding `action` method being defined.
-      def compose_scene(*options)
+      def act_on_format(*options)
         config = options.extract_options!
         validate!(:formats, options)
 
@@ -57,31 +57,35 @@ module MimeActor
           validate!(:action, actions)
         end
 
-        options.each do |format|
-          Array.wrap(actions).each do |action|
-            action_defined = (instance_methods + private_instance_methods).include?(action.to_sym)
-            raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && action_defined
-
-            acting_scenes[action] ||= Set.new
-            acting_scenes[action] |= [format]
-
-            next if action_defined
-
-            class_eval(
-              # def index
-              #   self.respond_to?(:start_scene) && self.start_scene(:index)
-              # end
-              <<-RUBY, __FILE__, __LINE__ + 1
-                def #{action}
-                  self.respond_to?(:start_scene) && self.start_scene(:#{action})
-                end
-              RUBY
-            )
-          end
+        Array.wrap(actions).each do |action|
+          options.each { |format| compose_scene(action, format) }
         end
       end
 
-      alias act_on_format compose_scene
+      private
+
+      def compose_scene(action, format)
+        action_defined = (instance_methods + private_instance_methods).include?(action.to_sym)
+        raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && action_defined
+
+        acting_scenes[action] ||= Set.new
+        acting_scenes[action] |= [format]
+
+        define_scene(action) unless action_defined
+      end
+
+      def define_scene(action)
+        class_eval(
+          # def index
+          #   self.respond_to?(:start_scene) && self.start_scene(:index)
+          # end
+          <<-RUBY, __FILE__, __LINE__ + 1
+            def #{action}
+              self.respond_to?(:start_scene) && self.start_scene(:#{action})
+            end
+        RUBY
+        )
+      end
     end
   end
 end
