@@ -12,48 +12,52 @@ Action processing with Callback + Rescue handlers for different MIME types in Ra
 MimeActor allows you to do something like below:
 ```rb
 class EventsController < ActionController::Base
-    # AbstractController::Callbacks here to load model with params
-    before_action only: :index { @events = Event.all }
-    before_action only: [:show, :update] { @event = Event.find(params.require(:event_id)) }
+  include MimeActor::Action
 
-    respond_act_to :html, :json, on: :index
-    respond_act_to :html, :json, on: [:show, :update]
+  # AbstractController::Callbacks here to load model with params
+  before_action only: :index, with: :load_events
+  before_action only: %i[show update], with: :load_event
 
-    rescue_act_from ActiveRecord::RecordNotFound, format: :json do |ex|
-        render status: :bad_request, json: { error: "Resouce not found" }
-    end
+  respond_act_to :html, :json, on: :update
+  respond_act_to :html, on: %i[index show], with: :render_html
+  respond_act_to :json, on: %i[index show], with: -> { } # using jbuilder
 
-    rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show do |ex|
-        redirect_to events_path
-    end
+  rescue_act_from ActiveRecord::RecordNotFound, format: :json, with: :handle_json_error
 
-    def index_html
-        @event_categories = EventCategory.all
-        render :index # render html using @events and @event_categories
-    end
+  rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show do
+    redirect_to "/events"
+  end
 
-    def index_json
-        render json: @events # render json using #as_json
-    end
+  def render_html
+    @event_categories = EventCategory.all if action_name == :index
+    render action_name
+  end
 
-    def show_html
-        render :show # render html using @event
-    end
+  def update_html
+    # ...
+    redirect_to "/events/#{@event.id}" # redirect to show upon sucessful update
+  rescue ActiveRecord::RecordNotFound
+    render :edit
+  end
 
-    def update_html
-        redirect_to event_path(@event.id) # redirect to show upon sucessful update
-    rescue ActiveRecord::RecordNotFound
-        render :edit
-    end
+  def update_json
+    # ...
+    render json: @event # render json using #as_json
+  end
 
-    def show_json
-        render json: @event # render json using #as_json
-    end
+  private
 
-    def update_json
-        # ...
-        render json: @event # render json using #as_json
-    end
+  def load_events
+    @events = Event.all
+  end
+
+  def load_event
+    @event = Event.find(params.require(:event_id))
+  end
+
+  def handle_json_error(_error)
+    render status: :bad_request, json: { error: ex.message }
+  end
 end
 ```
 
