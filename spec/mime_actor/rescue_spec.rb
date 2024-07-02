@@ -41,6 +41,7 @@ RSpec.describe MimeActor::Rescue do
       end
       it_behaves_like "rescuable error filter", "Integer", acceptance: false do
         let(:error_filter) { 100 }
+        let(:error_class_raised) { TypeError }
         let(:error_message_raised) { "100 must be a Class/Module or a String referencing a Class/Module" }
       end
     end
@@ -55,6 +56,8 @@ RSpec.describe MimeActor::Rescue do
         end
         it_behaves_like "rescuable format filter", "String", acceptance: false do
           let(:format_filter) { "json" }
+          let(:error_class_raised) { TypeError }
+          let(:error_message_raised) { "format must be a Symbol" }
         end
         it_behaves_like "rescuable format filter", "Array of String", acceptance: false do
           let(:format_filters) { %w[json html] }
@@ -81,6 +84,8 @@ RSpec.describe MimeActor::Rescue do
         end
         it_behaves_like "rescuable format filter", "String", acceptance: false do
           let(:format_filter) { "my_json" }
+          let(:error_class_raised) { TypeError }
+          let(:error_message_raised) { "format must be a Symbol" }
         end
         it_behaves_like "rescuable format filter", "Array of String", acceptance: false do
           let(:format_filters) { %w[json my_json html my_html] }
@@ -104,6 +109,8 @@ RSpec.describe MimeActor::Rescue do
       end
       it_behaves_like "rescuable action filter", "String", acceptance: false do
         let(:action_filter) { "index" }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "action must be a Symbol" }
       end
       it_behaves_like "rescuable action filter", "Array of String", acceptance: false do
         let(:action_filters) { %w[debug load] }
@@ -144,9 +151,13 @@ RSpec.describe MimeActor::Rescue do
       end
       it_behaves_like "rescuable with handler", "String", String, acceptance: false do
         let(:handler) { "custom_handler" }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "with handler must be a Symbol or Proc, got: #{handler.inspect}" }
       end
       it_behaves_like "rescuable with handler", "Method", Method, acceptance: false do
         let(:handler) { method(:to_s) }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "with handler must be a Symbol or Proc, got: #{handler.inspect}" }
       end
     end
 
@@ -348,7 +359,7 @@ RSpec.describe MimeActor::Rescue do
         klazz.actor_rescuers << [123, nil, nil, proc {}]
       end
 
-      it "raise error" do
+      it "raise #{TypeError}" do
         expect { rescuable }.to raise_error(TypeError, "class or module required")
       end
     end

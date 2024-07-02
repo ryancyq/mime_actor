@@ -137,8 +137,8 @@ RSpec.describe MimeActor::Stage do
       include_context "with stage cue"
       let(:actor) { 200 }
 
-      it "raises #{ArgumentError}" do
-        expect { cue }.to raise_error(ArgumentError, "invalid actor, got: 200")
+      it "raises #{TypeError}" do
+        expect { cue }.to raise_error(TypeError, "invalid actor, got: 200")
       end
     end
 

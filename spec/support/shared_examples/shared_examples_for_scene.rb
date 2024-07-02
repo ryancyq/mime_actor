@@ -11,9 +11,6 @@ RSpec.shared_examples "composable scene action" do |action_name, acceptance: tru
       expect(klazz.acting_scenes.keys).to match_array(action_filters)
     end
   else
-    let(:error_class_raised) { ArgumentError }
-    let(:error_message_raised) { "action must be a Symbol" }
-
     it "rejects #{action_name || "the action"}" do
       expect(klazz.acting_scenes).to be_empty
       expect { compose }.to raise_error(error_class_raised, error_message_raised)
@@ -33,9 +30,6 @@ RSpec.shared_examples "composable scene format" do |format_name, acceptance: tru
       expect(klazz.acting_scenes.values.flat_map(&:keys)).to match_array(format_filters)
     end
   else
-    let(:error_class_raised) { NameError }
-    let(:error_message_raised) { /invalid formats, got:/ }
-
     it "rejects #{format_name || "the format"}" do
       expect(klazz.acting_scenes).to be_empty
       expect { compose }.to raise_error(error_class_raised, error_message_raised)
@@ -67,9 +61,6 @@ RSpec.shared_examples "composable scene with handler" do |handler_name, handler_
       expect(klazz.acting_scenes).to include expected_scenes
     end
   else
-    let(:error_class_raised) { ArgumentError }
-    let(:error_message_raised) { /with handler must be a Symbol or Proc, got:/ }
-
     it "rejects #{handler_name || "the handler"}" do
       expect(klazz.acting_scenes).to be_empty
       expect { compose }.to raise_error(error_class_raised, error_message_raised)
