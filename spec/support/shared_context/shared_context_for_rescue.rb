@@ -32,7 +32,8 @@ RSpec.shared_context "with rescuable actor handler" do
   let(:error_instance) { error_class.new "my error" }
   let(:action_filter) { nil }
   let(:format_filter) { nil }
-  let(:rescue_context) { self }
+  let(:rescue_context_class) { Class.new }
+  let(:rescue_context) { rescue_context_class.new }
   let(:visited_errors) { [] }
   let(:rescuable) do
     klazz.rescue_actor(

@@ -168,6 +168,43 @@ RSpec.describe MimeActor::Rescue do
       before { klazz.rescue_act_from RuntimeError, with: proc {} }
     end
 
+    it_behaves_like "rescuable actor handler", "method actor_rescuer" do
+      before do
+        rescue_context_class.define_method(:method_actor_rescuer) { |ex| equal?(ex) }
+        klazz.rescue_act_from RuntimeError, with: :method_actor_rescuer
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler", "proc actor_rescuer" do
+      before do
+        klazz.rescue_act_from RuntimeError, with: proc { |ex| equal?(ex) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler", "lambda actor_rescuer" do
+      before do
+        klazz.rescue_act_from RuntimeError, with: ->(ex) { equal?(ex) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
     it_behaves_like "rescuable actor handler", "error matching actor_rescuer" do
       before do
         klazz.rescue_act_from RuntimeError, with: -> { equal?(1) }
