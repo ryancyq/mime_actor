@@ -91,7 +91,9 @@ module MimeActor
         end
       end
 
-      private def dispatch_rescuer(error, format:, action:, context:)
+      private
+
+      def dispatch_rescuer(error, format:, action:, context:)
         case rescuer = find_rescuer(error, format:, action:)
         when Symbol
           rescuer_method = context.method(rescuer)
@@ -119,7 +121,7 @@ module MimeActor
         end
       end
 
-      private def find_rescuer(error, format:, action:)
+      def find_rescuer(error, format:, action:)
         return unless error
 
         *_, rescuer = actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
@@ -132,7 +134,7 @@ module MimeActor
         rescuer
       end
 
-      private def constantize_rescuee(class_or_name)
+      def constantize_rescuee(class_or_name)
         case class_or_name
         when String, Symbol
           begin
