@@ -82,18 +82,11 @@ module MimeActor
         ArgumentError.new("#{unchecked.inspect} must be a Class/Module or a String referencing a Class/Module")
       end
 
-      # Validate `with` or `block` must be provided and if `with` is provided, it must be a Symbol or Proc
+      # Validate `with` must be a Symbol or Proc
       #
       # @param unchecked the `with` to be validated
-      # @param block the `block` to be valiated
-      def validate_with(unchecked, block)
-        if unchecked.present? && block.present?
-          return ArgumentError.new("provide either the with: keyword argument or a block")
-        end
-        unless unchecked.present? || block.present?
-          return ArgumentError.new("provide the with: keyword argument or a block")
-        end
-        return if block.present? || unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
+      def validate_with(unchecked)
+        return if unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
 
         ArgumentError.new("with handler must be a Symbol or Proc, got: #{unchecked.inspect}")
       end

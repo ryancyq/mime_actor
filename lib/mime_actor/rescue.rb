@@ -35,7 +35,7 @@ module MimeActor
       # @param klazzes the error classes to rescue
       # @param action the `action` filter
       # @param format the `format` filter
-      # @param with the rescue hanlder when `block` is not provided
+      # @param with the rescue handler when `block` is not provided
       # @param block the `block` to evaluate when `with` is not provided
       #
       # @example Rescue StandardError when raised for any action with `html` format
@@ -48,9 +48,13 @@ module MimeActor
       #
       def rescue_act_from(*klazzes, action: nil, format: nil, with: nil, &block)
         raise ArgumentError, "error filter is required" if klazzes.empty?
+        raise ArgumentError, "provide either the with: argument or a block" unless with.present? ^ block_given?
 
-        validate!(:with, with, block)
-        with = block if block_given?
+        if block_given?
+          with = block
+        else
+          validate!(:with, with)
+        end
 
         if action.present?
           action.is_a?(Enumerable) ? validate!(:actions, action) : validate!(:action, action)
@@ -97,26 +101,14 @@ module MimeActor
         case rescuer = find_rescuer(error, format:, action:)
         when Symbol
           rescuer_method = context.method(rescuer)
-          case rescuer_method.arity
-          when 0
-            ->(_e, _f, _a) { rescuer_method.call }
-          when 1
-            ->(e, _f, _a) { rescuer_method.call(e) }
-          when 2
-            ->(e, f, _a) { rescuer_method.call(e, f) }
-          else
-            ->(e, f, a) { rescuer_method.call(e, f, a) }
+          lambda do |*args|
+            passable_args = rescuer_method.arity.negative? ? args : args.take(rescuer_method.arity)
+            rescuer_method.call(*passable_args)
           end
         when Proc
-          case rescuer.arity
-          when 0
-            ->(_e, _f, _a) { context.instance_exec(&rescuer) }
-          when 1
-            ->(e, _f, _a) { context.instance_exec(e, &rescuer) }
-          when 2
-            ->(e, f, _a) { context.instance_exec(e, f, &rescuer) }
-          else
-            ->(e, f, a) { context.instance_exec(e, f, a, &rescuer) }
+          lambda do |*args|
+            passable_args = rescuer.arity.negative? ? args : args.take(rescuer.arity)
+            context.instance_exec(*passable_args, &rescuer)
           end
         end
       end

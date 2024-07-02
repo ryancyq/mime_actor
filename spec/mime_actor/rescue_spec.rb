@@ -114,22 +114,22 @@ RSpec.describe MimeActor::Rescue do
 
     describe "#with" do
       describe "when block is not given" do
-        let(:rescue_actor) { klazz.rescue_act_from StandardError }
+        let(:rescue_act) { klazz.rescue_act_from StandardError }
 
         it "required" do
-          expect { rescue_actor }.to raise_error(ArgumentError, "provide the with: keyword argument or a block")
+          expect { rescue_act }.to raise_error(ArgumentError, "provide either the with: argument or a block")
         end
       end
 
       describe "when block is given" do
-        let(:rescue_actor) do
+        let(:rescue_act) do
           klazz.rescue_act_from StandardError, with: proc {} do
             "test"
           end
         end
 
         it "must be absent" do
-          expect { rescue_actor }.to raise_error(ArgumentError, "provide either the with: keyword argument or a block")
+          expect { rescue_act }.to raise_error(ArgumentError, "provide either the with: argument or a block")
         end
       end
 
@@ -149,6 +149,21 @@ RSpec.describe MimeActor::Rescue do
         let(:handler) { method(:to_s) }
       end
     end
+
+    describe "#block" do
+      let(:rescue_act) do
+        klazz.rescue_act_from StandardError do
+          "test"
+        end
+      end
+
+      it "be the handler" do
+        expect(klazz.actor_rescuers).to be_empty
+        expect { rescue_act }.not_to raise_error
+        expect(klazz.actor_rescuers).not_to be_empty
+        expect(klazz.actor_rescuers).to include(["StandardError", nil, nil, kind_of(Proc)])
+      end
+    end
   end
 
   describe "#rescue_actor" do
@@ -163,9 +178,59 @@ RSpec.describe MimeActor::Rescue do
       end
     end
 
+    it_behaves_like "rescuable actor handler", "defined class name" do
+      before { klazz.rescue_act_from "RuntimeError", with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler", "defined class name with namespace" do
+      let(:error_class) { MimeActor::Error }
+      before { klazz.rescue_act_from "MimeActor::Error", with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler", "undefined class name", acceptance: false do
+      before { klazz.rescue_act_from "MyError", with: proc {} }
+    end
+
     it_behaves_like "rescuable actor handler", "error subclass" do
       let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
       before { klazz.rescue_act_from RuntimeError, with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler", "method actor_rescuer" do
+      before do
+        rescue_context_class.define_method(:method_actor_rescuer) { |ex| equal?(ex) }
+        klazz.rescue_act_from RuntimeError, with: :method_actor_rescuer
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler", "proc actor_rescuer" do
+      before do
+        klazz.rescue_act_from RuntimeError, with: proc { |ex| equal?(ex) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler", "lambda actor_rescuer" do
+      before do
+        klazz.rescue_act_from RuntimeError, with: ->(ex) { equal?(ex) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
     end
 
     it_behaves_like "rescuable actor handler", "error matching actor_rescuer" do
@@ -217,6 +282,21 @@ RSpec.describe MimeActor::Rescue do
       before { klazz.rescue_act_from RuntimeError, with: proc {} }
     end
 
+    it_behaves_like "rescuable actor handler", "error re-raised" do
+      let(:error_re_raise) do
+        begin
+          raise "my original error"
+        rescue StandardError
+          raise ArgumentError, "my re-raised error"
+        end
+      rescue StandardError => e
+        e
+      end
+      let(:error_instance) { error_re_raise }
+      let(:error_instance_rescued) { error_re_raise.cause }
+      before { klazz.rescue_act_from RuntimeError, with: proc {} }
+    end
+
     it_behaves_like "rescuable actor handler", "action and format matching actor_rescuers" do
       let(:error_class) { stub_const "MyError", Class.new(StandardError) }
       let(:rescue_context) { Object.new }
@@ -258,6 +338,18 @@ RSpec.describe MimeActor::Rescue do
         allow(rescue_context).to receive(:equal?)
         expect { rescuable }.not_to raise_error
         expect(rescue_context).to have_received(:equal?).with(3).once
+      end
+    end
+
+    context "when rescuee is not string and symbol" do
+      include_context "with rescuable actor handler"
+
+      before do
+        klazz.actor_rescuers << [123, nil, nil, proc {}]
+      end
+
+      it "raise error" do
+        expect { rescuable }.to raise_error(TypeError, "class or module required")
       end
     end
   end

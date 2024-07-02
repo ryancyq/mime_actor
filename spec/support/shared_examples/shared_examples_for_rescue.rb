@@ -88,8 +88,10 @@ RSpec.shared_examples "rescuable actor handler" do |actor_handler_name, acceptan
   include_context "with rescuable actor handler"
 
   if acceptance
+    let(:error_instance_rescued) { error_instance }
+
     it "rescues #{actor_handler_name || "the actor handler"}" do
-      expect(rescuable).to eq error_instance
+      expect(rescuable).to eq error_instance_rescued
     end
   else
     it "skips #{actor_handler_name || "the actor handler"}" do
