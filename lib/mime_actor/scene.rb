@@ -60,7 +60,7 @@ module MimeActor
         end
       end
 
-      alias_method :act_on_format, :respond_act_to
+      alias act_on_format respond_act_to
 
       private def compose_scene(action, format)
         action_defined = (instance_methods + private_instance_methods).include?(action.to_sym)
