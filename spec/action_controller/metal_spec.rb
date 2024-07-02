@@ -54,7 +54,7 @@ RSpec.describe ActionController::Metal do
       allow(stub_logger).to receive(:warn)
       expect { dispatch }.not_to raise_error
       expect(stub_logger).to have_received(:warn) do |&block|
-        expect(block.call).to eq "actor not found, expected: \"new_json\""
+        expect(block.call).to eq "actor \"new_json\" not found"
       end
     end
 

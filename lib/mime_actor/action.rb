@@ -47,7 +47,7 @@ module MimeActor
       formats = acting_scenes.fetch(action, Set.new)
 
       if formats.empty?
-        logger.warn { "format is empty for action :#{action}" }
+        logger.warn { "format is empty for action #{action.inspect}" }
         return
       end
 
