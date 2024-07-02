@@ -99,7 +99,7 @@ Please see [LICENSE](https://github.com/ryancyq/mime_actor/blob/main/LICENSE) fo
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/ryancyq/mime_actor.
+Bug reports and pull requests are welcome on GitHub at [https://github.com/ryancyq/mime_actor](https://github.com/ryancyq/mime_actor).
 
 [rubygems_badge]: https://img.shields.io/gem/v/mime_actor.svg
 [rubygems]: https://rubygems.org/gems/mime_actor
