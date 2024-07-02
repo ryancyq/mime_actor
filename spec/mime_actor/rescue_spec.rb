@@ -340,5 +340,17 @@ RSpec.describe MimeActor::Rescue do
         expect(rescue_context).to have_received(:equal?).with(3).once
       end
     end
+
+    context "when rescuee is not string and symbol" do
+      include_context "with rescuable actor handler"
+
+      before do
+        klazz.actor_rescuers << [123, nil, nil, proc {}]
+      end
+
+      it "raise error" do
+        expect { rescuable }.to raise_error(TypeError, "class or module required")
+      end
+    end
   end
 end
