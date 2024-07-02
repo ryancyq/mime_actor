@@ -114,22 +114,22 @@ RSpec.describe MimeActor::Rescue do
 
     describe "#with" do
       describe "when block is not given" do
-        let(:rescue_actor) { klazz.rescue_act_from StandardError }
+        let(:rescue_act) { klazz.rescue_act_from StandardError }
 
         it "required" do
-          expect { rescue_actor }.to raise_error(ArgumentError, "provide either the with: argument or a block")
+          expect { rescue_act }.to raise_error(ArgumentError, "provide either the with: argument or a block")
         end
       end
 
       describe "when block is given" do
-        let(:rescue_actor) do
+        let(:rescue_act) do
           klazz.rescue_act_from StandardError, with: proc {} do
             "test"
           end
         end
 
         it "must be absent" do
-          expect { rescue_actor }.to raise_error(ArgumentError, "provide either the with: argument or a block")
+          expect { rescue_act }.to raise_error(ArgumentError, "provide either the with: argument or a block")
         end
       end
 
@@ -147,6 +147,21 @@ RSpec.describe MimeActor::Rescue do
       end
       it_behaves_like "rescuable with handler", "Method", Method, acceptance: false do
         let(:handler) { method(:to_s) }
+      end
+    end
+
+    describe "#block" do
+      let(:rescue_act) do
+        klazz.rescue_act_from StandardError do
+          "test"
+        end
+      end
+
+      it "be the handler" do
+        expect(klazz.actor_rescuers).to be_empty
+        expect { rescue_act }.not_to raise_error
+        expect(klazz.actor_rescuers).not_to be_empty
+        expect(klazz.actor_rescuers).to include(["StandardError", nil, nil, kind_of(Proc)])
       end
     end
   end
