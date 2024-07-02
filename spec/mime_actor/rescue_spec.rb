@@ -269,6 +269,21 @@ RSpec.describe MimeActor::Rescue do
       before { klazz.rescue_act_from RuntimeError, with: proc {} }
     end
 
+    it_behaves_like "rescuable actor handler", "error re-raised" do
+      let(:error_re_raise) do
+        begin
+          raise "my original error"
+        rescue StandardError
+          raise ArgumentError, "my re-raised error"
+        end
+      rescue StandardError => e
+        e
+      end
+      let(:error_instance) { error_re_raise }
+      let(:error_instance_rescued) { error_re_raise.cause }
+      before { klazz.rescue_act_from RuntimeError, with: proc {} }
+    end
+
     it_behaves_like "rescuable actor handler", "action and format matching actor_rescuers" do
       let(:error_class) { stub_const "MyError", Class.new(StandardError) }
       let(:rescue_context) { Object.new }
