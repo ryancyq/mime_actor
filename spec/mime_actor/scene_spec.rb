@@ -80,26 +80,73 @@ RSpec.describe MimeActor::Scene do
       end
     end
 
+    describe "#with" do
+      describe "when block is not given" do
+        let(:compose) { klazz.respond_act_to :html, on: :create }
+
+        it "optional" do
+          expect { compose }.not_to raise_error
+        end
+      end
+
+      describe "when block is given" do
+        let(:empty_block) { proc {} }
+        let(:compose) { klazz.respond_act_to :html, on: :create, with: proc {}, &empty_block }
+
+        it "must be absent" do
+          expect { compose }.to raise_error(ArgumentError, "provide either the with: argument or a block")
+        end
+      end
+
+      it_behaves_like "composable scene with handler", "Proc", Proc do
+        let(:handler) { proc {} }
+      end
+      it_behaves_like "composable scene with handler", "Lambda", Proc do
+        let(:handler) { -> {} }
+      end
+      it_behaves_like "composable scene with handler", "Symbol", Symbol do
+        let(:handler) { :custom_handler }
+      end
+      it_behaves_like "composable scene with handler", "String", String, acceptance: false do
+        let(:handler) { "custom_handler" }
+      end
+      it_behaves_like "composable scene with handler", "Method", Method, acceptance: false do
+        let(:handler) { method(:to_s) }
+      end
+    end
+
+    describe "#block" do
+      let(:empty_block) { proc {} }
+      let(:compose) { klazz.respond_act_to :html, on: :show, &empty_block }
+
+      it "be the handler" do
+        expect(klazz.acting_scenes).to be_empty
+        expect { compose }.not_to raise_error
+        expect(klazz.acting_scenes).not_to be_empty
+        expect(klazz.acting_scenes).to include(show: { html: kind_of(Proc) })
+      end
+    end
+
     describe "when is called multiple times" do
       it "merges the scenes" do
         expect(klazz.acting_scenes).to be_empty
         klazz.respond_act_to(:html, on: %i[index create])
         expect(klazz.acting_scenes).to include(
-          index:  Set[:html],
-          create: Set[:html]
+          index:  { html: anything },
+          create: { html: anything }
         )
         klazz.respond_act_to(:xml, on: %i[create update])
         expect(klazz.acting_scenes).to include(
-          index:  Set[:html],
-          create: Set[:html, :xml],
-          update: Set[:xml]
+          index:  { html: anything },
+          create: { html: anything, xml: anything },
+          update: { xml: anything }
         )
         klazz.respond_act_to(:json, :xml, on: %i[create show])
         expect(klazz.acting_scenes).to include(
-          index:  Set[:html],
-          create: Set[:html, :xml, :json],
-          update: Set[:xml],
-          show:   Set[:json, :xml]
+          index:  { html: anything },
+          create: { html: anything, xml: anything, json: anything },
+          update: { xml: anything },
+          show:   { json: anything, xml: anything }
         )
       end
     end

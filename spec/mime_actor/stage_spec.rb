@@ -133,75 +133,44 @@ RSpec.describe MimeActor::Stage do
   end
 
   describe "#cue_actor" do
-    let(:cue) { klazz_instance.cue_actor(actor_name, *acting_instructions) }
-    let(:klazz_instance) { klazz.new }
-    let(:acting_instructions) { [] }
-    let(:stub_logger) { instance_double(ActiveSupport::Logger) }
+    context "when actor is Integer" do
+      include_context "with stage cue"
+      let(:actor) { 200 }
 
-    before { klazz.config.logger = stub_logger }
-
-    context "when actor does not exist" do
-      let(:actor_name) { :unknown_actor }
-
-      before { allow(stub_logger).to receive(:warn).and_yield }
-
-      it "returns nil" do
-        expect(cue).to be_nil
-      end
-
-      it "logs a warning message" do
-        expect(cue).to be_nil
-        expect(stub_logger).to have_received(:warn) do |&block|
-          expect(block.call).to eq "actor :unknown_actor not found"
-        end
-      end
-
-      context "when raise_on_missing_actor is set" do
-        before { klazz.raise_on_missing_actor = true }
-
-        it "raises #{MimeActor::ActorNotFound}" do
-          expect { cue }.to raise_error(MimeActor::ActorNotFound, ":unknown_actor not found")
-        end
+      it "raises #{ArgumentError}" do
+        expect { cue }.to raise_error(ArgumentError, "invalid actor, got: 200")
       end
     end
 
-    context "when actor exists" do
-      let(:actor_name) { :lead_role }
+    it_behaves_like "stage cue actor method", "string_actor"
+    it_behaves_like "stage cue actor method", :symbol_actor
 
-      context "with insturctions" do
-        let(:acting_instructions) { "overheard the news" }
-
-        before do
-          klazz.define_method(actor_name) do |scripts|
-            "shed tears of joy when #{scripts}"
-          end
-        end
+    describe "when actor is Proc" do
+      include_context "with stage cue"
+      context "with instructions" do
+        let(:actor) { ->(scripts) { "shed tears of joy when #{scripts}" } }
+        let(:acting_instructions) { "saw the news" }
 
         it "returns result from actor" do
-          expect(cue).to eq "shed tears of joy when overheard the news"
+          expect(cue).to eq "shed tears of joy when saw the news"
         end
       end
 
-      context "without insturctions" do
-        before do
-          klazz.define_method(actor_name) { "a meaningless truth" }
-        end
+      context "without instructions" do
+        let(:actor) { -> { "a meaninglful day" } }
 
         it "returns result from actor" do
-          expect(cue).to eq "a meaningless truth"
+          expect(cue).to eq "a meaninglful day"
         end
       end
 
       context "with block passed" do
-        let(:cue) { klazz_instance.cue_actor(actor_name, *acting_instructions, &another_block) }
-        let(:another_block) { ->(num) { num**num } }
-
-        before do
-          klazz.define_method(actor_name) { 3 }
-        end
+        let(:cue) { klazz_instance.cue_actor(actor, *acting_instructions, &another_actor) }
+        let(:actor) { -> { 4 } }
+        let(:another_actor) { ->(num) { num**num } }
 
         it "yield the block wih the result from actor" do
-          expect(cue).to eq 27
+          expect(cue).to eq 256
         end
       end
     end
