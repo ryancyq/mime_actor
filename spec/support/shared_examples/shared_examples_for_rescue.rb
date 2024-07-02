@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/array/wrap"
-
 RSpec.shared_examples "rescuable error filter" do |error_name, acceptance: true|
   include_context "with rescuable filter"
 

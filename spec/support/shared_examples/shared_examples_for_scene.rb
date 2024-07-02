@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/array/wrap"
-
 RSpec.shared_examples "composable scene action" do |action_name, acceptance: true|
   include_context "with scene composition"
 

@@ -24,7 +24,7 @@ module MimeActor
 
   class ActorNotFound < ActorError
     def generate_message
-      ":#{actor} not found"
+      "#{actor.inspect} not found"
     end
   end
 
@@ -39,7 +39,7 @@ module MimeActor
 
   class ActionExisted < ActionError
     def generate_message
-      "action :#{action} already existed"
+      "action #{action.inspect} already existed"
     end
   end
 end

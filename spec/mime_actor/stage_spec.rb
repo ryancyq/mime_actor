@@ -152,7 +152,7 @@ RSpec.describe MimeActor::Stage do
       it "logs a warning message" do
         expect(cue).to be_nil
         expect(stub_logger).to have_received(:warn) do |&block|
-          expect(block.call).to eq "actor not found, expected :unknown_actor"
+          expect(block.call).to eq "actor :unknown_actor not found"
         end
       end
 
