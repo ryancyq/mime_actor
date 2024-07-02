@@ -63,25 +63,45 @@ module MimeActor
       end
     end
 
-    # Calls the `actor` method if defined, supports passing arguments to the `actor` method.
-    #
+    # Calls the `actor` and passing arguments to it.
     # If a block is given, the result from the `actor` method will be yieled to the block.
     #
-    # @param actor_name
-    def cue_actor(actor_name, *args)
-      unless self.class.actor?(actor_name)
-        raise MimeActor::ActorNotFound, actor_name if raise_on_missing_actor
+    # NOTE: method call on actor if it is String or Symbol. Proc#call if actor is Proc
+    #
+    # @param actor either a method name or a block to evaluate
+    def cue_actor(actor, *args)
+      result = case actor
+               when String, Symbol
+                 actor_method_call(actor, *args)
+               when Proc
+                 actor_proc_call(actor, *args)
+               else
+                 raise ArgumentError, "invalid actor, got: #{actor.inspect}"
+               end
 
-        logger.warn { "actor #{actor_name.inspect} not found" }
-        return
-      end
-
-      result = public_send(actor_name, *args)
       if block_given?
         yield result
       else
         result
       end
+    end
+
+    private
+
+    def actor_method_call(actor_method, *args)
+      unless self.class.actor?(actor_method)
+        raise MimeActor::ActorNotFound, actor_method if raise_on_missing_actor
+
+        logger.warn { "actor #{actor_method.inspect} not found" }
+        return
+      end
+
+      public_send(actor_method, *args)
+    end
+
+    def actor_proc_call(actor_proc, *args)
+      passable_args = actor_proc.arity.negative? ? args : args.take(actor_proc.arity)
+      actor_proc.call(*passable_args)
     end
   end
 end
