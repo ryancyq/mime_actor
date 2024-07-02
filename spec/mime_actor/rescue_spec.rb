@@ -178,6 +178,19 @@ RSpec.describe MimeActor::Rescue do
       end
     end
 
+    it_behaves_like "rescuable actor handler", "defined class name" do
+      before { klazz.rescue_act_from "RuntimeError", with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler", "defined class name with namespace" do
+      let(:error_class) { MimeActor::Error }
+      before { klazz.rescue_act_from "MimeActor::Error", with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler", "undefined class name", acceptance: false do
+      before { klazz.rescue_act_from "MyError", with: proc {} }
+    end
+
     it_behaves_like "rescuable actor handler", "error subclass" do
       let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
       before { klazz.rescue_act_from RuntimeError, with: proc {} }
