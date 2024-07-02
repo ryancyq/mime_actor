@@ -42,7 +42,7 @@ module MimeActor
       #
       # @param unchecked the `action` to be validated
       def validate_action(unchecked)
-        ArgumentError.new("action must be a Symbol") unless unchecked.is_a?(Symbol)
+        TypeError.new("action must be a Symbol") unless unchecked.is_a?(Symbol)
       end
 
       # Validate `actions` must be a collection of Symbol
@@ -57,7 +57,7 @@ module MimeActor
       #
       # @param unchecked the `format` to be validated
       def validate_format(unchecked)
-        return ArgumentError.new("format must be a Symbol") unless unchecked.is_a?(Symbol)
+        return TypeError.new("format must be a Symbol") unless unchecked.is_a?(Symbol)
 
         NameError.new("invalid format, got: #{unchecked.inspect}") unless scene_formats.include?(unchecked)
       end
@@ -79,7 +79,7 @@ module MimeActor
       def validate_klazz(unchecked)
         return if unchecked.is_a?(Module) || unchecked.is_a?(String)
 
-        ArgumentError.new("#{unchecked.inspect} must be a Class/Module or a String referencing a Class/Module")
+        TypeError.new("#{unchecked.inspect} must be a Class/Module or a String referencing a Class/Module")
       end
 
       # Validate `with` must be a Symbol or Proc
@@ -88,7 +88,7 @@ module MimeActor
       def validate_with(unchecked)
         return if unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
 
-        ArgumentError.new("with handler must be a Symbol or Proc, got: #{unchecked.inspect}")
+        TypeError.new("with handler must be a Symbol or Proc, got: #{unchecked.inspect}")
       end
     end
   end

@@ -76,7 +76,7 @@ module MimeActor
                when Proc
                  actor_proc_call(actor, *args)
                else
-                 raise ArgumentError, "invalid actor, got: #{actor.inspect}"
+                 raise TypeError, "invalid actor, got: #{actor.inspect}"
                end
 
       if block_given?

@@ -17,6 +17,7 @@ RSpec.describe MimeActor::Scene do
     describe "#action" do
       it_behaves_like "composable scene action", "nil", acceptance: false do
         let(:action_filter) { nil }
+        let(:error_class_raised) { ArgumentError }
         let(:error_message_raised) { "action is required" }
       end
       it_behaves_like "composable scene action", "Symbol" do
@@ -27,6 +28,8 @@ RSpec.describe MimeActor::Scene do
       end
       it_behaves_like "composable scene action", "String", acceptance: false do
         let(:action_filter) { "create" }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "action must be a Symbol" }
       end
       it_behaves_like "composable scene action", "Array of String", acceptance: false do
         let(:action_filters) { %w[index create] }
@@ -55,9 +58,13 @@ RSpec.describe MimeActor::Scene do
     describe "unsupported format" do
       it_behaves_like "composable scene format", "Symbol", acceptance: false do
         let(:format_filter) { :my_custom }
+        let(:error_class_raised) { NameError }
+        let(:error_message_raised) { "invalid formats, got: :my_custom" }
       end
       it_behaves_like "composable scene format", "Array of Symbol", acceptance: false do
         let(:format_filters) { %i[html my_custom xml] }
+        let(:error_class_raised) { NameError }
+        let(:error_message_raised) { "invalid formats, got: :my_custom" }
       end
     end
 
@@ -109,9 +116,13 @@ RSpec.describe MimeActor::Scene do
       end
       it_behaves_like "composable scene with handler", "String", String, acceptance: false do
         let(:handler) { "custom_handler" }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "with handler must be a Symbol or Proc, got: #{handler.inspect}" }
       end
       it_behaves_like "composable scene with handler", "Method", Method, acceptance: false do
         let(:handler) { method(:to_s) }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "with handler must be a Symbol or Proc, got: #{handler.inspect}" }
       end
     end
 
