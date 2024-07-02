@@ -18,10 +18,22 @@ module MimeActor
   #
   # @example register a `html` format on action `index`
   #   respond_act_to :html, on: :index
+  #
+  #   # this method should be defined in the class
+  #   def index_html; end
   # @example register `html`, `json` formats on actions `index`, `show`
   #   respond_act_to :html, :json , on: [:index, :show]
+  #
+  #   # these methods should be defined in the class
+  #   def index_html; end
+  #   def index_json; end
+  #   def show_html; end
+  #   def show_json; end
   # @example register a `html` format on action `index` with respond handler method
   #   respond_act_to :html, on: :index, with: :render_html
+  #
+  #   # this method should be defined in the class
+  #   def render_html; end
   # @example register a `html` format on action `index` with respond handler proc
   #   respond_act_to :html, on: :index do
   #     render :index
@@ -48,10 +60,22 @@ module MimeActor
       #
       # @example register a `html` format on action `index`
       #   respond_act_to :html, on: :index
+      #
+      #   # this method should be defined in the class
+      #   def index_html; end
       # @example register `html`, `json` formats on actions `index`, `show`
       #   respond_act_to :html, :json , on: [:index, :show]
+      #
+      #   # these methods should be defined in the class
+      #   def index_html; end
+      #   def index_json; end
+      #   def show_html; end
+      #   def show_json; end
       # @example register a `html` format on action `index` with respond handler method
       #   respond_act_to :html, on: :index, with: :render_html
+      #
+      #   # this method should be defined in the class
+      #   def render_html; end
       # @example register a `html` format on action `index` with respond handler proc
       #   respond_act_to :html, on: :index do
       #     render :index
