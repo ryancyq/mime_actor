@@ -147,6 +147,15 @@ RSpec.describe MimeActor::Stage do
 
     describe "when actor is Proc" do
       include_context "with stage cue"
+
+      let(:actor) { -> { equal?(1) } }
+
+      it "evaluate with context" do
+        allow(klazz_instance).to receive(:equal?).and_return(true)
+        expect(cue).to be_truthy
+        expect(klazz_instance).to have_received(:equal?).with(1)
+      end
+
       context "with instructions" do
         let(:actor) { ->(scripts) { "shed tears of joy when #{scripts}" } }
         let(:acting_instructions) { "saw the news" }

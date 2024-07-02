@@ -101,7 +101,7 @@ module MimeActor
 
     def actor_proc_call(actor_proc, *args)
       passable_args = actor_proc.arity.negative? ? args : args.take(actor_proc.arity)
-      actor_proc.call(*passable_args)
+      instance_exec(*passable_args, &actor_proc)
     end
   end
 end
