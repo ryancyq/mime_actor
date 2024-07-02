@@ -90,11 +90,8 @@ RSpec.describe MimeActor::Scene do
       end
 
       describe "when block is given" do
-        let(:compose) do
-          klazz.respond_act_to :html, on: :create, with: proc {} do
-            "test"
-          end
-        end
+        let(:empty_block) { proc {} }
+        let(:compose) { klazz.respond_act_to :html, on: :create, with: proc {}, &empty_block }
 
         it "must be absent" do
           expect { compose }.to raise_error(ArgumentError, "provide either the with: argument or a block")
@@ -115,6 +112,18 @@ RSpec.describe MimeActor::Scene do
       end
       it_behaves_like "composable scene with handler", "Method", Method, acceptance: false do
         let(:handler) { method(:to_s) }
+      end
+    end
+
+    describe "#block" do
+      let(:empty_block) { proc {} }
+      let(:compose) { klazz.respond_act_to :html, on: :show, &empty_block }
+
+      it "be the handler" do
+        expect(klazz.acting_scenes).to be_empty
+        expect { compose }.not_to raise_error
+        expect(klazz.acting_scenes).not_to be_empty
+        expect(klazz.acting_scenes).to include(show: { html: kind_of(Proc) })
       end
     end
 
