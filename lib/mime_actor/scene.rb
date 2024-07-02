@@ -60,9 +60,11 @@ module MimeActor
         end
       end
 
-      alias_method :act_on_format, :respond_act_to
+      alias act_on_format respond_act_to
 
-      private def compose_scene(action, format)
+      private
+
+      def compose_scene(action, format)
         action_defined = (instance_methods + private_instance_methods).include?(action.to_sym)
         raise MimeActor::ActionExisted, action if !acting_scenes.key?(action) && action_defined
 
@@ -72,7 +74,7 @@ module MimeActor
         define_scene(action) unless action_defined
       end
 
-      private def define_scene(action)
+      def define_scene(action)
         class_eval(
           # def index
           #   self.respond_to?(:start_scene) && self.start_scene(:index)
@@ -81,7 +83,7 @@ module MimeActor
             def #{action}
               self.respond_to?(:start_scene) && self.start_scene(:#{action})
             end
-        RUBY
+          RUBY
         )
       end
     end
