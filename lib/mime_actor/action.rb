@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :markup: markdown
+
 require "mime_actor/scene"
 require "mime_actor/stage"
 require "mime_actor/rescue"
