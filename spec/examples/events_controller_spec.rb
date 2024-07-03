@@ -46,4 +46,37 @@ RSpec.describe EventsController do
       end
     end
   end
+
+  describe "#show" do
+    let(:action_name) { "show" }
+    let(:request_method) { "GET" }
+
+    context "non existed event_id" do
+      let(:request_params) { "event_id=100" }
+
+      context "with json" do
+        let(:request_accept) { Mime[:json] }
+
+        it "responds bad request" do
+          expect(dispatch).to contain_exactly(
+            400,
+            a_hash_including("content-type" => /json/),
+            kind_of(ActionDispatch::Response::RackBody)
+          )
+        end
+      end
+
+      context "with html" do
+        let(:request_accept) { Mime[:html] }
+
+        it "responds" do
+          expect(dispatch).to contain_exactly(
+            200,
+            a_hash_including("content-type" => /json/),
+            kind_of(ActionDispatch::Response::RackBody)
+          )
+        end
+      end
+    end
+  end
 end

@@ -1,31 +1,15 @@
 # frozen_string_literal: true
 
+require_relative "events_active_record"
 require "mime_actor"
-require "active_record"
 require "action_controller"
 
 class EventsController < ActionController::Base
   include MimeActor::Action
 
-  class Event
-    def self.all
-      []
-    end
-
-    def self.find(_id)
-      nil
-    end
-  end
-
-  class EventCategory
-    def self.all
-      []
-    end
-  end
-
   # AbstractController::Callbacks here to load model with params
-  before_action only: :index, with: :load_events
-  before_action only: %i[show update], with: :load_event
+  before_action :load_events, only: :index
+  before_action :load_event, only: %i[show update]
 
   respond_act_to :html, :json, on: :update
   respond_act_to :html, on: %i[index show], with: :render_html
@@ -44,7 +28,7 @@ class EventsController < ActionController::Base
 
   def update_html
     # ...
-    redirect_to "/events/#{@event_id}" # redirect to show upon sucessful update
+    redirect_to "/events/#{@event.id}" # redirect to show upon sucessful update
   rescue ActiveRecord::RecordNotFound
     render html: :edit
   end
