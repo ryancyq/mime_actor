@@ -6,7 +6,6 @@ require "mime_actor/errors"
 require "mime_actor/validator"
 
 require "active_support/concern"
-require "active_support/core_ext/array/extract_options"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/object/blank"
