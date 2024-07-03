@@ -46,13 +46,13 @@ module MimeActor
       # @param block the `block` to be evaluated
       #
       # @example Dispatch a cue that prints out a text
-      #   dispatch = self.class.dispatch_cue(action: :create, format: :json, context: self) do
+      #   dispatch = self.class.dispatch_act(action: :create, format: :json, context: self) do
       #       puts "completed the dispatch"
       #   end
       #
       #   dispatch.call == "completed the dispatch" # true
       #
-      def dispatch_cue(action: nil, format: nil, context: self, &block)
+      def dispatch_act(action: nil, format: nil, context: self, &block)
         raise ArgumentError, "block must be provided" unless block_given?
 
         lambda do
@@ -61,6 +61,9 @@ module MimeActor
           (respond_to?(:rescue_actor) && rescue_actor(e, action:, format:, context:)) || raise
         end
       end
+
+      # TODO: remove on next breaking change release
+      alias dispatch_cue dispatch_act
     end
 
     # Calls the `actor` and passing arguments to it.

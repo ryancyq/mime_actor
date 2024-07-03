@@ -65,28 +65,28 @@ RSpec.describe MimeActor::Action do
     describe "when actor is defined" do
       before { klazz.define_method(actor_name) { "my actor" } }
 
-      it "calls #dispatch_cue" do
-        allow(klazz).to receive(:dispatch_cue).and_call_original
+      it "calls #dispatch_act" do
+        allow(klazz).to receive(:dispatch_act).and_call_original
         allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
         allow(stub_collector).to receive(:html)
 
         expect { start }.not_to raise_error
 
-        expect(klazz).to have_received(:dispatch_cue)
+        expect(klazz).to have_received(:dispatch_act)
         expect(klazz_instance).to have_received(:respond_to)
         expect(stub_collector).to have_received(:html) { |&block| expect(block.call).to eq "my actor" }
       end
     end
 
     describe "when actor undefined" do
-      it "calls #dispatch_cue" do
-        allow(klazz).to receive(:dispatch_cue)
+      it "calls #dispatch_act" do
+        allow(klazz).to receive(:dispatch_act)
         allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
         allow(stub_collector).to receive(:html)
 
         expect { start }.not_to raise_error
 
-        expect(klazz).to have_received(:dispatch_cue)
+        expect(klazz).to have_received(:dispatch_act)
         expect(klazz_instance).to have_received(:respond_to)
         expect(stub_collector).to have_received(:html)
       end

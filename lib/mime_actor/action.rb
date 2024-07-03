@@ -54,7 +54,7 @@ module MimeActor
 
       respond_to do |collector|
         formats.each do |format, actor|
-          dispatch = self.class.dispatch_cue(action: action, format: format, context: self) do
+          dispatch = self.class.dispatch_act(action: action, format: format, context: self) do
             cue_actor(actor.presence || "#{action}_#{format}")
           end
           collector.public_send(format, &dispatch)

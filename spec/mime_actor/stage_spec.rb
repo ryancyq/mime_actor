@@ -7,6 +7,14 @@ require "active_support/logger"
 RSpec.describe MimeActor::Stage do
   let(:klazz) { Class.new.include described_class }
 
+  describe "#dispatch_cue" do
+    it "alias #dispatch_cue" do
+      expect(klazz).not_to be_method_defined(:dispatch_cue)
+      expect(klazz.singleton_class).to be_method_defined(:dispatch_cue)
+      expect(klazz.method(:dispatch_cue)).to eq klazz.method(:dispatch_act)
+    end
+  end
+
   describe "#raise_on_missing_actor" do
     it "allows class attribute reader" do
       expect(klazz.raise_on_missing_actor).to be_falsey
@@ -61,15 +69,15 @@ RSpec.describe MimeActor::Stage do
     end
   end
 
-  describe "#dispatch_cue" do
+  describe "#dispatch_act" do
     let(:stub_proc) { proc { to_s } }
 
     it "requires block" do
-      expect { klazz.dispatch_cue }.to raise_error(ArgumentError, "block must be provided")
+      expect { klazz.dispatch_act }.to raise_error(ArgumentError, "block must be provided")
     end
 
     it "returns a Proc" do
-      dispatch = klazz.dispatch_cue(&stub_proc)
+      dispatch = klazz.dispatch_act(&stub_proc)
       expect(dispatch).to be_a(Proc)
       expect(dispatch).not_to eq stub_proc
     end
@@ -79,15 +87,15 @@ RSpec.describe MimeActor::Stage do
       let(:object_instance) { object_class.new }
 
       it "invokes under class context" do
-        dispatch = klazz.dispatch_cue(context: object_class, &stub_proc)
+        dispatch = klazz.dispatch_act(context: object_class, &stub_proc)
         expect(dispatch.call).to eq "MyObject"
-        expect(stub_proc.call).to match(/RSpec::.*DispatchCue::WithContext:/)
+        expect(stub_proc.call).to match(/RSpec::.*DispatchAct::WithContext:/)
       end
 
       it "invokes under object context" do
-        dispatch = klazz.dispatch_cue(context: object_instance, &stub_proc)
+        dispatch = klazz.dispatch_act(context: object_instance, &stub_proc)
         expect(dispatch.call).to match(/MyObject:/)
-        expect(stub_proc.call).to match(/RSpec::.*DispatchCue::WithContext/)
+        expect(stub_proc.call).to match(/RSpec::.*DispatchAct::WithContext/)
       end
     end
 
@@ -99,7 +107,7 @@ RSpec.describe MimeActor::Stage do
 
         it "does not bubbles up" do
           allow(klazz).to receive(:rescue_actor).and_return(true)
-          dispatch = klazz.dispatch_cue(
+          dispatch = klazz.dispatch_act(
             action:  :abc,
             format:  "xyz",
             context: object_instance
@@ -120,7 +128,7 @@ RSpec.describe MimeActor::Stage do
       describe "when error is not handled" do
         it "bubbles up" do
           allow(klazz).to receive(:rescue_actor)
-          dispatch = klazz.dispatch_cue { raise "my error" }
+          dispatch = klazz.dispatch_act { raise "my error" }
 
           expect { dispatch.call }.to raise_error do |ex|
             expect(ex).to be_a(RuntimeError)
