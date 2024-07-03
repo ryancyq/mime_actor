@@ -107,6 +107,7 @@ module MimeActor
         end
       end
 
+      # TODO: remove on next breaking change release
       alias act_on_format respond_act_to
 
       private
