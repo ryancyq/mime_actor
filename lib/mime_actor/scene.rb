@@ -122,7 +122,7 @@ module MimeActor
       end
 
       def define_scene(action)
-        class_eval(
+        module_eval(
           # def index
           #   self.respond_to?(:start_scene) && self.start_scene(:index)
           # end
