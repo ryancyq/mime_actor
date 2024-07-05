@@ -30,7 +30,7 @@ RSpec.describe MimeActor::Stage do
 
     it "disallows instance writter" do
       expect { klazz.new.raise_on_missing_actor = true }.to raise_error(
-        NoMethodError, /undefined method `raise_on_missing_actor='/
+        NoMethodError, %r{undefined method `raise_on_missing_actor='}
       )
     end
   end
@@ -89,13 +89,13 @@ RSpec.describe MimeActor::Stage do
       it "invokes under class context" do
         dispatch = klazz.dispatch_act(context: object_class, &stub_proc)
         expect(dispatch.call).to eq "MyObject"
-        expect(stub_proc.call).to match(/RSpec::.*DispatchAct::WithContext:/)
+        expect(stub_proc.call).to match(%r{RSpec::.*DispatchAct::WithContext:})
       end
 
       it "invokes under object context" do
         dispatch = klazz.dispatch_act(context: object_instance, &stub_proc)
-        expect(dispatch.call).to match(/MyObject:/)
-        expect(stub_proc.call).to match(/RSpec::.*DispatchAct::WithContext/)
+        expect(dispatch.call).to match(%r{MyObject:})
+        expect(stub_proc.call).to match(%r{RSpec::.*DispatchAct::WithContext})
       end
     end
 

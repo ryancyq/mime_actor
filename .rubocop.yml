@@ -16,6 +16,9 @@ Style/BlockComments:
   Exclude:
     - spec/*_helper.rb
 
+Style/RegexpLiteral:
+  EnforcedStyle: percent_r
+
 Metrics/AbcSize:
   Enabled: false
   
