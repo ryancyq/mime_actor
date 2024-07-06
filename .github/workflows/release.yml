@@ -28,7 +28,17 @@ jobs:
         run: |
           bundle exec rake spec
 
+      - name: Checkout new Release branch
+        run: |
+          git checkout -b release
+
       - name: Release New Version
         uses: rubygems/release-gem@v1
         with:
           await-release: false
+
+      - name: Clean up Release branch
+        if: always()
+        run: |
+          git ls-remote --exit-code --heads origin refs/heads/release && echo "release branch existed" && git branch -dr origin/release
+
