@@ -146,7 +146,7 @@ DEPENDENCIES
   actionpack (>= 5.0)
   activesupport (>= 5.0)
   mime_actor!
-  rake (>= 10.0)
+  rake (>= 11.0)
   rspec (~> 3.12)
   rubocop (~> 1.64)
   rubocop-rake
