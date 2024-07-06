@@ -40,5 +40,5 @@ jobs:
       - name: Clean up Release branch
         if: always()
         run: |
-          git ls-remote --exit-code --heads origin refs/heads/release && echo "release branch existed" && git branch -dr origin/release
+          git ls-remote --exit-code --heads origin refs/heads/release && echo "release branch existed in remote" && git push -d origin refs/heads/release
 
