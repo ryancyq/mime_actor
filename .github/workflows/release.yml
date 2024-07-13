@@ -28,37 +28,5 @@ jobs:
         run: |
           bundle exec rake spec
 
-      - name: Examine gemspec
-        id: gem-release-info
-        run: |
-          gem_version=$(ruby -rbundler -e "puts Bundler::GemHelper.new.send(:version_tag)")
-          echo "GEM_VERSION=$gem_version" >> "$GITHUB_OUTPUT"
-          echo "RELEASE_BRANCH=releases/$gem_version" >> "$GITHUB_OUTPUT"
-
-      - name: Checkout new release branch
-        run: |
-          git checkout -b ${{ steps.gem-release-info.outputs.RELEASE_BRANCH }}
-
-      - name: Release Gem
-        uses: rubygems/release-gem@v1
-        with:
-          await-release: false
-
-      - name: Determine release branch
-        id: release-branch
-        if: always()
-        run: |
-          release_branch=$(git ls-remote --heads origin refs/heads/${{ steps.gem-release-info.outputs.RELEASE_BRANCH }})
-          if [[ -n $release_branch ]]; then
-            echo "Release branch ${{ steps.gem-release-info.outputs.RELEASE_BRANCH }} existed in remote"
-            echo "BRANCH_EXISTS=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Release branch ${{ steps.gem-release-info.outputs.RELEASE_BRANCH }} does not exist in remote"
-            echo "BRANCH_EXISTS=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Clean up release branch
-        if: ${{ steps.release-branch.outputs.BRANCH_EXISTS == 'true' }}
-        run: |
-          git push -d origin refs/heads/${{ steps.gem-release-info.outputs.RELEASE_BRANCH }}
+      - uses: ryancyq/bundle-release-gem@v1
 
