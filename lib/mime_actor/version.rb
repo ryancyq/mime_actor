@@ -4,11 +4,11 @@
 
 module MimeActor
   def self.version
-    gem_version
+    VERSION::STRING
   end
 
   def self.gem_version
-    Gem::Version.new VERSION::STRING
+    Gem::Version.new(VERSION::STRING)
   end
 
   module VERSION

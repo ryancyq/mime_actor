@@ -4,7 +4,7 @@ require_relative "lib/mime_actor/version"
 
 Gem::Specification.new do |spec|
   spec.name     = "mime_actor"
-  spec.version  = MimeActor.version
+  spec.version  = MimeActor.gem_version
   spec.platform = Gem::Platform::RUBY
   spec.authors  = ["Ryan Chang"]
   spec.email    = ["ryancyq@gmail.com"]
