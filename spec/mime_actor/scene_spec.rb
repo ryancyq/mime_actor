@@ -9,7 +9,12 @@ RSpec.describe MimeActor::Scene do
     it "alias #respond_act_to" do
       expect(klazz).not_to be_method_defined(:act_on_format)
       expect(klazz.singleton_class).to be_method_defined(:act_on_format)
-      expect(klazz.method(:act_on_format)).to eq klazz.method(:respond_act_to)
+    end
+
+    it "logs deprecation warning" do
+      allow(Object).to receive(:warn)
+      expect { klazz.act_on_format :html, on: :show }.not_to raise_error
+      expect(Object).to have_received(:warn).with(%r{act_on_format is deprecated})
     end
   end
 

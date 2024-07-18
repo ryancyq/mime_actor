@@ -109,6 +109,9 @@ module MimeActor
       # TODO: remove on next breaking change release
       alias act_on_format respond_act_to
 
+      extend Gem::Deprecate
+      deprecate :act_on_format, :respond_act_to, 2024, 12
+
       private
 
       def compose_scene(action, format, actor)

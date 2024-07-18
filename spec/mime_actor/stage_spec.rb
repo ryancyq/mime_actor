@@ -8,10 +8,15 @@ RSpec.describe MimeActor::Stage do
   let(:klazz) { Class.new.include described_class }
 
   describe "#dispatch_cue" do
-    it "alias #dispatch_cue" do
+    it "alias #dispatch_act" do
       expect(klazz).not_to be_method_defined(:dispatch_cue)
       expect(klazz.singleton_class).to be_method_defined(:dispatch_cue)
-      expect(klazz.method(:dispatch_cue)).to eq klazz.method(:dispatch_act)
+    end
+
+    it "logs deprecation warning" do
+      allow(Object).to receive(:warn)
+      expect { klazz.dispatch_cue { puts "test" } }.not_to raise_error
+      expect(Object).to have_received(:warn).with(%r{dispatch_cue is deprecated})
     end
   end
 
