@@ -3,6 +3,7 @@
 # :markup: markdown
 
 require "mime_actor/errors"
+require "mime_actor/dispatcher"
 require "mime_actor/logging"
 
 require "active_support/concern"
@@ -76,15 +77,10 @@ module MimeActor
     #
     # @param actor either a method name or a block to evaluate
     def cue_actor(actor, *args)
-      result = case actor
-               when String, Symbol
-                 actor_method_call(actor, *args)
-               when Proc
-                 actor_proc_call(actor, *args)
-               else
-                 raise TypeError, "invalid actor, got: #{actor.inspect}"
-               end
+      dispatch = MimeActor::Dispatcher.build(actor, *args)
+      raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatch
 
+      result = dispatch_actor(dispatch)
       if block_given?
         yield result
       else
@@ -93,6 +89,21 @@ module MimeActor
     end
 
     private
+
+    def dispatch_actor(dispatch)
+      dispatched = false
+      result = catch(:abort) do
+        dispatch.to_callable.call(self).tap { dispatched = true }
+      end
+      handle_actor_error(result) if result.is_a?(MimeActor::Error)
+      result if dispatched
+    end
+
+    def handle_actor_error(error)
+      raise error if raise_on_actor_error
+
+      logger.error { "actor error, cause: #{error.inspect}" }
+    end
 
     def actor_method_call(actor_method, *args)
       unless self.class.actor?(actor_method)
