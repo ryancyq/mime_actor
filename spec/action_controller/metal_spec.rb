@@ -51,10 +51,10 @@ RSpec.describe ActionController::Metal do
       expect(controller_class.action_methods).not_to include(action_actor)
       expect(controller_class).not_to be_method_defined(action_actor)
 
-      allow(stub_logger).to receive(:warn)
+      allow(stub_logger).to receive(:error)
       expect { dispatch }.not_to raise_error
-      expect(stub_logger).to have_received(:warn) do |&block|
-        expect(block.call).to eq "actor \"new_json\" not found"
+      expect(stub_logger).to have_received(:error) do |&block|
+        expect(block.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"new_json\" not found"
       end
     end
 

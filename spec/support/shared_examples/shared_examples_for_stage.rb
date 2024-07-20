@@ -45,16 +45,16 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
   end
 
   context "when actor method does not exist" do
-    before { allow(stub_logger).to receive(:warn).and_yield }
+    before { allow(stub_logger).to receive(:error).and_yield }
 
     it "returns nil" do
       expect(cue).to be_nil
     end
 
-    it "logs a warning message" do
+    it "logs a error message" do
       expect(cue).to be_nil
-      expect(stub_logger).to have_received(:warn) do |&block|
-        expect(block.call).to eq "actor #{actor_method.inspect} not found"
+      expect(stub_logger).to have_received(:error) do |&block|
+        expect(block.call).to eq "actor error, cause: <MimeActor::ActorNotFound> #{actor_method.inspect} not found"
       end
     end
 
