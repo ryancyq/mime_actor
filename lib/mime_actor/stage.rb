@@ -104,21 +104,5 @@ module MimeActor
 
       logger.error { "actor error, cause: #{error.inspect}" }
     end
-
-    def actor_method_call(actor_method, *args)
-      unless self.class.actor?(actor_method)
-        raise MimeActor::ActorNotFound, actor_method if raise_on_actor_error
-
-        logger.warn { "actor #{actor_method.inspect} not found" }
-        return
-      end
-
-      public_send(actor_method, *args)
-    end
-
-    def actor_proc_call(actor_proc, *args)
-      passable_args = actor_proc.arity.negative? ? args : args.take(actor_proc.arity)
-      instance_exec(*passable_args, &actor_proc)
-    end
   end
 end
