@@ -3,6 +3,7 @@
 # :markup: markdown
 
 require "mime_actor/errors"
+require "mime_actor/dispatcher"
 require "mime_actor/logging"
 
 require "active_support/concern"
@@ -19,7 +20,7 @@ module MimeActor
     include Logging
 
     included do
-      mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
+      mattr_accessor :raise_on_actor_error, instance_writer: false, default: false
     end
 
     module ClassMethods
@@ -74,17 +75,14 @@ module MimeActor
     #
     # NOTE: method call on actor if it is String or Symbol. Proc#call if actor is Proc
     #
-    # @param actor either a method name or a block to evaluate
+    # @param actor either a method name or a Proc to evaluate
+    # @param args arguments to be passed when calling the actor
+    #
     def cue_actor(actor, *args)
-      result = case actor
-               when String, Symbol
-                 actor_method_call(actor, *args)
-               when Proc
-                 actor_proc_call(actor, *args)
-               else
-                 raise TypeError, "invalid actor, got: #{actor.inspect}"
-               end
+      dispatch = MimeActor::Dispatcher.build(actor, *args)
+      raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatch
 
+      result = dispatch_actor(dispatch)
       if block_given?
         yield result
       else
@@ -94,20 +92,20 @@ module MimeActor
 
     private
 
-    def actor_method_call(actor_method, *args)
-      unless self.class.actor?(actor_method)
-        raise MimeActor::ActorNotFound, actor_method if raise_on_missing_actor
-
-        logger.warn { "actor #{actor_method.inspect} not found" }
-        return
+    def dispatch_actor(dispatch)
+      dispatched = false
+      result = catch(:abort) do
+        dispatch.to_callable.call(self).tap { dispatched = true }
       end
-
-      public_send(actor_method, *args)
+      handle_actor_error(result) unless dispatched
+      result if dispatched
     end
 
-    def actor_proc_call(actor_proc, *args)
-      passable_args = actor_proc.arity.negative? ? args : args.take(actor_proc.arity)
-      instance_exec(*passable_args, &actor_proc)
+    def handle_actor_error(actor)
+      error = MimeActor::ActorNotFound.new(actor)
+      raise error if raise_on_actor_error
+
+      logger.error { "actor error, cause: #{error.inspect}" }
     end
   end
 end
