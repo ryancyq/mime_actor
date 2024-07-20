@@ -78,11 +78,11 @@ module MimeActor
     # @param actor either a method name or a Proc to evaluate
     # @param args arguments to be passed when calling the actor
     #
-    def cue_actor(actor, *args)
+    def cue_actor(actor, *args, action:, format:)
       dispatch = MimeActor::Dispatcher.build(actor, *args)
       raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatch
 
-      result = dispatch_actor(dispatch)
+      result = dispatch_actor(dispatch, action:, format:)
       if block_given?
         yield result
       else
@@ -92,7 +92,7 @@ module MimeActor
 
     private
 
-    def dispatch_actor(dispatch)
+    def dispatch_actor(dispatch, action:, format:)
       dispatched = false
       result = catch(:abort) do
         dispatch.to_callable.call(self).tap { dispatched = true }

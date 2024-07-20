@@ -65,30 +65,38 @@ RSpec.describe MimeActor::Action do
     describe "when actor is defined" do
       before { klazz.define_method(actor_name) { "my actor" } }
 
-      it "calls #dispatch_act" do
-        allow(klazz).to receive(:dispatch_act).and_call_original
+      it "calls #cue_actor" do
         allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
         allow(stub_collector).to receive(:html)
 
         expect { start }.not_to raise_error
 
-        expect(klazz).to have_received(:dispatch_act)
         expect(klazz_instance).to have_received(:respond_to)
-        expect(stub_collector).to have_received(:html) { |&block| expect(block.call).to eq "my actor" }
+        expect(stub_collector).to have_received(:html) do |&block|
+          allow(klazz_instance).to receive(:cue_actor).and_call_original
+          expect(block.call).to eq "my actor"
+          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, action: :create, format: :html)
+        end
       end
     end
 
     describe "when actor undefined" do
-      it "calls #dispatch_act" do
-        allow(klazz).to receive(:dispatch_act)
+      it "calls #cue_actor" do
         allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
         allow(stub_collector).to receive(:html)
 
         expect { start }.not_to raise_error
 
-        expect(klazz).to have_received(:dispatch_act)
         expect(klazz_instance).to have_received(:respond_to)
-        expect(stub_collector).to have_received(:html)
+        expect(stub_collector).to have_received(:html) do |&block|
+          allow(klazz_instance).to receive(:cue_actor).and_call_original
+          allow(stub_logger).to receive(:error)
+          block.call
+          expect(stub_logger).to have_received(:error) do |&block|
+            expect(block.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"create_html\" not found"
+          end
+          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, action: :create, format: :html)
+        end
       end
     end
   end
