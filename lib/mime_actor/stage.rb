@@ -75,7 +75,9 @@ module MimeActor
     #
     # NOTE: method call on actor if it is String or Symbol. Proc#call if actor is Proc
     #
-    # @param actor either a method name or a block to evaluate
+    # @param actor either a method name or a Proc to evaluate
+    # @param args arguments to be passed when calling the actor
+    #
     def cue_actor(actor, *args)
       dispatch = MimeActor::Dispatcher.build(actor, *args)
       raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatch
