@@ -58,8 +58,8 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
       end
     end
 
-    context "when raise_on_missing_actor is set" do
-      before { klazz.raise_on_missing_actor = true }
+    context "when raise_on_actor_error is set" do
+      before { klazz.raise_on_actor_error = true }
 
       it "raises #{MimeActor::ActorNotFound}" do
         expect { cue }.to raise_error(MimeActor::ActorNotFound, "#{actor_method.inspect} not found")

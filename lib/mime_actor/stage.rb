@@ -19,7 +19,7 @@ module MimeActor
     include Logging
 
     included do
-      mattr_accessor :raise_on_missing_actor, instance_writer: false, default: false
+      mattr_accessor :raise_on_actor_error, instance_writer: false, default: false
     end
 
     module ClassMethods
@@ -96,7 +96,7 @@ module MimeActor
 
     def actor_method_call(actor_method, *args)
       unless self.class.actor?(actor_method)
-        raise MimeActor::ActorNotFound, actor_method if raise_on_missing_actor
+        raise MimeActor::ActorNotFound, actor_method if raise_on_actor_error
 
         logger.warn { "actor #{actor_method.inspect} not found" }
         return

@@ -58,8 +58,8 @@ RSpec.describe ActionController::Metal do
       end
     end
 
-    context "when raise_on_missing_actor is set" do
-      before { controller_class.raise_on_missing_actor = true }
+    context "when raise_on_actor_error is set" do
+      before { controller_class.raise_on_actor_error = true }
 
       it "raises #{MimeActor::ActorNotFound}" do
         expect(controller_class.action_methods).not_to include(action_actor)

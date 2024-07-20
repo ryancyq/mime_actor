@@ -20,22 +20,22 @@ RSpec.describe MimeActor::Stage do
     end
   end
 
-  describe "#raise_on_missing_actor" do
+  describe "#raise_on_actor_error" do
     it "allows class attribute reader" do
-      expect(klazz.raise_on_missing_actor).to be_falsey
+      expect(klazz.raise_on_actor_error).to be_falsey
     end
 
     it "allows class attribute writter" do
-      expect { klazz.raise_on_missing_actor = true }.not_to raise_error
+      expect { klazz.raise_on_actor_error = true }.not_to raise_error
     end
 
     it "allows instance reader" do
-      expect(klazz.new.raise_on_missing_actor).to be_falsey
+      expect(klazz.new.raise_on_actor_error).to be_falsey
     end
 
     it "disallows instance writter" do
-      expect { klazz.new.raise_on_missing_actor = true }.to raise_error(
-        NoMethodError, %r{undefined method `raise_on_missing_actor='}
+      expect { klazz.new.raise_on_actor_error = true }.to raise_error(
+        NoMethodError, %r{undefined method `raise_on_actor_error='}
       )
     end
   end
