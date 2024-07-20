@@ -95,11 +95,12 @@ module MimeActor
       result = catch(:abort) do
         dispatch.to_callable.call(self).tap { dispatched = true }
       end
-      handle_actor_error(result) if result.is_a?(MimeActor::Error)
+      handle_actor_error(result) unless dispatched
       result if dispatched
     end
 
-    def handle_actor_error(error)
+    def handle_actor_error(actor)
+      error = MimeActor::ActorNotFound.new(actor)
       raise error if raise_on_actor_error
 
       logger.error { "actor error, cause: #{error.inspect}" }

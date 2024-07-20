@@ -12,7 +12,7 @@ module MimeActor
 
       def to_callable
         lambda do |target|
-          throw :abort, MimeActor::ActorNotFound.new(@method_name) unless target.respond_to?(@method_name)
+          throw :abort, @method_name unless target.respond_to?(@method_name)
           method_call = target.method(@method_name)
           filtered_args = method_call.arity.negative? ? @args : @args.take(method_call.arity)
           method_call.call(*filtered_args)
