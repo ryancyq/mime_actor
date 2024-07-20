@@ -46,7 +46,6 @@ module MimeActor
     #   end
     #
     def start_scene(action)
-      action = action&.to_sym
       formats = acting_scenes.fetch(action, {})
 
       if formats.empty?
