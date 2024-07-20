@@ -53,8 +53,8 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
 
     it "logs a error message" do
       expect(cue).to be_nil
-      expect(stub_logger).to have_received(:error) do |&block|
-        expect(block.call).to eq "actor error, cause: <MimeActor::ActorNotFound> #{actor_method.inspect} not found"
+      expect(stub_logger).to have_received(:error) do |&logger|
+        expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> #{actor_method.inspect} not found"
       end
     end
 

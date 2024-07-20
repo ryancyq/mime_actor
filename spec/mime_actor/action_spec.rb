@@ -56,8 +56,8 @@ RSpec.describe MimeActor::Action do
 
       it "logs missing formats" do
         expect { start }.not_to raise_error
-        expect(stub_logger).to have_received(:warn) do |&block|
-          expect(block.call).to eq "format is empty for action: :create"
+        expect(stub_logger).to have_received(:warn) do |&logger|
+          expect(logger.call).to eq "format is empty for action: :create"
         end
       end
     end
@@ -92,8 +92,8 @@ RSpec.describe MimeActor::Action do
           allow(klazz_instance).to receive(:cue_actor).and_call_original
           allow(stub_logger).to receive(:error)
           block.call
-          expect(stub_logger).to have_received(:error) do |&block|
-            expect(block.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"create_html\" not found"
+          expect(stub_logger).to have_received(:error) do |&logger|
+            expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"create_html\" not found"
           end
           expect(klazz_instance).to have_received(:cue_actor).with(actor_name, action: :create, format: :html)
         end
