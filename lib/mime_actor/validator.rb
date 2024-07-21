@@ -32,7 +32,7 @@ module MimeActor
       # @param rule the name of validator
       def validate!(rule, *args)
         validator = "validate_#{rule}"
-        raise NameError, "Validator not found, got: #{validator.inspect}" unless respond_to?(validator, true)
+        raise NameError, "Validator not found, got: #{validator.inspect}" unless respond_to?(validator)
 
         error = send(validator, *args)
         raise error if error
