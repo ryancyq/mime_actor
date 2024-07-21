@@ -48,9 +48,12 @@ module MimeActor
       end
 
       def callback_chain_name(format = nil)
-        return :act unless format.present?
-
-        validate!(:format, format) && :"act_#{format}"
+        if format.present?
+          validate!(:format, format)
+          :"act_#{format}"
+        else
+          :act
+        end
       end
 
       private
