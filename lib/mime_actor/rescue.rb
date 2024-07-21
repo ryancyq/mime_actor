@@ -141,8 +141,15 @@ module MimeActor
       end
     end
 
-    private
-
+    # Resolve the error provided with the registered handlers.
+    #
+    # The handled error will be returned to indicate successful handling.
+    #
+    # @param error the error instance to rescue
+    # @param action the `action` filter
+    # @param format the `format` filter
+    # @param visited the errors to skip after no rescue handler matched the filter
+    #
     def rescue_actor(error, action:, format:, visited: [])
       return if visited.include?(error)
 
@@ -159,6 +166,8 @@ module MimeActor
         rescue_actor(error.cause, format:, action:, visited:)
       end
     end
+
+    private
 
     def find_rescuer(error, format:, action:)
       return unless error
