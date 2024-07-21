@@ -180,6 +180,15 @@ RSpec.describe MimeActor::Rescue do
   describe "#self.rescue_actor" do
     let(:error_class) { RuntimeError }
 
+    context "with deprecation" do
+      include_context "with rescuable actor handler class method"
+      it "logs deprecation warning" do
+        expect { rescuable }.to have_deprecated(
+          %r{rescue_actor is deprecated .*use #rescue_actor instance method}
+        )
+      end
+    end
+
     it_behaves_like "rescuable actor handler class method", "emtpy actor_rescuers", acceptance: false
 
     it_behaves_like "rescuable actor handler class method", "non-matching actor_rescuers", acceptance: false do

@@ -14,9 +14,9 @@ RSpec.describe MimeActor::Stage do
     end
 
     it "logs deprecation warning" do
-      allow(Object).to receive(:warn)
-      expect { klazz.dispatch_cue { puts "test" } }.not_to raise_error
-      expect(Object).to have_received(:warn).with(%r{dispatch_cue is deprecated})
+      expect { klazz.dispatch_cue { "test" } }.to have_deprecated(
+        %r{dispatch_cue is deprecated .*no longer support anonymous proc with rescue}
+      )
     end
   end
 
@@ -42,6 +42,14 @@ RSpec.describe MimeActor::Stage do
 
   describe "#actor?" do
     subject { klazz.actor? actor_name }
+
+    context "with deprecation" do
+      it "logs deprecation warning" do
+        expect { klazz.actor? :any }.to have_deprecated(
+          %r{actor\? is deprecated .*no longer supported, use Object#respond_to\?}
+        )
+      end
+    end
 
     context "when actor exists" do
       before { klazz.define_method(:supporting_actor) { "supporting" } }
@@ -85,6 +93,14 @@ RSpec.describe MimeActor::Stage do
       dispatch = klazz.dispatch_act(&stub_proc)
       expect(dispatch).to be_a(Proc)
       expect(dispatch).not_to eq stub_proc
+    end
+
+    context "with deprecation" do
+      it "logs deprecation warning" do
+        expect { klazz.dispatch_act(&stub_proc) }.to have_deprecated(
+          %r{dispatch_act is deprecated .*no longer support anonymous proc with rescue}
+        )
+      end
     end
 
     context "with context" do
