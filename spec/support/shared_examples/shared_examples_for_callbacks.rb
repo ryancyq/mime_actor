@@ -10,6 +10,7 @@ RSpec.shared_examples "runnable act callbacks" do |kind|
     before do
       klazz.public_send kind_act, kind_callback
       klazz.define_method(kind_callback) { "something" }
+      allow(klazz_instance).to receive(kind_callback).and_yield if kind == :around
     end
 
     it "runs :#{kind} callback" do
@@ -26,6 +27,7 @@ RSpec.shared_examples "runnable act callbacks" do |kind|
       before do
         klazz.public_send kind_act, kind_action_callback, action: action_filter
         klazz.define_method(kind_action_callback) { "something" }
+        allow(klazz_instance).to receive(kind_action_callback).and_yield if kind == :around
       end
 
       it "runs :#{kind} callback with action filter" do
@@ -65,6 +67,7 @@ RSpec.shared_examples "runnable act callbacks" do |kind|
       before do
         klazz.public_send kind_act, kind_format_callback, format: format_filter
         klazz.define_method(kind_format_callback) { "something" }
+        allow(klazz_instance).to receive(kind_format_callback).and_yield if kind == :around
       end
 
       it "run :#{kind} callback with format filter" do
@@ -106,6 +109,7 @@ RSpec.shared_examples "runnable act callbacks" do |kind|
       before do
         klazz.public_send kind_act, kind_action_format_callback, action: action_filter, format: format_filter
         klazz.define_method(kind_action_format_callback) { "something" }
+        allow(klazz_instance).to receive(kind_action_format_callback).and_yield if kind == :around
       end
 
       it "run :#{kind} callback with action & format filters" do
