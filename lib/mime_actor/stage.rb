@@ -65,9 +65,6 @@ module MimeActor
 
       # TODO: remove on next breaking change release
       alias dispatch_cue dispatch_act
-
-      extend Gem::Deprecate
-      deprecate :dispatch_cue, :dispatch_act, 2024, 12
     end
 
     # Calls the `actor` and passing arguments to it.
