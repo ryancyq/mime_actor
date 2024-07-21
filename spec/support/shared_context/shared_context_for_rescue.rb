@@ -28,7 +28,7 @@ RSpec.shared_context "with rescuable filter" do |*filters|
   end
 end
 
-RSpec.shared_context "with rescuable actor handler" do
+RSpec.shared_context "with rescuable actor handler class method" do
   let(:error_instance) { error_class.new "my error" }
   let(:action_filter) { nil }
   let(:format_filter) { nil }
