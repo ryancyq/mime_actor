@@ -50,8 +50,7 @@ RSpec.shared_context "with rescuable actor handler" do
   let(:visited_errors) { [] }
   let(:klazz_instance) { klazz.new }
   let(:rescuable) do
-    klazz_instance.send(
-      :rescue_actor,
+    klazz_instance.rescue_actor(
       error_instance,
       action: action_filter, format: format_filter, visited: visited_errors
     )
