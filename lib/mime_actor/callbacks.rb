@@ -82,15 +82,19 @@ module MimeActor
 
       def define_act_callbacks(kind)
         module_eval(
-          # def before_act
-          #   configure_callbacks(*callbacks, action: nil, format: nil, &block) do |chain, callback, options|
-          #     set_callback(chain, kind, callback, options)
+          # def self.before_act(*callbacks, action: nil, format: nil, &block)
+          #   validate!(:action, action) if action.present?
+          #   validate!(:format, format) if format.present?
+          #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
+          #     set_callback(chain, :before, callback, options)
           #   end
           # end
           #
-          # def prepend_before_act
-          #   configure_callbacks(*callbacks, action: nil, format: nil, &block) do |chain, callback, options|
-          #     set_callback(chain, kind, callback, options.merge!(prepend: true))
+          # def self.prepend_before_act(*callbacks, action: nil, format: nil, &block)
+          #   validate!(:action, action) if action.present?
+          #   validate!(:format, format) if format.present?
+          #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
+          #     set_callback(chain, :before, callback, options.merge!(prepend: true))
           #   end
           # end
           <<-RUBY, __FILE__, __LINE__ + 1
