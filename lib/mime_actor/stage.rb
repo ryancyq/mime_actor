@@ -94,10 +94,14 @@ module MimeActor
 
     def dispatch_actor(dispatch, action:, format:)
       dispatched = false
+      rescued = false
       result = catch(:abort) do
         dispatch.to_callable.call(self).tap { dispatched = true }
+      rescue StandardError => e
+        rescued = respond_to?(:rescue_actor) && rescue_actor(e, action:, format:)
+        raise unless rescued
       end
-      handle_actor_error(result) unless dispatched
+      handle_actor_error(result) unless dispatched || rescued
       result if dispatched
     end
 

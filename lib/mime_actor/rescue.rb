@@ -2,8 +2,9 @@
 
 # :markup: markdown
 
-require "mime_actor/stage"
+require "mime_actor/dispatcher"
 require "mime_actor/validator"
+require "mime_actor/stage"
 
 require "active_support/concern"
 require "active_support/core_ext/array/wrap"
@@ -137,6 +138,51 @@ module MimeActor
         else
           class_or_name
         end
+      end
+    end
+
+    private
+
+    def rescue_actor(error, action:, format:, visited: [])
+      return if visited.include?(error)
+
+      visited << error
+      rescuer = find_rescuer(error, format:, action:)
+      if (dispatch = MimeActor::Dispatcher.build(rescuer))
+        dispatched = false
+        result = catch(:abort) do
+          dispatch.to_callable.call(self, error, format, action).tap { dispatched = true }
+        end
+        logger.error { "rescue error, cause: #{result.inspect}" } unless dispatched
+        error
+      elsif error&.cause
+        rescue_actor(error.cause, format:, action:, context:, visited:)
+      end
+    end
+
+    def find_rescuer(error, format:, action:)
+      return unless error
+
+      *_, rescuer = actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
+        next if action_filter.present? && !Array.wrap(action_filter).include?(action)
+        next if format_filter.present? && !Array.wrap(format_filter).include?(format)
+        next unless (klazz = constantize_rescuee(rescuee))
+
+        error.is_a?(klazz)
+      end
+      rescuer
+    end
+
+    def constantize_rescuee(class_or_name)
+      case class_or_name
+      when String, Symbol
+        begin
+          const_get(class_or_name)
+        rescue NameError
+          class_or_name.safe_constantize
+        end
+      else
+        class_or_name
       end
     end
   end
