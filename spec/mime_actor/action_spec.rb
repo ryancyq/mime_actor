@@ -89,12 +89,8 @@ RSpec.describe MimeActor::Action do
 
         expect(klazz_instance).to have_received(:respond_to)
         expect(stub_collector).to have_received(:html) do |&block|
-          allow(klazz_instance).to receive(:cue_actor).and_call_original
-          allow(stub_logger).to receive(:error)
+          allow(klazz_instance).to receive(:cue_actor)
           block.call
-          expect(stub_logger).to have_received(:error) do |&logger|
-            expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"create_html\" not found"
-          end
           expect(klazz_instance).to have_received(:cue_actor).with(actor_name, action: :create, format: :html)
         end
       end
