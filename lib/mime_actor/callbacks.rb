@@ -56,10 +56,14 @@ module MimeActor
         end
       end
 
+      def callback_chain_defined?(name)
+        !!get_callbacks(name)
+      end
+
       private
 
       def define_callback_chain(name)
-        return if get_callbacks(name)
+        return if callback_chain_defined?(name)
 
         define_callbacks name, skip_after_callbacks_if_terminated: true
       end
