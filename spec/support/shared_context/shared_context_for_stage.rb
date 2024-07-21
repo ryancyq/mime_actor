@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_context "with stage cue" do
+  let(:klazz) { Class.new.include described_class }
   let(:klazz_instance) { klazz.new }
   let(:acting_instructions) { [] }
   let(:action_filter) { nil }
