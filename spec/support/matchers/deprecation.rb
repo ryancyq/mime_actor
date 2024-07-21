@@ -44,8 +44,10 @@ RSpec::Matchers.define :have_deprecated do |expected_message|
   failure_message_when_negated do |actual|
     if !actual.is_a?(Proc)
       "expected no deprecation warning but was not given a block"
-    elsif @deprecations.empty?
-      "expected no deprecation warning within the block but received #{@deprecations.size}: \n  #{@deprecations * "\n  "}"
+    elsif !@deprecations.empty?
+      message = @deprecations.map { |d| "  #{d}" }
+      message.unshift("expected no deprecation warning within the block but received #{@deprecations.size}:")
+      message.join("\n")
     end
   end
 
