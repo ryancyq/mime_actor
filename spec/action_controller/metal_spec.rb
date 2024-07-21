@@ -53,8 +53,8 @@ RSpec.describe ActionController::Metal do
 
       allow(stub_logger).to receive(:error)
       expect { dispatch }.not_to raise_error
-      expect(stub_logger).to have_received(:error) do |&block|
-        expect(block.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"new_json\" not found"
+      expect(stub_logger).to have_received(:error) do |&logger|
+        expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"new_json\" not found"
       end
     end
 
