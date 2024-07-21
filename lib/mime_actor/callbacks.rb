@@ -109,5 +109,22 @@ module MimeActor
         )
       end
     end
+
+    def run_act_callbacks(format)
+      action_chain = self.class.callback_chain_name
+      format_chain = self.class.callback_chain_name(format)
+
+      if self.class.callback_chain_defined?(format_chain)
+        run_callbacks action_chain do
+          run_callbacks format_chain do
+            yield if block_given?
+          end
+        end
+      else
+        run_callbacks action_chain do
+          yield if block_given?
+        end
+      end
+    end
   end
 end
