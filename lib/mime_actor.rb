@@ -20,7 +20,7 @@ module MimeActor
   autoload :Logging
 
   def self.deprecator
-    @deprecator ||= ActiveSupport::Deprecation.new(MimeActor.gem_version.bump.to_s, "MimeActor")
+    @deprecator ||= ActiveSupport::Deprecation.new("0.7.0", "MimeActor")
   end
 
   [
