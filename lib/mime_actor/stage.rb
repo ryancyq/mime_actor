@@ -2,9 +2,10 @@
 
 # :markup: markdown
 
-require "mime_actor/errors"
 require "mime_actor/dispatcher"
+require "mime_actor/errors"
 require "mime_actor/logging"
+require "mime_actor/rescue"
 
 require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
@@ -17,6 +18,7 @@ module MimeActor
   module Stage
     extend ActiveSupport::Concern
 
+    include Rescue
     include Logging
 
     included do
@@ -95,7 +97,7 @@ module MimeActor
       result = catch(:abort) do
         dispatch.to_callable.call(self).tap { dispatched = true }
       rescue StandardError => e
-        rescued = respond_to?(:rescue_actor) && rescue_actor(e, action:, format:)
+        rescued = rescue_actor(e, action:, format:)
         raise unless rescued
       end
       handle_actor_error(result) unless dispatched || rescued

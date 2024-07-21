@@ -4,7 +4,6 @@
 
 require "mime_actor/dispatcher"
 require "mime_actor/validator"
-require "mime_actor/stage"
 
 require "active_support/concern"
 require "active_support/core_ext/array/wrap"
@@ -23,7 +22,6 @@ module MimeActor
   module Rescue
     extend ActiveSupport::Concern
 
-    include Stage
     include Validator
 
     included do

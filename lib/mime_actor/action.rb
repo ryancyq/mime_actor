@@ -2,9 +2,9 @@
 
 # :markup: markdown
 
+require "mime_actor/logging"
 require "mime_actor/scene"
 require "mime_actor/stage"
-require "mime_actor/rescue"
 
 require "active_support/concern"
 require "active_support/core_ext/object/blank"
@@ -27,7 +27,6 @@ module MimeActor
 
     include Scene
     include Stage
-    include Rescue
     include Logging
 
     # The core logic where rendering logics are collected as `Proc` and passed over to `ActionController::MimeResponds`
