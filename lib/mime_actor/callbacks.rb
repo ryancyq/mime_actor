@@ -95,12 +95,16 @@ module MimeActor
           # end
           <<-RUBY, __FILE__, __LINE__ + 1
             def self.#{kind}_act(*callbacks, action: nil, format: nil, &block)
+              validate!(:action, action) if action.present?
+              validate!(:format, format) if format.present?
               configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
                 set_callback(chain, :#{kind}, callback, options)
               end
             end
 
             def self.prepend_#{kind}_act(*callbacks, action: nil, format: nil, &block)
+              validate!(:action, action) if action.present?
+              validate!(:format, format) if format.present?
               configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
                 set_callback(chain, :#{kind}, callback, options.merge!(prepend: true))
               end

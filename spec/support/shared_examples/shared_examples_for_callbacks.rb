@@ -1,5 +1,41 @@
 # frozen_string_literal: true
 
+RSpec.shared_examples "runnable act callbacks action filter" do |kind, filter, acceptance: true|
+  let(:klazz) { Class.new.include described_class }
+  let(:kind_act) { :"#{kind}_act" }
+  let(:kind_callback) { :"my_#{kind}" }
+  let(:action_filter) { nil }
+  let(:run) { klazz.public_send(kind_act, kind_callback, action: action_filter) }
+
+  if acceptance
+    it "accepts #{filter || "action"} filter" do
+      expect { run }.not_to raise_error
+    end
+  else
+    it "rejects #{filter || "action"} filter" do
+      expect { run }.to raise_error(error_class_raised, error_message_raised)
+    end
+  end
+end
+
+RSpec.shared_examples "runnable act callbacks format filter" do |kind, filter, acceptance: true|
+  let(:klazz) { Class.new.include described_class }
+  let(:kind_act) { :"#{kind}_act" }
+  let(:kind_callback) { :"my_#{kind}" }
+  let(:format_filter) { nil }
+  let(:run) { klazz.public_send(kind_act, kind_callback, format: format_filter) }
+
+  if acceptance
+    it "accepts #{filter || "action"} filter" do
+      expect { run }.not_to raise_error
+    end
+  else
+    it "rejects #{filter || "action"} filter" do
+      expect { run }.to raise_error(error_class_raised, error_message_raised)
+    end
+  end
+end
+
 RSpec.shared_examples "runnable act callbacks" do |kind|
   include_context "with act callbacks"
 
