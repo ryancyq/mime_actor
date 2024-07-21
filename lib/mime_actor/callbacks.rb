@@ -74,7 +74,7 @@ module MimeActor
 
         options = {}
         options[:if] = ActionMatcher.new(action) if action.present?
-        callbacks.push(block)
+        callbacks.push(block) if block
         callbacks.each do |callback|
           yield chain, callback, options
         end
