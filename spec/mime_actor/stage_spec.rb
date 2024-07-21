@@ -187,12 +187,49 @@ RSpec.describe MimeActor::Stage do
       end
 
       context "with block passed" do
-        let(:cue) { klazz_instance.cue_actor(actor, *acting_instructions, &another_actor) }
+        let(:cue) do
+          klazz_instance.cue_actor(actor, *acting_instructions, action: nil, format: nil, &another_actor)
+        end
         let(:actor) { -> { 4 } }
         let(:another_actor) { ->(num) { num**num } }
 
         it "yield the block wih the result from actor" do
           expect(cue).to eq 256
+        end
+      end
+    end
+
+    describe "#rescue_actor" do
+      include_context "with stage cue"
+
+      let(:actor) { -> { raise "my error" } }
+      let(:action_filter) { :abc }
+      let(:format_filter) { "xyz" }
+
+      before { klazz.define_method(:rescue_actor) { |*_args| "rescue" } }
+
+      describe "when error is handled" do
+        it "does not bubbles up" do
+          allow(klazz_instance).to receive(:rescue_actor).and_return(true)
+          expect { cue }.not_to raise_error
+          expect(klazz_instance).to have_received(:rescue_actor).with(
+            kind_of(RuntimeError),
+            a_hash_including(
+              action: :abc,
+              format: "xyz"
+            )
+          )
+        end
+      end
+
+      describe "when error is not handled" do
+        it "bubbles up" do
+          allow(klazz_instance).to receive(:rescue_actor).and_return(nil)
+          expect { cue }.to raise_error do |ex|
+            expect(ex).to be_a(RuntimeError)
+            expect(ex.message).to eq "my error"
+          end
+          expect(klazz_instance).to have_received(:rescue_actor)
         end
       end
     end

@@ -31,7 +31,9 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
     end
 
     context "with block passed" do
-      let(:cue) { klazz_instance.cue_actor(actor_method, *acting_instructions, &another_block) }
+      let(:cue) do
+        klazz_instance.cue_actor(actor_method, *acting_instructions, action: nil, format: nil, &another_block)
+      end
       let(:another_block) { ->(num) { num**num } }
 
       before do
