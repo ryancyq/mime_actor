@@ -154,11 +154,7 @@ module MimeActor
       visited << error
       rescuer = find_rescuer(error, format:, action:)
       if (dispatch = MimeActor::Dispatcher.build(rescuer, error, format, action))
-        dispatched = false
-        result = catch(:abort) do
-          dispatch.to_callable.call(self).tap { dispatched = true }
-        end
-        logger.error { "rescue error, cause: #{result.inspect}" } unless dispatched
+        dispatch.call(self)
         error
       elsif error&.cause
         rescue_actor(error.cause, format:, action:, visited:)
