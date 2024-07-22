@@ -48,28 +48,28 @@ RSpec.describe MimeActor::Dispatcher do
       end
     end
 
-    describe "#to_callable" do
+    describe "#call" do
       let(:dispatch) { dispatcher.new(:my_method) }
 
       it "requires target" do
-        expect { dispatch.to_callable.call }.to raise_error(
+        expect { dispatch.call }.to raise_error(
           ArgumentError, %r{wrong number of arguments}
         )
       end
 
       it "requires target responds to the method name" do
-        expect { dispatch.to_callable.call(:stub) }.to throw_symbol(:abort, :my_method)
+        expect { dispatch.call(:stub) }.to raise_error(MimeActor::ActorNotFound, ":my_method not found")
       end
 
       it "returns callee result" do
-        expect(dispatcher.new(:to_s).to_callable.call(:my_symbol)).to eq "my_symbol"
+        expect(dispatcher.new(:to_s).call(:my_symbol)).to eq "my_symbol"
       end
 
       context "with additional args" do
         let(:dispatch) { dispatcher.new(:to_sym, "extra") }
 
         it "truncates the args acceptable by method" do
-          expect(dispatch.to_callable.call("my_string")).to eq :my_string
+          expect(dispatch.call("my_string")).to eq :my_string
         end
       end
     end
@@ -120,24 +120,24 @@ RSpec.describe MimeActor::Dispatcher do
       end
     end
 
-    describe "#to_callable" do
+    describe "#call" do
       let(:dispatch) { dispatcher.new(proc { to_s }) }
 
       it "requires target" do
-        expect { dispatch.to_callable.call }.to raise_error(
+        expect { dispatch.call }.to raise_error(
           ArgumentError, %r{wrong number of arguments}
         )
       end
 
       it "returns callee result" do
-        expect(dispatch.to_callable.call(:my_proc)).to eq "my_proc"
+        expect(dispatch.call(:my_proc)).to eq "my_proc"
       end
 
       context "with additional args" do
         let(:dispatch) { dispatcher.new(->(num) { "#{self} received #{num}" }, 11, "extra") }
 
         it "truncates the args acceptable by method" do
-          expect(dispatch.to_callable.call(:my_lambda)).to eq "my_lambda received 11"
+          expect(dispatch.call(:my_lambda)).to eq "my_lambda received 11"
         end
       end
     end
