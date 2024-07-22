@@ -2,6 +2,8 @@
 
 # :markup: markdown
 
+require "mime_actor/errors"
+
 module MimeActor
   module Dispatcher
     class MethodCall
@@ -13,13 +15,12 @@ module MimeActor
         validate!
       end
 
-      def to_callable
-        lambda do |target|
-          throw :abort, method_name unless target.respond_to?(method_name)
-          method_call = target.method(method_name)
-          filtered_args = method_call.arity.negative? ? args : args.take(method_call.arity)
-          method_call.call(*filtered_args)
-        end
+      def call(target)
+        raise MimeActor::ActorNotFound, method_name unless target.respond_to?(method_name)
+
+        method_call = target.method(method_name)
+        filtered_args = method_call.arity.negative? ? args : args.take(method_call.arity)
+        method_call.call(*filtered_args)
       end
 
       private
@@ -38,11 +39,9 @@ module MimeActor
         validate!
       end
 
-      def to_callable
-        lambda do |target|
-          filtered_args = block.arity.negative? ? args : args.take(block.arity)
-          target.instance_exec(*filtered_args, &block)
-        end
+      def call(target)
+        filtered_args = block.arity.negative? ? args : args.take(block.arity)
+        target.instance_exec(*filtered_args, &block)
       end
 
       private
