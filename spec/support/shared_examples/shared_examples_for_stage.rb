@@ -6,7 +6,7 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
   let(:actor) { actor_method }
 
   context "when actor method exists" do
-    context "with insturctions" do
+    context "with instructions" do
       let(:acting_instructions) { "overheard the news" }
 
       before do
@@ -20,7 +20,7 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
       end
     end
 
-    context "without insturctions" do
+    context "without instructions" do
       before do
         klazz.define_method(actor_method) { "a meaningless truth" }
       end
