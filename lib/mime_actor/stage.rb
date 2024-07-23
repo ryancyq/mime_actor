@@ -2,6 +2,7 @@
 
 # :markup: markdown
 
+require "mime_actor/callbacks"
 require "mime_actor/dispatcher"
 require "mime_actor/logging"
 require "mime_actor/rescue"
@@ -17,6 +18,7 @@ module MimeActor
   module Stage
     extend ActiveSupport::Concern
 
+    include Callbacks
     include Rescue
     include Logging
 
@@ -80,11 +82,9 @@ module MimeActor
       dispatcher = MimeActor::Dispatcher.build(actor, *args)
       raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatcher
 
-      result = dispatcher.call(self)
-      if block_given?
-        yield result
-      else
-        result
+      run_act_callbacks(format) do
+        result = dispatcher.call(self)
+        block_given? ? yield(result) : result
       end
     rescue MimeActor::ActorNotFound => e
       logger.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error

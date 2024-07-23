@@ -2,8 +2,6 @@
 
 require "mime_actor/stage"
 
-require "active_support/logger"
-
 RSpec.describe MimeActor::Stage do
   let(:klazz) { Class.new.include described_class }
 
@@ -218,21 +216,22 @@ RSpec.describe MimeActor::Stage do
     describe "#rescue_actor" do
       include_context "with stage cue"
 
-      let(:actor) { -> { raise "my error" } }
+      let(:actor) { -> { raise "my actor error" } }
+      let(:actor_error) { RuntimeError.new("my error") }
       let(:action_filter) { :abc }
-      let(:format_filter) { "xyz" }
+      let(:format_filter) { :json }
 
       before { klazz.define_method(:rescue_actor) { |*_args| "rescue" } }
 
       describe "when error is handled" do
         it "does not bubbles up" do
-          allow(klazz_instance).to receive(:rescue_actor).and_return(true)
-          expect { cue }.not_to raise_error
+          allow(klazz_instance).to receive(:rescue_actor).and_return(actor_error)
+          expect(cue).to eq actor_error
           expect(klazz_instance).to have_received(:rescue_actor).with(
             kind_of(RuntimeError),
             a_hash_including(
               action: :abc,
-              format: "xyz"
+              format: :json
             )
           )
         end
@@ -243,10 +242,85 @@ RSpec.describe MimeActor::Stage do
           allow(klazz_instance).to receive(:rescue_actor).and_return(nil)
           expect { cue }.to raise_error do |ex|
             expect(ex).to be_a(RuntimeError)
-            expect(ex.message).to eq "my error"
+            expect(ex.message).to eq "my actor error"
           end
           expect(klazz_instance).to have_received(:rescue_actor)
         end
+      end
+
+      describe "when error raised in callbacks" do
+        let(:actor) { :my_actor }
+        let(:callback_error) { RuntimeError.new("my error callback") }
+
+        before do
+          klazz.define_method(:action_name) { "abc" }
+          klazz.define_method(actor) { "my actor" }
+          allow(klazz_instance).to receive(actor).and_call_original
+
+          klazz.before_act :my_before_callback, action: action_filter
+          klazz.after_act :my_after_callback, format: format_filter
+          klazz.define_method(:my_before_callback) { "before error" }
+          klazz.define_method(:my_after_callback) { "after error" }
+        end
+
+        it "rescues before callback" do
+          allow(klazz_instance).to receive(:my_before_callback).and_raise(callback_error)
+          allow(klazz_instance).to receive(:my_after_callback)
+          allow(klazz_instance).to receive(:rescue_actor).and_return(callback_error)
+
+          expect(cue).to eq callback_error
+
+          expect(klazz_instance).to have_received(:my_before_callback).ordered
+          expect(klazz_instance).not_to have_received(actor).ordered
+          expect(klazz_instance).not_to have_received(:my_after_callback).ordered
+        end
+
+        it "rescues after callback" do
+          allow(klazz_instance).to receive(:my_before_callback)
+          allow(klazz_instance).to receive(:my_after_callback).and_raise(callback_error)
+          allow(klazz_instance).to receive(:rescue_actor).and_return(callback_error)
+
+          expect(cue).to eq callback_error
+
+          expect(klazz_instance).to have_received(:my_before_callback).ordered
+          expect(klazz_instance).to have_received(actor).ordered
+          expect(klazz_instance).to have_received(:my_after_callback).ordered
+        end
+      end
+    end
+
+    context "with act callbacks" do
+      include_context "with stage cue"
+
+      let(:action_filter) { :create }
+      let(:format_filter) { :html }
+      let(:actor) { :my_actor }
+
+      before do
+        klazz.define_method(:action_name) { "create" }
+        klazz.define_method(actor) { "my actor" }
+
+        klazz.before_act :my_before_callback, action: :create
+        klazz.before_act :my_html_callback, format: :html
+        klazz.after_act :my_after_html_callback, action: :create, format: :html
+
+        klazz.define_method(:my_before_callback) { "my callback" }
+        klazz.define_method(:my_html_callback) { "my html" }
+        klazz.define_method(:my_after_html_callback) { "my after html" }
+
+        allow(klazz_instance).to receive(actor).and_call_original
+        allow(klazz_instance).to receive(:my_before_callback)
+        allow(klazz_instance).to receive(:my_html_callback)
+        allow(klazz_instance).to receive(:my_after_html_callback)
+      end
+
+      it "run callbacks" do
+        expect(cue).to eq "my actor"
+
+        expect(klazz_instance).to have_received(:my_before_callback).ordered
+        expect(klazz_instance).to have_received(:my_html_callback).ordered
+        expect(klazz_instance).to have_received(actor).ordered
+        expect(klazz_instance).to have_received(:my_after_html_callback).ordered
       end
     end
   end
