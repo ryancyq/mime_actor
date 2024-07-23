@@ -53,6 +53,13 @@ module MimeActor
         NameError.new("invalid actions, got: #{rejected.map(&:inspect).join(", ")}") if rejected.size.positive?
       end
 
+      # Validate against `actions` rule if argument is a Enumerable. otherwise, validate against `action` rule.
+      #
+      # @param unchecked the `actions` or `action` to be validated
+      def validate_action_or_actions(unchecked)
+        unchecked.is_a?(Enumerable) ? validate_actions(unchecked) : validate_action(unchecked)
+      end
+
       # Validate `format` must be a Symbol and a valid MIME type
       #
       # @param unchecked the `format` to be validated
@@ -71,6 +78,13 @@ module MimeActor
         rejected = unfiltered - filtered
 
         NameError.new("invalid formats, got: #{rejected.map(&:inspect).join(", ")}") if rejected.size.positive?
+      end
+
+      # Validate against `formats` rule if argument is a Enumerable. otherwise, validate against `format` rule.
+      #
+      # @param unchecked the `formats` or `format` to be validated
+      def validate_format_or_formats(unchecked)
+        unchecked.is_a?(Enumerable) ? validate_formats(unchecked) : validate_format(unchecked)
       end
 
       # Validate `klazz` must be a Class/Module or a String referencing a Class/Module
