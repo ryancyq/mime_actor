@@ -2,8 +2,6 @@
 
 require "mime_actor/stage"
 
-require "active_support/logger"
-
 RSpec.describe MimeActor::Stage do
   let(:klazz) { Class.new.include described_class }
 

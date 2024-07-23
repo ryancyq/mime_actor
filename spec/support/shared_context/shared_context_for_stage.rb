@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/logger"
+
 RSpec.shared_context "with stage cue" do
   let(:klazz) { Class.new.include described_class }
   let(:klazz_instance) { klazz.new }
