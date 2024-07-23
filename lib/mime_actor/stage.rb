@@ -78,7 +78,7 @@ module MimeActor
     # @param actor either a method name or a Proc to evaluate
     # @param args arguments to be passed when calling the actor
     #
-    def cue_actor(actor, *args, action:, format:)
+    def cue_actor(actor, *args, format:)
       dispatcher = MimeActor::Dispatcher.build(actor, *args)
       raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatcher
 
@@ -90,7 +90,7 @@ module MimeActor
       logger.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error
       raise e if raise_on_actor_error
     rescue StandardError => e
-      rescued = rescue_actor(e, action:, format:)
+      rescued = rescue_actor(e, action: action_name.to_sym, format: format)
       rescued || raise
     end
   end
