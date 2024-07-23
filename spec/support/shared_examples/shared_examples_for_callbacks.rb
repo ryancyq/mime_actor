@@ -26,11 +26,11 @@ RSpec.shared_examples "runnable act callbacks format filter" do |kind, filter, a
   let(:run) { klazz.public_send(kind_act, kind_callback, format: format_filter) }
 
   if acceptance
-    it "accepts #{filter || "action"} filter" do
+    it "accepts #{filter || "format"} filter" do
       expect { run }.not_to raise_error
     end
   else
-    it "rejects #{filter || "action"} filter" do
+    it "rejects #{filter || "format"} filter" do
       expect { run }.to raise_error(error_class_raised, error_message_raised)
     end
   end

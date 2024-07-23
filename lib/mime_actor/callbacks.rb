@@ -68,47 +68,53 @@ module MimeActor
         define_callbacks name, skip_after_callbacks_if_terminated: true
       end
 
-      def configure_callbacks(callbacks, action, format, block)
-        chain = callback_chain_name(format)
-        define_callback_chain(chain)
-
+      def configure_callbacks(callbacks, actions, formats, block)
         options = {}
-        options[:if] = ActionMatcher.new(action) if action.present?
+        options[:if] = ActionMatcher.new(actions) if actions.present?
         callbacks.push(block) if block
+
+        formats = Array.wrap(formats)
+        formats << nil if formats.empty?
+
         callbacks.each do |callback|
-          yield chain, callback, options
+          formats.each do |format|
+            chain = callback_chain_name(format)
+            define_callback_chain(chain)
+            yield chain, callback, options
+          end
         end
+      end
+
+      def validate_callback_options!(action, format)
+        validate!(:action_or_actions, action) if action.present?
+        validate!(:format_or_formats, format) if format.present?
       end
 
       def define_act_callbacks(kind)
         module_eval(
           # def self.before_act(*callbacks, action: nil, format: nil, &block)
-          #   validate!(:action, action) if action.present?
-          #   validate!(:format, format) if format.present?
+          #   validate_callback_options!(action, format)
           #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
           #     set_callback(chain, :before, callback, options)
           #   end
           # end
           #
           # def self.prepend_before_act(*callbacks, action: nil, format: nil, &block)
-          #   validate!(:action, action) if action.present?
-          #   validate!(:format, format) if format.present?
+          #   validate_callback_options!(action, format)
           #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
           #     set_callback(chain, :before, callback, options.merge!(prepend: true))
           #   end
           # end
           <<-RUBY, __FILE__, __LINE__ + 1
             def self.#{kind}_act(*callbacks, action: nil, format: nil, &block)
-              validate!(:action, action) if action.present?
-              validate!(:format, format) if format.present?
+              validate_callback_options!(action, format)
               configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
                 set_callback(chain, :#{kind}, callback, options)
               end
             end
 
             def self.prepend_#{kind}_act(*callbacks, action: nil, format: nil, &block)
-              validate!(:action, action) if action.present?
-              validate!(:format, format) if format.present?
+              validate_callback_options!(action, format)
               configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
                 set_callback(chain, :#{kind}, callback, options.merge!(prepend: true))
               end
