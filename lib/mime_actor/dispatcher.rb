@@ -16,7 +16,7 @@ module MimeActor
       end
 
       def call(target)
-        raise MimeActor::ActorNotFound, method_name unless target.respond_to?(method_name)
+        raise MimeActor::ActorNotFound, method_name unless target.respond_to?(method_name, true)
 
         method_call = target.method(method_name)
         filtered_args = method_call.arity.negative? ? args : args.take(method_call.arity)
