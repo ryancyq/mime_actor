@@ -10,7 +10,7 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
       let(:acting_instructions) { "overheard the news" }
 
       before do
-        klazz.define_method(actor_method) do |scripts|
+        klazz.define_method(actor) do |scripts|
           "shed tears of joy when #{scripts}"
         end
       end
@@ -22,7 +22,7 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
 
     context "without instructions" do
       before do
-        klazz.define_method(actor_method) { "a meaningless truth" }
+        klazz.define_method(actor) { "a meaningless truth" }
       end
 
       it "returns result from actor" do
@@ -32,12 +32,12 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
 
     context "with block passed" do
       let(:cue) do
-        klazz_instance.cue_actor(actor_method, *acting_instructions, action: nil, format: nil, &another_block)
+        klazz_instance.cue_actor(actor, *acting_instructions, action: nil, format: nil, &another_block)
       end
       let(:another_block) { ->(num) { num**num } }
 
       before do
-        klazz.define_method(actor_method) { 3 }
+        klazz.define_method(actor) { 3 }
       end
 
       it "yield the block wih the result from actor" do
@@ -56,7 +56,7 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
     it "logs a error message" do
       expect(cue).to be_nil
       expect(stub_logger).to have_received(:error) do |&logger|
-        expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> #{actor_method.inspect} not found"
+        expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> #{actor.inspect} not found"
       end
     end
 
@@ -64,7 +64,7 @@ RSpec.shared_examples "stage cue actor method" do |actor_method|
       before { klazz.raise_on_actor_error = true }
 
       it "raises #{MimeActor::ActorNotFound}" do
-        expect { cue }.to raise_error(MimeActor::ActorNotFound, "#{actor_method.inspect} not found")
+        expect { cue }.to raise_error(MimeActor::ActorNotFound, "#{actor.inspect} not found")
       end
     end
   end
