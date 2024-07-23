@@ -68,15 +68,20 @@ module MimeActor
         define_callbacks name, skip_after_callbacks_if_terminated: true
       end
 
-      def configure_callbacks(callbacks, action, format, block)
-        chain = callback_chain_name(format)
-        define_callback_chain(chain)
-
+      def configure_callbacks(callbacks, actions, formats, block)
         options = {}
-        options[:if] = ActionMatcher.new(action) if action.present?
+        options[:if] = ActionMatcher.new(actions) if actions.present?
         callbacks.push(block) if block
+
+        formats = Array.wrap(formats)
+        formats << nil if formats.empty?
+
         callbacks.each do |callback|
-          yield chain, callback, options
+          formats.each do |format|
+            chain = callback_chain_name(format)
+            define_callback_chain(chain)
+            yield chain, callback, options
+          end
         end
       end
 
