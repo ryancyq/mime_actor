@@ -8,7 +8,7 @@ RSpec.shared_context "with act callbacks" do
   let(:run) { klazz_instance.run_act_callbacks(act_format) }
 
   before do
-    klazz.define_method(:action_name) { "something" }
+    klazz.define_method(:action_name) { "placholder" }
     allow(klazz_instance).to receive(:action_name).and_return(act_action.to_s)
   end
 end

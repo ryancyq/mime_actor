@@ -121,15 +121,15 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
   describe "when #start_scene is defined for #{scene_name || "the scene"}" do
     let(:klazz_instance) { klazz.new }
 
-    before { klazz.define_method(:start_scene) { |action_name| "start a scene with #{action_name}" } }
+    before { klazz.define_method(:start_scene) { "start a scene" } }
 
     it "called by the newly defined action method" do
       expect { compose }.not_to raise_error
       allow(klazz_instance).to receive(:start_scene).and_call_original
       expected_scenes.each_key do |action_name|
-        expect(klazz_instance.send(action_name)).to eq "start a scene with #{action_name}"
-        expect(klazz_instance).to have_received(:start_scene).with(action_name)
+        expect(klazz_instance.send(action_name)).to eq "start a scene"
       end
+      expect(klazz_instance).to have_received(:start_scene).exactly(expected_scenes.size)
     end
   end
 

@@ -23,15 +23,18 @@ RSpec.describe MimeActor::Action do
   end
 
   describe "#start_scene" do
-    let(:start) { klazz_instance.start_scene(:create) }
     let(:klazz_instance) { klazz.new }
+    let(:start) { klazz_instance.start_scene }
+    let(:start_action) { :create }
     let(:actor_name) { "create_html" }
     let(:stub_collector) { instance_double(ActionController::MimeResponds::Collector) }
     let(:stub_logger) { instance_double(ActiveSupport::Logger) }
 
     before do
-      klazz.respond_act_to :html, on: :create
+      klazz.respond_act_to :html, on: start_action
       klazz.config.logger = stub_logger
+      klazz.define_method(:action_name) { "placeholder" }
+      allow(klazz_instance).to receive(:action_name).and_return(start_action.to_s)
     end
 
     context "with acting_scenes" do
@@ -57,7 +60,7 @@ RSpec.describe MimeActor::Action do
       it "logs missing formats" do
         expect { start }.not_to raise_error
         expect(stub_logger).to have_received(:warn) do |&logger|
-          expect(logger.call).to eq "format is empty for action: :create"
+          expect(logger.call).to eq "format is empty for action: \"create\""
         end
       end
     end
@@ -75,7 +78,7 @@ RSpec.describe MimeActor::Action do
         expect(stub_collector).to have_received(:html) do |&block|
           allow(klazz_instance).to receive(:cue_actor).and_call_original
           expect(block.call).to eq "my actor"
-          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, action: :create, format: :html)
+          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, format: :html)
         end
       end
     end
@@ -91,7 +94,7 @@ RSpec.describe MimeActor::Action do
         expect(stub_collector).to have_received(:html) do |&block|
           allow(klazz_instance).to receive(:cue_actor)
           block.call
-          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, action: :create, format: :html)
+          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, format: :html)
         end
       end
     end
