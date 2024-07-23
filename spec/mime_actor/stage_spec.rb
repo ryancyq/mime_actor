@@ -213,6 +213,28 @@ RSpec.describe MimeActor::Stage do
       end
     end
 
+    it_behaves_like "stage cue actor format filter", "Symbol", :json
+    it_behaves_like "stage cue actor format filter", "Nil", acceptance: false do
+      let(:format_filter) { nil }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "format must be a Symbol" }
+    end
+    it_behaves_like "stage cue actor format filter", "String", acceptance: false do
+      let(:format_filter) { "html" }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "format must be a Symbol" }
+    end
+    it_behaves_like "stage cue actor format filter", "Unsupported format", acceptance: false do
+      let(:format_filter) { :something }
+      let(:error_class_raised) { NameError }
+      let(:error_message_raised) { "invalid format, got: :something" }
+    end
+    it_behaves_like "stage cue actor format filter", "Enumerable", acceptance: false do
+      let(:format_filter) { [:json] }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "format must be a Symbol" }
+    end
+
     describe "#rescue_actor" do
       include_context "with stage cue"
 
