@@ -129,10 +129,9 @@ RSpec.describe MimeActor::Rescue do
       end
 
       describe "when block is given" do
+        let(:handler) { proc {} }
         let(:rescue_act) do
-          klazz.rescue_act_from StandardError, with: proc {} do
-            "test"
-          end
+          klazz.rescue_act_from StandardError, with: proc {}, &handler
         end
 
         it "must be absent" do
@@ -162,10 +161,9 @@ RSpec.describe MimeActor::Rescue do
     end
 
     describe "#block" do
+      let(:handler) { proc {} }
       let(:rescue_act) do
-        klazz.rescue_act_from StandardError do
-          "test"
-        end
+        klazz.rescue_act_from StandardError, &handler
       end
 
       it "be the handler" do
