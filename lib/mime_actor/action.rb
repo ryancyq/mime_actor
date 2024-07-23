@@ -2,6 +2,7 @@
 
 # :markup: markdown
 
+require "mime_actor/callbacks"
 require "mime_actor/logging"
 require "mime_actor/scene"
 require "mime_actor/stage"
@@ -25,6 +26,7 @@ module MimeActor
     include AbstractController::Rendering # required by MimeResponds
     include ActionController::MimeResponds
 
+    include Callbacks
     include Scene
     include Stage
     include Logging
@@ -54,7 +56,11 @@ module MimeActor
 
       respond_to do |collector|
         formats.each do |format, actor|
-          dispatch = -> { cue_actor(actor.presence || "#{action}_#{format}", action:, format:) }
+          dispatch = lambda do
+            run_act_callbacks(format) do
+              cue_actor(actor.presence || "#{action}_#{format}", action:, format:)
+            end
+          end
           collector.public_send(format, &dispatch)
         end
       end
