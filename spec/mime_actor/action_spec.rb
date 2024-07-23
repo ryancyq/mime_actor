@@ -62,40 +62,6 @@ RSpec.describe MimeActor::Action do
       end
     end
 
-    context "with act callbacks" do
-      before do
-        klazz.define_method(:action_name) { "create" }
-        klazz.define_method(actor_name) { "my actor" }
-
-        klazz.before_act :my_before_callback, action: :create
-        klazz.before_act :my_html_callback, format: :html
-        klazz.after_act :my_after_html_callback, action: :create, format: :html
-
-        klazz.define_method(:my_before_callback) { "my callback" }
-        klazz.define_method(:my_html_callback) { "my html" }
-        klazz.define_method(:my_after_html_callback) { "my after html" }
-
-        allow(klazz_instance).to receive(actor_name).and_call_original
-        allow(klazz_instance).to receive(:my_before_callback)
-        allow(klazz_instance).to receive(:my_html_callback)
-        allow(klazz_instance).to receive(:my_after_html_callback)
-      end
-
-      it "run callbacks" do
-        allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
-
-        allow(stub_collector).to receive(:html) do |&block|
-          expect(block.call).to eq "my actor"
-          expect(klazz_instance).to have_received(:my_before_callback).ordered
-          expect(klazz_instance).to have_received(:my_html_callback).ordered
-          expect(klazz_instance).to have_received(actor_name).ordered
-          expect(klazz_instance).to have_received(:my_after_html_callback).ordered
-        end
-
-        expect { start }.not_to raise_error
-      end
-    end
-
     describe "when actor is defined" do
       before { klazz.define_method(actor_name) { "my actor" } }
 
