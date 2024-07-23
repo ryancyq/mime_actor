@@ -124,6 +124,63 @@ module MimeActor
       end
     end
 
+    # Callbacks invocation sequence depends on the order of callback definition.
+    # (except for callbacks with `format` filter).
+    #
+    # @example callbacks with/without action filter
+    #   before_act :my_before_act_one
+    #   before_act :my_before_act_two, action: :create
+    #   before_act :my_before_act_three
+    #
+    #   around_act :my_around_act_one
+    #   around_act :my_around_act_two, action: :create
+    #   around_act :my_around_act_three
+    #
+    #   after_act :my_after_act_one
+    #   after_act :my_after_act_two, action: :create
+    #   after_act :my_after_act_three
+    #
+    #   # actual sequence:
+    #   # - my_before_act_one
+    #   # - my_before_act_two
+    #   # - my_before_act_three
+    #   # - my_around_act_one
+    #   # - my_around_act_two
+    #   # - my_around_act_three
+    #   # - my_after_act_three
+    #   # - my_after_act_two
+    #   # - my_after_act_one
+    #
+    # @example callbacks with format filter
+    #   before_act :my_before_act_one
+    #   before_act :my_before_act_two, action: :create
+    #   before_act :my_before_act_three, action: :create, format: :html
+    #   before_act :my_before_act_four
+    #
+    #   around_act :my_around_act_one
+    #   around_act :my_around_act_two, action: :create, format: :html
+    #   around_act :my_around_act_three, action: :create
+    #   around_act :my_around_act_four
+    #
+    #   after_act :my_after_act_one, format: :html
+    #   after_act :my_after_act_two
+    #   after_act :my_after_act_three, action: :create
+    #   after_act :my_after_act_four
+    #
+    #   # actual sequence:
+    #   # - my_before_act_one
+    #   # - my_before_act_two
+    #   # - my_before_act_four
+    #   # - my_around_act_one
+    #   # - my_around_act_three
+    #   # - my_around_act_four
+    #   # - my_before_act_three
+    #   # - my_around_act_two
+    #   # - my_after_act_one
+    #   # - my_after_act_four
+    #   # - my_after_act_three
+    #   # - my_after_act_two
+    #
     def run_act_callbacks(format)
       action_chain = self.class.callback_chain_name
       format_chain = self.class.callback_chain_name(format)
