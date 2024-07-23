@@ -72,6 +72,29 @@ RSpec.describe MimeActor::Dispatcher do
           expect(dispatch.call("my_string")).to eq :my_string
         end
       end
+
+      context "with method visibility" do
+        let(:stub_target_class) { stub_const "StubTarget", Class.new }
+        let(:stub_target) { stub_target_class.new }
+
+        before do
+          stub_target_class.define_method(:my_public_method) { "public" }
+          stub_target_class.define_method(:my_protected_method) { "protected" }
+          stub_target_class.instance_eval { protected :my_protected_method }
+          stub_target_class.define_method(:my_private_method) { "private" }
+          stub_target_class.instance_eval { private :my_private_method }
+        end
+
+        %i[public protected private].each do |visibility|
+          context "with target's #{visibility} method" do
+            let(:dispatch) { dispatcher.new(:"my_#{visibility}_method") }
+
+            it "calls" do
+              expect(dispatch.call(stub_target)).to eq visibility.to_s
+            end
+          end
+        end
+      end
     end
   end
 
