@@ -31,10 +31,9 @@ module MimeActor
 
     # The core logic where rendering logics are collected as `Proc` and passed over to `ActionController::MimeResponds`
     #
-    # @param action the `action` of the controller
-    #
     # @example process `create` action
-    #   start_scene(:create)
+    #   # it uses AbstractController#action_name to process
+    #   start_scene
     #
     #   # it is equivalent to the following if `create` action is configured with `html` and `json` formats
     #   def create
@@ -44,17 +43,18 @@ module MimeActor
     #     end
     #   end
     #
-    def start_scene(action)
+    def start_scene
+      action = action_name.to_sym
       formats = acting_scenes.fetch(action, {})
 
       if formats.empty?
-        logger.warn { "format is empty for action: #{action.inspect}" }
+        logger.warn { "format is empty for action: #{action_name.inspect}" }
         return
       end
 
       respond_to do |collector|
         formats.each do |format, actor|
-          dispatch = -> { cue_actor(actor.presence || "#{action}_#{format}", action:, format:) }
+          dispatch = -> { cue_actor(actor.presence || "#{action}_#{format}", format:) }
           collector.public_send(format, &dispatch)
         end
       end

@@ -42,12 +42,12 @@ RSpec.shared_examples "rescuable action filter" do |action_name, acceptance: tru
   include_context "with rescuable filter", :action
 
   if acceptance
-    it "accepts #{action_name || "the format"}" do
+    it "accepts #{action_name || "the action"}" do
       expect { rescuable }.not_to raise_error
       expect(klazz.actor_rescuers).to include(["StandardError", nil, action_params, kind_of(Symbol)])
     end
   else
-    it "accepts #{action_name || "the format"}" do
+    it "accepts #{action_name || "the action"}" do
       expect { rescuable }.to raise_error(error_class_raised, error_message_raised)
       expect(klazz.actor_rescuers).to be_empty
     end

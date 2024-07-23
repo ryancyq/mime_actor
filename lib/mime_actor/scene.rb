@@ -116,11 +116,11 @@ module MimeActor
       def define_scene(action)
         module_eval(
           # def index
-          #   self.respond_to?(:start_scene) && self.start_scene(:index)
+          #   self.respond_to?(:start_scene) && self.start_scene
           # end
           <<-RUBY, __FILE__, __LINE__ + 1
             def #{action}
-              self.respond_to?(:start_scene) && self.start_scene(:#{action})
+              self.respond_to?(:start_scene) && self.start_scene
             end
           RUBY
         )

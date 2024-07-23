@@ -202,7 +202,7 @@ RSpec.describe MimeActor::Stage do
 
       context "with block passed" do
         let(:cue) do
-          klazz_instance.cue_actor(actor, *acting_instructions, action: nil, format: nil, &another_actor)
+          klazz_instance.cue_actor(actor, *acting_instructions, format: format_filter, &another_actor)
         end
         let(:actor) { -> { 4 } }
         let(:another_actor) { ->(num) { num**num } }
@@ -250,10 +250,10 @@ RSpec.describe MimeActor::Stage do
 
       describe "when error raised in callbacks" do
         let(:actor) { :my_actor }
+        let(:action_filter) { :abc }
         let(:callback_error) { RuntimeError.new("my error callback") }
 
         before do
-          klazz.define_method(:action_name) { "abc" }
           klazz.define_method(actor) { "my actor" }
           allow(klazz_instance).to receive(actor).and_call_original
 
@@ -297,7 +297,6 @@ RSpec.describe MimeActor::Stage do
       let(:actor) { :my_actor }
 
       before do
-        klazz.define_method(:action_name) { "create" }
         klazz.define_method(actor) { "my actor" }
 
         klazz.before_act :my_before_callback, action: :create

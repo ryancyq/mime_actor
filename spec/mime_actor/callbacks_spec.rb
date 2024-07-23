@@ -77,9 +77,9 @@ RSpec.describe MimeActor::Callbacks do
       around_callbacks
       after_callbacks
 
-      klazz.define_method(:action_name) { true }
-      klazz.define_method(:method_missing) { |*_args| true }
-      klazz.define_method(:respond_to_missing?) { |*_args| true }
+      klazz.define_method(:action_name) { "placeholder" }
+      klazz.define_method(:method_missing) { |*_args| "missed" }
+      klazz.define_method(:respond_to_missing?) { |*_args| "responded" }
 
       allow(klazz_instance).to receive(:action_name).and_return(act_action.to_s)
       allow(klazz_instance).to receive(:method_missing).and_wrap_original do |_method, method_name, *_args, &block|
