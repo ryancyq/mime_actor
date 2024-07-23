@@ -86,20 +86,12 @@ module MimeActor
 
         raise ArgumentError, "provide either the with: argument or a block" if with.present? && block_given?
 
-        if block_given?
-          with = block
-        elsif with.present?
-          validate!(:with, with)
-        end
+        validate!(:with, with) if with.present?
+        with = block if block_given?
 
-        case actions = on
-        when Enumerable
-          validate!(:actions, actions)
-        when Symbol, String
-          validate!(:action, actions)
-        else
-          raise ArgumentError, "action is required"
-        end
+        raise ArgumentError, "action is required" unless (actions = on).present?
+
+        validate!(:action_or_actions, actions)
 
         Array.wrap(actions).each do |action|
           formats.each { |format| compose_scene(action, format, with) }

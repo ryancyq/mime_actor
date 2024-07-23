@@ -49,19 +49,11 @@ module MimeActor
         raise ArgumentError, "error filter is required" if klazzes.empty?
         raise ArgumentError, "provide either the with: argument or a block" unless with.present? ^ block_given?
 
-        if block_given?
-          with = block
-        else
-          validate!(:with, with)
-        end
+        validate!(:with, with) if with.present?
+        with = block if block_given?
 
-        if action.present?
-          action.is_a?(Enumerable) ? validate!(:actions, action) : validate!(:action, action)
-        end
-
-        if format.present?
-          format.is_a?(Enumerable) ? validate!(:formats, format) : validate!(:format, format)
-        end
+        validate!(:action_or_actions, action) if action.present?
+        validate!(:format_or_formats, format) if format.present?
 
         klazzes.each do |klazz|
           validate!(:klazz, klazz)
