@@ -82,6 +82,8 @@ module MimeActor
       dispatcher = MimeActor::Dispatcher.build(actor, *args)
       raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatcher
 
+      self.class.validate!(:format, format)
+
       run_act_callbacks(format) do
         result = dispatcher.call(self)
         block_given? ? yield(result) : result

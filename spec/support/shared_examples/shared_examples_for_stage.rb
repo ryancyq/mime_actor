@@ -1,5 +1,21 @@
 # frozen_string_literal: true
 
+RSpec.shared_examples "stage cue actor format filter" do |format_name, acceptance: true|
+  include_context "with stage cue"
+
+  let(:actor) { -> {} }
+
+  if acceptance
+    it "accepts #{format_name || "the format"}" do
+      expect { cue }.not_to raise_error
+    end
+  else
+    it "rejects #{format_name || "the format"}" do
+      expect { cue }.to raise_error(error_class_raised, error_message_raised)
+    end
+  end
+end
+
 RSpec.shared_examples "stage cue actor method" do |actor_method|
   include_context "with stage cue"
 
