@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors  = ["Ryan Chang"]
   spec.email    = ["ryancyq@gmail.com"]
 
-  spec.summary     = "Action Render + Rescue handlers for different MIME types in Rails"
+  spec.summary     = "Action processing with Callback + Rescue handlers for different MIME types in Rails"
   spec.description = ""
   spec.homepage    = "https://github.com/ryancyq/mime_actor"
   spec.license     = "MIT"

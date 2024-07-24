@@ -5,7 +5,7 @@
 [![Coverage][coverage_badge]][coverage]
 [![Maintainability][maintainability_badge]][maintainability]
 
-Action Render + Rescue handlers for different MIME types in Rails
+Action processing with Callback + Rescue handlers for different MIME types in Rails.
 
 ## Usage
 

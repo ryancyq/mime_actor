@@ -17,7 +17,7 @@ module MimeActor
   #
   # `Action` is the recommended `Module` to be included in the `ActionController`.
   #
-  # Provides intuitive way of `action` rendering for a specific MIME type with rescue handlers.
+  # Provides intuitive way of `action` processing for a specific MIME type with callback + rescue handlers.
   #
   module Action
     extend ActiveSupport::Concern
