@@ -1,4 +1,4 @@
-# mime_actor
+# Mime Actor
 
 [![Version][rubygems_badge]][rubygems]
 [![CI][ci_badge]][ci_workflows]
@@ -7,15 +7,35 @@
 
 Action processing with Callback + Rescue handlers for different MIME types in Rails.
 
+In most of the Rails apps, a single `ActionController` is only responsible for rendering a single MIME type. That is usually done by calling `ActionController#respond_to` for each action in the controller.
+
+```rb
+class EventsController < ActionController::Base
+  def index
+    @events = Event.all
+    respond_to :json
+  end
+
+  def show
+    respond_to do |format|
+      format.json { render json: @event }
+    end
+  end
+end
+```
+
+However, it can be a litte bit messy when some actions render more than a single MIME type with error handling for different MIME type. See [comparison][doc_comparison] to understand more.
+
 ## Usage
 
-MimeActor allows you to do something like below:
+**Mime Actor** allows you to do something like:
 ```rb
 class EventsController < ActionController::Base
   include MimeActor::Action
 
   before_act -> { @events = Event.all }, action: :index
   before_act :load_event, action: %i[show update]
+  before_act -> { @event_categories = EventCategory.all }, action: :show, format: :html
 
   respond_act_to :html, :json, on: :update
   respond_act_to :html, on: %i[index show], with: :render_html
@@ -35,11 +55,10 @@ class EventsController < ActionController::Base
 
   def update_json
     # ...
-    render json: @event # render json using #as_json
+    render json: @event # render with #to_json
   end
 
   def render_html
-    @event_categories = EventCategory.all if action_name == :index
     render html: action_name
   end
 
@@ -52,8 +71,6 @@ class EventsController < ActionController::Base
   end
 end
 ```
-
-Seems useful? See the [Comparison][doc_comparison] on how it can improve your existing code
 
 ## Features
 

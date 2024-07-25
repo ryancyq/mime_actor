@@ -9,6 +9,7 @@ class EventsController < ActionController::Base
 
   before_act -> { @events = Event.all }, action: :index
   before_act :load_event, action: %i[show update]
+  before_act -> { @event_categories = EventCategory.all }, action: :show, format: :html
 
   respond_act_to :html, :json, on: :update
   respond_act_to :html, on: %i[index show], with: :render_html
@@ -28,11 +29,10 @@ class EventsController < ActionController::Base
 
   def update_json
     # ...
-    render json: @event # render json using #as_json
+    render json: @event # render with #to_json
   end
 
   def render_html
-    @event_categories = EventCategory.all if action_name == :index
     render html: action_name
   end
 
