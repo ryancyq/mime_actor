@@ -96,13 +96,13 @@ module MimeActor
         TypeError.new("#{unchecked.inspect} must be a Class/Module or a String referencing a Class/Module")
       end
 
-      # Validate `with` must be a Symbol or Proc
+      # Validate `callable` must be a Symbol or Proc
       #
-      # @param unchecked the `with` to be validated
-      def validate_with(unchecked)
+      # @param unchecked the `callable` to be validated
+      def validate_callable(unchecked)
         return if unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
 
-        TypeError.new("with handler must be a Symbol or Proc, got: #{unchecked.inspect}")
+        TypeError.new("#{unchecked.inspect} must be a Symbol or Proc")
       end
     end
   end

@@ -86,7 +86,7 @@ module MimeActor
 
         raise ArgumentError, "provide either the with: argument or a block" if with.present? && block_given?
 
-        validate!(:with, with) if with.present?
+        validate!(:callable, with) if with.present?
         with = block if block_given?
 
         raise ArgumentError, "action is required" unless (actions = on).present?

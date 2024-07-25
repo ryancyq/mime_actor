@@ -151,12 +151,12 @@ RSpec.describe MimeActor::Rescue do
       it_behaves_like "rescuable with handler", "String", String, acceptance: false do
         let(:handler) { "custom_handler" }
         let(:error_class_raised) { TypeError }
-        let(:error_message_raised) { "with handler must be a Symbol or Proc, got: #{handler.inspect}" }
+        let(:error_message_raised) { "\"custom_handler\" must be a Symbol or Proc" }
       end
       it_behaves_like "rescuable with handler", "Method", Method, acceptance: false do
         let(:handler) { method(:to_s) }
         let(:error_class_raised) { TypeError }
-        let(:error_message_raised) { "with handler must be a Symbol or Proc, got: #{handler.inspect}" }
+        let(:error_message_raised) { %r{Method.*#to_s.* must be a Symbol or Proc} }
       end
     end
 
