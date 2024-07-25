@@ -9,6 +9,7 @@ gem "activesupport", ">= 5.0"
 gem "rake", ">= 11.0"
 
 group :development, :test do
+  gem "rails", ">= 5.0"
   gem "rspec", "~> 3.12"
   gem "simplecov", "~> 0.22.0", require: false
   gem "simplecov-cobertura", require: false
