@@ -38,7 +38,7 @@ RSpec.describe EventsController do
           it "responds" do
             expect(dispatch).to contain_exactly(
               options.dig(:status, mime) || 200,
-              a_hash_including("content-type" => /#{mime}/),
+              a_hash_including("content-type" => %r{#{mime}}),
               kind_of(ActionDispatch::Response::RackBody)
             )
           end
@@ -51,7 +51,7 @@ RSpec.describe EventsController do
     let(:action_name) { "show" }
     let(:request_method) { "GET" }
 
-    context "non existed event_id" do
+    context "with non existed event_id" do
       let(:request_params) { "event_id=100" }
 
       context "with json" do
@@ -60,7 +60,7 @@ RSpec.describe EventsController do
         it "responds bad request" do
           expect(dispatch).to contain_exactly(
             400,
-            a_hash_including("content-type" => /json/),
+            a_hash_including("content-type" => %r{json}),
             kind_of(ActionDispatch::Response::RackBody)
           )
         end
@@ -71,8 +71,8 @@ RSpec.describe EventsController do
 
         it "responds" do
           expect(dispatch).to contain_exactly(
-            200,
-            a_hash_including("content-type" => /json/),
+            302,
+            a_hash_including("content-type" => %r{html}),
             kind_of(ActionDispatch::Response::RackBody)
           )
         end
