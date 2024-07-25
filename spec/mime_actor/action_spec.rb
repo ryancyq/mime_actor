@@ -22,6 +22,26 @@ RSpec.describe MimeActor::Action do
     end
   end
 
+  describe "#actor_delegator" do
+    it "allows class attribute reader" do
+      expect(klazz.actor_delegator).to be_a(Proc)
+    end
+
+    it "allows class attribute writter" do
+      expect { klazz.actor_delegator = true }.not_to raise_error
+    end
+
+    it "allows instance reader" do
+      expect(klazz.new.actor_delegator).to be_a(Proc)
+    end
+
+    it "disallows instance writter" do
+      expect { klazz.new.actor_delegator = true }.to raise_error(
+        NoMethodError, %r{undefined method `actor_delegator='}
+      )
+    end
+  end
+
   describe "#start_scene" do
     let(:klazz_instance) { klazz.new }
     let(:start) { klazz_instance.start_scene }
@@ -42,6 +62,61 @@ RSpec.describe MimeActor::Action do
         allow(klazz_instance).to receive(:respond_to)
         expect { start }.not_to raise_error
         expect(klazz_instance).to have_received(:respond_to)
+      end
+
+      describe "#actor_delegator" do
+        before do
+          allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
+          allow(klazz_instance).to receive(:actor_delegator).and_call_original
+          allow(stub_collector).to receive(:html)
+        end
+
+        context "when with/block is not provided" do
+          let(:stub_delegator) { instance_double(Proc, call: "to_s") }
+
+          before do
+            klazz.respond_act_to :json, on: start_action
+            allow(stub_collector).to receive(:json)
+          end
+
+          it "calls to get actor name" do
+            expect { start }.not_to raise_error
+            expect(klazz_instance).to have_received(:actor_delegator).twice
+          end
+
+          it "calls with action & format" do
+            allow(klazz_instance).to receive(:actor_delegator).and_return(stub_delegator)
+            expect { start }.not_to raise_error
+            expect(stub_delegator).to have_received(:call).with(start_action, :html)
+            expect(stub_delegator).to have_received(:call).with(start_action, :json)
+          end
+        end
+
+        context "when with is provided" do
+          before do
+            klazz.respond_act_to :json, on: start_action, with: :all_rounder
+            allow(stub_collector).to receive(:json)
+          end
+
+          it "does not call" do
+            expect { start }.not_to raise_error
+            expect(klazz_instance).not_to have_received(:actor_delegator).with(start_action, :json)
+          end
+        end
+
+        context "when block is provided" do
+          let(:empty_block) { proc {} }
+
+          before do
+            klazz.respond_act_to :json, on: start_action, &empty_block
+            allow(stub_collector).to receive(:json)
+          end
+
+          it "does not call" do
+            expect { start }.not_to raise_error
+            expect(klazz_instance).not_to have_received(:actor_delegator).with(start_action, :json)
+          end
+        end
       end
     end
 
@@ -93,7 +168,7 @@ RSpec.describe MimeActor::Action do
         expect(klazz_instance).to have_received(:respond_to)
         expect(stub_collector).to have_received(:html) do |&block|
           allow(klazz_instance).to receive(:cue_actor)
-          block.call
+          expect(block.call).to be_nil
           expect(klazz_instance).to have_received(:cue_actor).with(actor_name, format: :html)
         end
       end
