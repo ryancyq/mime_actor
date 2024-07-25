@@ -1,6 +1,6 @@
 ## Comparison in Rails
 
-### MIME Rendering
+### MIME Action
 
 #### before
 ```rb
@@ -24,10 +24,10 @@ end
 class EventsController < ActionController::Base
   include MimeActor::Action
 
-  before_action only: :index, with: :load_events
+  before_act -> { @events = Event.all }, action: :index
 
   # dynamically defines the action method according to on: argument
-  respond_act_to :html, :json, on: :index 
+  respond_act_to :html, :json, on: :index
 
   def index_html
       @event_categories = EventCategory.all
@@ -40,16 +40,10 @@ class EventsController < ActionController::Base
       # render json using #as_json
       render json: @events
   end
-
-  private
-
-  def load_events
-    @events = Event.all
-  end
 end
 ```
 
-### MIME Rescuing
+### MIME Rescue
 
 #### before
 ```rb
@@ -102,14 +96,17 @@ class EventsController < ActionController::Base
 
   before_action only: %i[show update], with: :load_event
 
-  respond_act_to :html, :json, on: %i[show update]
+  respond_act_to :html, on: %i[show update]
+  respond_act_to :json, on: %i[show update], with: -> { render json: @event } # render json using #as_json
 
   rescue_act_from ActiveRecord::RecordNotFound, format: :json, with: :handle_json_error
 
-  rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show do |_ex|
+  rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show do
     redirect_to events_path
   end
 
+  private
+  
   def show_html
     render :show # render html using @event
   end
@@ -120,17 +117,6 @@ class EventsController < ActionController::Base
   rescue ActiveRecord::RecordNotFound
     render :edit
   end
-
-  def show_json
-    render json: @event # render json using #as_json
-  end
-
-  def update_json
-    # ...
-    render json: @event # render json using #as_json
-  end
-
-  private
 
   def handle_json_error(error)
     render status: :bad_request, json: { error: error.message }
