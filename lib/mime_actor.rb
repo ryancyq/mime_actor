@@ -16,3 +16,11 @@ require "mime_actor/stage"
 require "mime_actor/validator"
 
 require "mime_actor/deprecator"
+
+begin
+  require "rails"
+rescue LoadError
+  # noop
+end
+
+require "mime_actor/railtie" if defined?(Rails::Railtie)
