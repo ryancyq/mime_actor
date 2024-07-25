@@ -124,7 +124,7 @@ RSpec.describe MimeActor::Rescue do
         let(:rescue_act) { klazz.rescue_act_from StandardError }
 
         it "required" do
-          expect { rescue_act }.to raise_error(ArgumentError, "provide either the with: argument or a block")
+          expect { rescue_act }.to raise_error(ArgumentError, "provide either with: or a block")
         end
       end
 
@@ -135,7 +135,7 @@ RSpec.describe MimeActor::Rescue do
         end
 
         it "must be absent" do
-          expect { rescue_act }.to raise_error(ArgumentError, "provide either the with: argument or a block")
+          expect { rescue_act }.to raise_error(ArgumentError, "provide either with: or a block")
         end
       end
 

@@ -106,7 +106,7 @@ RSpec.describe MimeActor::Scene do
         let(:compose) { klazz.respond_act_to :html, on: :create, with: proc {}, &empty_block }
 
         it "must be absent" do
-          expect { compose }.to raise_error(ArgumentError, "provide either the with: argument or a block")
+          expect { compose }.to raise_error(ArgumentError, "provide either with: or a block")
         end
       end
 
