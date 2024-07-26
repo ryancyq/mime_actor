@@ -2,7 +2,9 @@ name: publish
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "releases/.+-stable"
     paths: ["lib/mime_actor/version.rb"]
 
 jobs:
