@@ -20,6 +20,7 @@ jobs:
 
       - name: Run Rspec
         run: |
+          echo "CODE_COV=true" >> "$GITHUB_ENV"
           bundle exec rake spec
 
       - name: Upload coverage reports to Codecov
