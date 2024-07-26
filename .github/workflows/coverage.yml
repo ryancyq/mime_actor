@@ -18,9 +18,12 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Run Rspec
+      - name: Enable CODE_COV env variable
         run: |
           echo "CODE_COV=true" >> "$GITHUB_ENV"
+
+      - name: Run Rspec
+        run: |
           bundle exec rake spec
 
       - name: Upload coverage reports to Codecov
