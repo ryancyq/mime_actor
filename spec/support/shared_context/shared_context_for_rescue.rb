@@ -29,22 +29,6 @@ RSpec.shared_context "with rescuable filter" do |*filters|
   end
 end
 
-RSpec.shared_context "with rescuable actor handler class method" do
-  let(:klazz) { Class.new.include described_class }
-  let(:error_instance) { error_class.new "my error" }
-  let(:action_filter) { nil }
-  let(:format_filter) { nil }
-  let(:rescue_context_class) { Class.new }
-  let(:rescue_context) { rescue_context_class.new }
-  let(:visited_errors) { [] }
-  let(:rescuable) do
-    klazz.rescue_actor(
-      error_instance,
-      action: action_filter, format: format_filter, context: rescue_context, visited: visited_errors
-    )
-  end
-end
-
 RSpec.shared_context "with rescuable actor handler" do
   let(:klazz) { Class.new.include described_class }
   let(:klazz_instance) { klazz.new }
