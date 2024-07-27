@@ -1,4 +1,4 @@
-# Mime Actor
+# mime_actor
 
 [![Version][rubygems_badge]][rubygems]
 [![CI][ci_badge]][ci_workflows]
