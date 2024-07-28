@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.homepage    = "https://github.com/ryancyq/mime_actor"
   spec.license     = "MIT"
 
-  spec.required_ruby_version = ">= 3.1.0"
+  spec.required_ruby_version = "~> 3.1"
 
   spec.metadata = {
     "rubygems_mfa_required" => "true",
@@ -36,9 +36,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "actionpack", ">= 5.0"
-  spec.add_dependency "activesupport", ">= 5.0"
-  spec.add_dependency "rake", ">= 11.0"
+  spec.add_dependency "actionpack", "~> 7.0"
+  spec.add_dependency "activesupport", "~> 7.0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
