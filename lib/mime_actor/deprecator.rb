@@ -6,7 +6,7 @@ require "active_support/deprecation"
 
 module MimeActor
   def self.deprecator
-    @deprecator ||= ActiveSupport::Deprecation.new("0.7.0", "MimeActor")
+    @deprecator ||= ActiveSupport::Deprecation.new("0.6.6", "MimeActor")
   end
 end
 
