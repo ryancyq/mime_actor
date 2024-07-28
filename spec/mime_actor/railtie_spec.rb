@@ -10,7 +10,7 @@ RSpec.describe MimeActor::Railtie do
   before do
     app.config.eager_load = false
     app.config.logger = ActiveSupport::Logger.new($stdout)
-    app.config.load_defaults 7.1
+    app.config.load_defaults Rails.gem_version.segments.take(2).join(".")
     app.initialize!
   end
 
