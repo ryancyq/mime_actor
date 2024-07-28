@@ -8,8 +8,8 @@ gem "actionpack", "~> 7.0"
 gem "activesupport", "~> 7.0"
 
 group :development, :test do
-  gem "rake", ">= 11.0"
   gem "rails", "~> 7.0"
+  gem "rake", ">= 11.0"
   gem "rspec", "~> 3.12"
   gem "simplecov", "~> 0.22.0", require: false
   gem "simplecov-cobertura", require: false
