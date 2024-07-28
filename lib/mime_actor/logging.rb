@@ -2,6 +2,10 @@
 
 # :markup: markdown
 
+# required by active_support/tagged_logging
+require "active_support/version"
+require "active_support/isolated_execution_state" if ActiveSupport::VERSION::MAJOR >= 7
+
 require "active_support/concern"
 require "active_support/configurable"
 require "active_support/isolated_execution_state" # required by active_support/logger
@@ -18,7 +22,14 @@ module MimeActor
     include ActiveSupport::Configurable
 
     included do
-      config_accessor :logger, default: ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new($stdout))
+      default_logger = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new($stdout))
+      if ActiveSupport::VERSION::MAJOR >= 7
+        config_accessor :logger, default: default_logger
+      else
+        config_accessor :logger do
+          default_logger
+        end
+      end
     end
 
     private
