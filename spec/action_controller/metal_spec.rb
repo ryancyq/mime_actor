@@ -11,7 +11,8 @@ RSpec.describe ActionController::Metal do
   let(:env) do
     {
       "REQUEST_METHOD" => "POST",
-      "HTTP_ACCEPT"    => "application/json,application/xml"
+      "HTTP_ACCEPT"    => "application/json,application/xml",
+      "rack.input"     => "" # TODO: remove me, actionpack < 7.0
     }
   end
   let(:action_request) { ActionDispatch::Request.new(env) }

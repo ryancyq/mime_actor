@@ -10,7 +10,8 @@ RSpec.describe EventsController do
     {
       "REQUEST_METHOD" => request_method,
       "HTTP_ACCEPT"    => request_accept,
-      "QUERY_STRING"   => request_params
+      "QUERY_STRING"   => request_params,
+      "rack.input"     => "" # TODO: remove me, actionpack < 7.0
     }
   end
   let(:action_request) { ActionDispatch::Request.new(env) }
