@@ -162,7 +162,12 @@ module MimeActor
             owner.define_cached_method(action, namespace: :mime_scene) do |batch|
               batch.push(
                 "def #{action}",
-                "respond_to?(:start_scene) ? start_scene { super } : super",
+                "if respond_to?(:start_scene)",
+                "start_scene { raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super); super } ",
+                "else",
+                "raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super)",
+                "super",
+                "end",
                 "end"
               )
             end
