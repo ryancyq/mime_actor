@@ -61,6 +61,10 @@ RSpec.describe EventsController do
         it "responds bad request" do
           expect(dispatch).to contain_exactly(
             400,
+            # http 1.0/1.1 support case insensitive, http 2.0 recomends lower case
+            # related issues:
+            # https://github.com/puma/puma/issues/3250
+            # https://github.com/rails/rails/pull/48437
             a_hash_including("Content-Type" => %r{json}),
             kind_of(ActionDispatch::Response::RackBody)
           )
