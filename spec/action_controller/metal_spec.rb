@@ -28,16 +28,16 @@ RSpec.describe ActionController::Metal do
   describe "when actor method is defined" do
     before do
       controller_class.respond_act_to :json, on: :new
-      controller_class.define_method(action_actor) { render plain: :ok }
+      controller_class.define_method(action_actor) { equal?("my actor 123") }
     end
 
     it "calls the actor method" do
       expect(controller_class.action_methods).to include(action_actor)
       expect(controller_class).to be_method_defined(action_actor)
 
-      allow(controller).to receive(action_actor).and_call_original
+      allow(controller).to receive(:equal?)
       expect { dispatch }.not_to raise_error
-      expect(controller).to have_received(action_actor)
+      expect(controller).to have_received(:equal?).with("my actor 123")
     end
   end
 
