@@ -28,10 +28,6 @@ module MimeActor
     include Stage
     include Logging
 
-    included do
-      mattr_accessor :actor_delegator, instance_writer: false, default: ->(action, format) { "#{action}_#{format}" }
-    end
-
     # The core logic where rendering logics are collected as `Proc` and passed over to `ActionController::MimeResponds`
     #
     # @example process `create` action
