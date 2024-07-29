@@ -8,7 +8,6 @@ require "active_support/isolated_execution_state" if ActiveSupport::VERSION::MAJ
 
 require "active_support/concern"
 require "active_support/configurable"
-require "active_support/isolated_execution_state" # required by active_support/logger
 require "active_support/logger"
 require "active_support/tagged_logging"
 
