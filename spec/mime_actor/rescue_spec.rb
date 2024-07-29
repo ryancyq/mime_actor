@@ -47,6 +47,15 @@ RSpec.describe MimeActor::Rescue do
     end
 
     describe "#format" do
+      it_behaves_like "rescuable format filter", "Nil" do
+        let(:format_filter) { nil }
+      end
+      it_behaves_like "rescuable format filter", "Empty Array", acceptance: false do
+        let(:format_filter) { [] }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "formats must not be empty" }
+      end
+
       describe "supported format" do
         it_behaves_like "rescuable format filter", "Symbol" do
           let(:format_filter) { :json }
@@ -101,6 +110,14 @@ RSpec.describe MimeActor::Rescue do
     end
 
     describe "#action" do
+      it_behaves_like "rescuable action filter", "Nil" do
+        let(:action_filter) { nil }
+      end
+      it_behaves_like "rescuable action filter", "Empty Array", acceptance: false do
+        let(:action_filter) { [] }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "actions must not be empty" }
+      end
       it_behaves_like "rescuable action filter", "Symbol" do
         let(:action_filter) { :index }
       end

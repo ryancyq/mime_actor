@@ -6,36 +6,50 @@ RSpec.describe MimeActor::Scene do
   let(:klazz) { Class.new.include described_class }
 
   describe "#respond_act_to" do
-    describe "#action" do
-      it_behaves_like "composable scene action", "nil", acceptance: false do
-        let(:action_filter) { nil }
-        let(:error_class_raised) { ArgumentError }
-        let(:error_message_raised) { "action is required" }
-      end
-      it_behaves_like "composable scene action", "Symbol" do
-        let(:action_filter) { :create }
-      end
-      it_behaves_like "composable scene action", "Array of Symbol" do
-        let(:action_filter) { %i[index create] }
-      end
-      it_behaves_like "composable scene action", "String", acceptance: false do
-        let(:action_filter) { "create" }
-        let(:error_class_raised) { TypeError }
-        let(:error_message_raised) { "action must be a Symbol" }
-      end
-      it_behaves_like "composable scene action", "Array of String", acceptance: false do
-        let(:action_filter) { %w[index create] }
-        let(:error_class_raised) { NameError }
-        let(:error_message_raised) { "invalid actions, got: \"index\", \"create\"" }
-      end
-      it_behaves_like "composable scene action", "Array of String/Symbol", acceptance: false do
-        let(:action_filter) { [:index, "create"] }
-        let(:error_class_raised) { NameError }
-        let(:error_message_raised) { "invalid actions, got: \"create\"" }
-      end
-      it_behaves_like "composable scene action", "#new" do
-        let(:action_filter) { :new }
-      end
+    it_behaves_like "composable scene action", "Nil", acceptance: false do
+      let(:action_filter) { nil }
+      let(:error_class_raised) { ArgumentError }
+      let(:error_message_raised) { "action is required" }
+    end
+    it_behaves_like "composable scene action", "Empty Array", acceptance: false do
+      let(:action_filter) { [] }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "actions must not be empty" }
+    end
+    it_behaves_like "composable scene action", "Symbol" do
+      let(:action_filter) { :create }
+    end
+    it_behaves_like "composable scene action", "Array of Symbol" do
+      let(:action_filter) { %i[index create] }
+    end
+    it_behaves_like "composable scene action", "String", acceptance: false do
+      let(:action_filter) { "create" }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "action must be a Symbol" }
+    end
+    it_behaves_like "composable scene action", "Array of String", acceptance: false do
+      let(:action_filter) { %w[index create] }
+      let(:error_class_raised) { NameError }
+      let(:error_message_raised) { "invalid actions, got: \"index\", \"create\"" }
+    end
+    it_behaves_like "composable scene action", "Array of String/Symbol", acceptance: false do
+      let(:action_filter) { [:index, "create"] }
+      let(:error_class_raised) { NameError }
+      let(:error_message_raised) { "invalid actions, got: \"create\"" }
+    end
+    it_behaves_like "composable scene action", "#new" do
+      let(:action_filter) { :new }
+    end
+
+    it_behaves_like "composable scene format", "Nil", acceptance: false do
+      let(:format_filter) { nil }
+      let(:error_class_raised) { NameError }
+      let(:error_message_raised) { "invalid formats, got: nil" }
+    end
+    it_behaves_like "composable scene format", "Empty Array", acceptance: false do
+      let(:format_filter) { [] }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "formats must not be empty" }
     end
 
     describe "supported format" do
