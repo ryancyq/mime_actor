@@ -49,6 +49,8 @@ module MimeActor
       #
       # @param unchecked the `actions` to be validated
       def validate_actions(unchecked)
+        return TypeError.new("actions must not be empty") if unchecked.empty?
+
         rejected = unchecked.reject { |action| action.is_a?(Symbol) }
         NameError.new("invalid actions, got: #{rejected.map(&:inspect).join(", ")}") if rejected.size.positive?
       end
@@ -73,6 +75,8 @@ module MimeActor
       #
       # @param unchecked the `formats` to be validated
       def validate_formats(unchecked)
+        return TypeError.new("formats must not be empty") if unchecked.empty?
+
         unfiltered = unchecked.to_set
         filtered = unfiltered & scene_formats
         rejected = unfiltered - filtered
