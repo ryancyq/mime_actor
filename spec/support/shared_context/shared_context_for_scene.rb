@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/array/wrap"
-
 RSpec.shared_context "with scene composition" do
   let(:klazz) { Class.new.include described_class }
   let(:action_filter) { :create }
-  let(:action_filters) { Array.wrap(action_filter) }
-  let(:action_params) { action_filters.size > 1 ? action_filters : action_filters.first }
   let(:format_filter) { :html }
-  let(:format_filters) { Array.wrap(format_filter) }
-  let(:compose) { klazz.respond_act_to(*format_filters, on: action_params) }
+  let(:compose) do
+    if format_filter.is_a?(Enumerable)
+      klazz.respond_act_to(*format_filter, on: action_filter)
+    else
+      klazz.respond_act_to(format_filter, on: action_filter)
+    end
+  end
 end

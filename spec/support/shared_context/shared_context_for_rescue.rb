@@ -1,31 +1,22 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/array/wrap"
-
 RSpec.shared_context "with rescuable filter" do |*filters|
   let(:klazz) { Class.new.include described_class }
-  let(:error_filter) { StandardError }
-  let(:error_filters) { Array.wrap(error_filter) }
-
-  if filters.include?(:action)
-    let(:action_filter) { nil }
-    let(:action_filters) { Array.wrap(action_filter) }
-    let(:action_params) { action_filters.size > 1 ? action_filters : action_filters.first }
-  end
-
-  if filters.include?(:format)
-    let(:format_filter) { nil }
-    let(:format_filters) { Array.wrap(format_filter) }
-    let(:format_params) { format_filters.size > 1 ? format_filters : format_filters.first }
-  end
+  let(:error_filter) { nil }
+  let(:action_filter) { nil } if filters.include?(:action)
+  let(:format_filter) { nil } if filters.include?(:format)
 
   let(:rescuable) do
     options = {
-      action: filters.include?(:action) ? action_params : nil,
-      format: filters.include?(:format) ? format_params : nil,
+      action: filters.include?(:action) ? action_filter : nil,
+      format: filters.include?(:format) ? format_filter : nil,
       with:   :my_handler
     }
-    klazz.rescue_act_from(*error_filters, **options)
+    if error_filter.is_a?(Enumerable)
+      klazz.rescue_act_from(*error_filter, **options)
+    else
+      klazz.rescue_act_from(error_filter, **options)
+    end
   end
 end
 

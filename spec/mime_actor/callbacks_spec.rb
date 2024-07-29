@@ -9,6 +9,11 @@ RSpec.describe MimeActor::Callbacks do
     it_behaves_like "runnable act callbacks action filter", kind, "Nil" do
       let(:action_filter) { nil }
     end
+    it_behaves_like "runnable act callbacks action filter", kind, "Empty Array", acceptance: false do
+      let(:action_filter) { [] }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "actions must not be empty" }
+    end
     it_behaves_like "runnable act callbacks action filter", kind, "Symbol" do
       let(:action_filter) { :show }
     end
@@ -33,6 +38,11 @@ RSpec.describe MimeActor::Callbacks do
 
     it_behaves_like "runnable act callbacks format filter", kind, "Nil" do
       let(:format_filter) { nil }
+    end
+    it_behaves_like "runnable act callbacks format filter", kind, "Empty Array", acceptance: false do
+      let(:format_filter) { [] }
+      let(:error_class_raised) { TypeError }
+      let(:error_message_raised) { "formats must not be empty" }
     end
     it_behaves_like "runnable act callbacks format filter", kind, "Symbol" do
       let(:format_filter) { :html }

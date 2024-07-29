@@ -47,13 +47,13 @@ module MimeActor
       #
       def rescue_act_from(*klazzes, action: nil, format: nil, with: nil, &block)
         raise ArgumentError, "error filter is required" if klazzes.empty?
-        raise ArgumentError, "provide either with: or a block" unless with.present? ^ block_given?
+        raise ArgumentError, "provide either with: or a block" unless !with.nil? ^ block_given?
 
-        validate!(:callable, with) if with.present?
+        validate!(:callable, with) unless with.nil?
         with = block if block_given?
 
-        validate!(:action_or_actions, action) if action.present?
-        validate!(:format_or_formats, format) if format.present?
+        validate!(:action_or_actions, action) unless action.nil?
+        validate!(:format_or_formats, format) unless format.nil?
 
         klazzes.each do |klazz|
           validate!(:klazz, klazz)
@@ -93,8 +93,8 @@ module MimeActor
       return unless error
 
       *_, rescuer = actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
-        next if action_filter.present? && !Array.wrap(action_filter).include?(action)
-        next if format_filter.present? && !Array.wrap(format_filter).include?(format)
+        next unless action_filter.nil? || Array.wrap(action_filter).include?(action)
+        next unless format_filter.nil? || Array.wrap(format_filter).include?(format)
         next unless (klazz = constantize_rescuee(rescuee))
 
         error.is_a?(klazz)

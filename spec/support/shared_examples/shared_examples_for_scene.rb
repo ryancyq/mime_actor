@@ -8,7 +8,7 @@ RSpec.shared_examples "composable scene action" do |action_name, acceptance: tru
       expect(klazz.acting_scenes).to be_empty
       expect { compose }.not_to raise_error
       expect(klazz.acting_scenes).not_to be_empty
-      expect(klazz.acting_scenes.keys).to match_array(action_filters)
+      expect(klazz.acting_scenes.keys).to match_array(Array(action_filter))
     end
   else
     it "rejects #{action_name || "the action"}" do
@@ -27,7 +27,7 @@ RSpec.shared_examples "composable scene format" do |format_name, acceptance: tru
       expect(klazz.acting_scenes).to be_empty
       expect { compose }.not_to raise_error
       expect(klazz.acting_scenes).not_to be_empty
-      expect(klazz.acting_scenes.values.flat_map(&:keys)).to match_array(format_filters)
+      expect(klazz.acting_scenes.values.flat_map(&:keys)).to match_array(Array(format_filter))
     end
   else
     it "rejects #{format_name || "the format"}" do
@@ -41,13 +41,19 @@ end
 RSpec.shared_examples "composable scene with handler" do |handler_name, handler_type, acceptance: true|
   include_context "with scene composition"
 
-  let(:compose) { klazz.respond_act_to(*format_filters, on: action_params, with: handler) }
+  let(:compose) do
+    if format_filter.is_a?(Enumerable)
+      klazz.respond_act_to(*format_filter, on: action_filter, with: handler)
+    else
+      klazz.respond_act_to(format_filter, on: action_filter, with: handler)
+    end
+  end
   let(:expected_scenes) do
-    action_filters.each_with_object({}) do |action_name, result|
+    Array(action_filter).each_with_object({}) do |action_name, result|
       action_name = action_name.to_sym
       result[action_name] ||= {}
 
-      format_filters.each do |format_name|
+      Array(format_filter).each do |format_name|
         result[action_name][format_name.to_sym] = kind_of(handler_type)
       end
     end
@@ -73,11 +79,11 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
   include_context "with scene composition"
 
   let(:expected_scenes) do
-    action_filters.each_with_object({}) do |action_name, result|
+    Array(action_filter).each_with_object({}) do |action_name, result|
       action_name = action_name.to_sym
       result[action_name] ||= {}
 
-      format_filters.each do |format_name|
+      Array(format_filter).each do |format_name|
         result[action_name][format_name.to_sym] = anything
       end
     end
@@ -86,7 +92,7 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
   it "stores #{scene_name || "the scene"} config" do
     expect(klazz.acting_scenes).to be_empty
     expect { compose }.not_to raise_error
-    expect(expected_scenes.size).to eq action_filters.size
+    expect(expected_scenes.size).to eq Array(action_filter).size
     expect(klazz.acting_scenes).to include expected_scenes
   end
 
