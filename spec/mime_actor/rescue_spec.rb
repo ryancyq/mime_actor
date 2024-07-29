@@ -13,6 +13,16 @@ RSpec.describe MimeActor::Rescue do
         expect { klazz.rescue_act_from }.to raise_error(ArgumentError, "error filter is required")
       end
 
+      it_behaves_like "rescuable error filter", "Nil", acceptance: false do
+        let(:error_filter) { nil }
+        let(:error_class_raised) { TypeError }
+        let(:error_message_raised) { "nil must be a Class/Module or a String referencing a Class/Module" }
+      end
+      it_behaves_like "rescuable error filter", "Empty Array", acceptance: false do
+        let(:error_filter) { [] }
+        let(:error_class_raised) { ArgumentError }
+        let(:error_message_raised) { "error filter is required" }
+      end
       it_behaves_like "rescuable error filter", "Class" do
         let(:error_filter) { stub_const "MyClass", Class.new }
       end
