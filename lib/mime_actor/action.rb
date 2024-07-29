@@ -51,16 +51,18 @@ module MimeActor
     def start_scene
       action = action_name.to_sym
       formats = acting_scenes.fetch(action, {})
+      return respond_to_scene(action, formats) unless formats.empty?
 
-      if formats.empty?
-        logger.warn { "format is empty for action: #{action_name.inspect}" }
-        return
-      end
+      logger.warn { "no format found for action: #{action_name.inspect}" }
+    end
 
+    private
+
+    def respond_to_scene(action, formats)
       respond_to do |collector|
         formats.each do |format, actor|
           callable = actor.presence || actor_delegator.call(action, format)
-          dispatch = -> { cue_actor(callable, format:) }
+          dispatch = -> { cue_actor(callable, action, format, format:) }
           collector.public_send(format, &dispatch)
         end
       end
