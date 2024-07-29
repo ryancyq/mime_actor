@@ -62,6 +62,10 @@ module MimeActor
       respond_to do |collector|
         formats.each do |format, actor|
           callable = actor.presence || actor_delegator.call(action, format)
+          unless callable
+            MimeActor.deprecator.warn("#actor_delegator is deprecated")
+            callable = actor_delegator.call(action, format)
+          end
           dispatch = -> { cue_actor(callable, action, format, format:) }
           collector.public_send(format, &dispatch)
         end

@@ -90,6 +90,10 @@ RSpec.describe MimeActor::Action do
             expect(stub_delegator).to have_received(:call).with(start_action, :html)
             expect(stub_delegator).to have_received(:call).with(start_action, :json)
           end
+
+          it "logs deprecation warning" do
+            expect { start }.to have_deprecated(%r{#actor_delegator is deprecated})
+          end
         end
 
         context "when with is provided" do
