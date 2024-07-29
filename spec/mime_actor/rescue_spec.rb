@@ -26,7 +26,7 @@ RSpec.describe MimeActor::Rescue do
         let(:error_filter) { stub_const "#{stub_namespace}::AnotherModule", Module.new }
       end
       it_behaves_like "rescuable error filter", "Multiple errors" do
-        let(:error_filters) do
+        let(:error_filter) do
           [
             stub_const("MyClass", Class.new),
             stub_const("MyModule", Module.new),
@@ -52,7 +52,7 @@ RSpec.describe MimeActor::Rescue do
           let(:format_filter) { :json }
         end
         it_behaves_like "rescuable format filter", "Array of Symbol" do
-          let(:format_filters) { %i[json html] }
+          let(:format_filter) { %i[json html] }
         end
         it_behaves_like "rescuable format filter", "String", acceptance: false do
           let(:format_filter) { "json" }
@@ -60,12 +60,12 @@ RSpec.describe MimeActor::Rescue do
           let(:error_message_raised) { "format must be a Symbol" }
         end
         it_behaves_like "rescuable format filter", "Array of String", acceptance: false do
-          let(:format_filters) { %w[json html] }
+          let(:format_filter) { %w[json html] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: \"json\", \"html\"" }
         end
         it_behaves_like "rescuable format filter", "Array of Symbol/String", acceptance: false do
-          let(:format_filters) { [:json, "html"] }
+          let(:format_filter) { [:json, "html"] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: \"html\"" }
         end
@@ -78,7 +78,7 @@ RSpec.describe MimeActor::Rescue do
           let(:error_message_raised) { "invalid format, got: :my_json" }
         end
         it_behaves_like "rescuable format filter", "Array of Symbol", acceptance: false do
-          let(:format_filters) { %i[json my_json html my_html] }
+          let(:format_filter) { %i[json my_json html my_html] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: :my_json, :my_html" }
         end
@@ -88,12 +88,12 @@ RSpec.describe MimeActor::Rescue do
           let(:error_message_raised) { "format must be a Symbol" }
         end
         it_behaves_like "rescuable format filter", "Array of String", acceptance: false do
-          let(:format_filters) { %w[json my_json html my_html] }
+          let(:format_filter) { %w[json my_json html my_html] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: \"json\", \"my_json\", \"html\", \"my_html\"" }
         end
         it_behaves_like "rescuable format filter", "Array of Symbol/String", acceptance: false do
-          let(:format_filters) { [:json, :my_json, "html", "my_html"] }
+          let(:format_filter) { [:json, :my_json, "html", "my_html"] }
           let(:error_class_raised) { NameError }
           let(:error_message_raised) { "invalid formats, got: :my_json, \"html\", \"my_html\"" }
         end
@@ -105,7 +105,7 @@ RSpec.describe MimeActor::Rescue do
         let(:action_filter) { :index }
       end
       it_behaves_like "rescuable action filter", "Array of Symbol" do
-        let(:action_filters) { %i[debug load] }
+        let(:action_filter) { %i[debug load] }
       end
       it_behaves_like "rescuable action filter", "String", acceptance: false do
         let(:action_filter) { "index" }
@@ -113,7 +113,7 @@ RSpec.describe MimeActor::Rescue do
         let(:error_message_raised) { "action must be a Symbol" }
       end
       it_behaves_like "rescuable action filter", "Array of String", acceptance: false do
-        let(:action_filters) { %w[debug load] }
+        let(:action_filter) { %w[debug load] }
         let(:error_class_raised) { NameError }
         let(:error_message_raised) { "invalid actions, got: \"debug\", \"load\"" }
       end

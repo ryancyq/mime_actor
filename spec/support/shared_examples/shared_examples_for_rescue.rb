@@ -7,7 +7,7 @@ RSpec.shared_examples "rescuable error filter" do |error_name, acceptance: true|
     it "accepts #{error_name || "the error"}" do
       expect { rescuable }.not_to raise_error
 
-      error_filters.each do |filter|
+      Array(error_filter).each do |filter|
         filter_name = filter.respond_to?(:name) ? filter.name : filter
         expect(klazz.actor_rescuers).to include([filter_name, nil, nil, kind_of(Symbol)])
       end
@@ -22,12 +22,12 @@ end
 
 RSpec.shared_examples "rescuable format filter" do |format_name, acceptance: true|
   include_context "with rescuable filter", :format
-
+  let(:error_filter) { StandardError }
   if acceptance
     it "accepts #{format_name || "the format"}" do
       expect { rescuable }.not_to raise_error
-      error_filters.each do |filter|
-        expect(klazz.actor_rescuers).to include([filter.name, format_params, nil, kind_of(Symbol)])
+      Array(error_filter).each do |filter|
+        expect(klazz.actor_rescuers).to include([filter.name, format_filter, nil, kind_of(Symbol)])
       end
     end
   else
@@ -41,10 +41,12 @@ end
 RSpec.shared_examples "rescuable action filter" do |action_name, acceptance: true|
   include_context "with rescuable filter", :action
 
+  let(:error_filter) { StandardError }
+
   if acceptance
     it "accepts #{action_name || "the action"}" do
       expect { rescuable }.not_to raise_error
-      expect(klazz.actor_rescuers).to include(["StandardError", nil, action_params, kind_of(Symbol)])
+      expect(klazz.actor_rescuers).to include(["StandardError", nil, action_filter, kind_of(Symbol)])
     end
   else
     it "accepts #{action_name || "the action"}" do
