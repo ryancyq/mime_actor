@@ -36,8 +36,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "actionpack", "~> 7.0"
-  spec.add_dependency "activesupport", "~> 7.0"
+  spec.add_dependency "actionpack", "~> 6.0"
+  spec.add_dependency "activesupport", "~> 6.0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
