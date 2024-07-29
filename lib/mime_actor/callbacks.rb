@@ -48,11 +48,11 @@ module MimeActor
       end
 
       def callback_chain_name(format = nil)
-        if format.present?
+        if format.nil?
+          :act
+        else
           validate!(:format, format)
           :"act_#{format}"
-        else
-          :act
         end
       end
 
@@ -70,7 +70,7 @@ module MimeActor
 
       def configure_callbacks(callbacks, actions, formats, block)
         options = {}
-        options[:if] = ActionMatcher.new(actions) if actions.present?
+        options[:if] = ActionMatcher.new(actions) unless actions.nil?
         callbacks.push(block) if block
 
         formats = Array.wrap(formats)
@@ -86,8 +86,8 @@ module MimeActor
       end
 
       def validate_callback_options!(action, format)
-        validate!(:action_or_actions, action) if action.present?
-        validate!(:format_or_formats, format) if format.present?
+        validate!(:action_or_actions, action) unless action.nil?
+        validate!(:format_or_formats, format) unless format.nil?
       end
 
       def define_act_callbacks(kind)
