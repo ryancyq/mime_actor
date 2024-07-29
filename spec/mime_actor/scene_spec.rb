@@ -5,6 +5,19 @@ require "mime_actor/scene"
 RSpec.describe MimeActor::Scene do
   let(:klazz) { Class.new.include described_class }
 
+  describe "#act_on_format" do
+    it "alias #respond_act_to" do
+      expect(klazz).not_to be_method_defined(:act_on_format)
+      expect(klazz.singleton_class).to be_method_defined(:act_on_format)
+    end
+
+    it "logs deprecation warning" do
+      expect { klazz.act_on_format(:html, on: :show) }.to have_deprecated(
+        %r{act_on_format is deprecated .*use respond_act_to instead}
+      )
+    end
+  end
+
   describe "#respond_act_to" do
     describe "#action" do
       it_behaves_like "composable scene action", "nil", acceptance: false do

@@ -175,6 +175,203 @@ RSpec.describe MimeActor::Rescue do
     end
   end
 
+  describe "#self.rescue_actor" do
+    let(:error_class) { RuntimeError }
+
+    context "with deprecation" do
+      include_context "with rescuable actor handler class method"
+      it "logs deprecation warning" do
+        expect { rescuable }.to have_deprecated(
+          %r{rescue_actor is deprecated .*use #rescue_actor instance method}
+        )
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "emtpy actor_rescuers", acceptance: false
+
+    it_behaves_like "rescuable actor handler class method", "non-matching actor_rescuers", acceptance: false do
+      before do
+        klazz.rescue_act_from ArgumentError, with: proc {}
+        klazz.rescue_act_from NameError, with: proc {}
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "defined class name" do
+      before { klazz.rescue_act_from "RuntimeError", with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler class method", "defined class name with namespace" do
+      let(:error_class) { MimeActor::Error }
+      before { klazz.rescue_act_from "MimeActor::Error", with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler class method", "undefined class name", acceptance: false do
+      before { klazz.rescue_act_from "MyError", with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler class method", "error subclass" do
+      let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
+      before { klazz.rescue_act_from RuntimeError, with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler class method", "method actor_rescuer" do
+      before do
+        rescue_context_class.define_method(:method_actor_rescuer) { |ex| equal?(ex) }
+        klazz.rescue_act_from RuntimeError, with: :method_actor_rescuer
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "proc actor_rescuer" do
+      before do
+        klazz.rescue_act_from RuntimeError, with: proc { |ex| equal?(ex) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "lambda actor_rescuer" do
+      before do
+        klazz.rescue_act_from RuntimeError, with: ->(ex) { equal?(ex) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(error_instance).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "error matching actor_rescuer" do
+      before do
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(1) }
+        klazz.rescue_act_from ArgumentError, with: -> { equal?(2) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(1).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "action matching actor_rescuer" do
+      let(:action_filter) { :create }
+
+      before do
+        klazz.rescue_act_from RuntimeError, action: :create, with: -> { equal?(1) }
+        klazz.rescue_act_from RuntimeError, action: :index, with: -> { equal?(2) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(1).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "format matching actor_rescuer" do
+      let(:format_filter) { :json }
+
+      before do
+        klazz.rescue_act_from RuntimeError, format: :xml, with: -> { equal?(1) }
+        klazz.rescue_act_from RuntimeError, format: :json, with: -> { equal?(2) }
+        klazz.rescue_act_from RuntimeError, format: :html, with: -> { equal?(3) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(2).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "error in visited", acceptance: false do
+      let(:visited_errors) { [error_instance] }
+      before { klazz.rescue_act_from RuntimeError, with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler class method", "error re-raised" do
+      let(:error_re_raise) do
+        begin
+          raise "my original error"
+        rescue StandardError
+          raise ArgumentError, "my re-raised error"
+        end
+      rescue StandardError => e
+        e
+      end
+      let(:error_instance) { error_re_raise }
+      let(:error_instance_rescued) { error_re_raise.cause }
+      before { klazz.rescue_act_from RuntimeError, with: proc {} }
+    end
+
+    it_behaves_like "rescuable actor handler class method", "action and format matching actor_rescuers" do
+      let(:error_class) { stub_const "MyError", Class.new(StandardError) }
+      let(:rescue_context) { Object.new }
+      let(:action_filter) { :create }
+      let(:format_filter) { :json }
+
+      before do
+        klazz.rescue_act_from StandardError, with: proc { equal?(1) }
+        klazz.rescue_act_from error_class, action: :create, format: :json, with: proc { equal?(2) }
+        klazz.rescue_act_from error_class, format: :html, with: proc { equal?(3) }
+        klazz.rescue_act_from StandardError, action: :index, format: :html, with: proc { equal?(4) }
+      end
+
+      it "rescues with handler context" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(2).once
+      end
+
+      it "rescues with fallback" do
+        allow(rescue_context).to receive(:equal?)
+        expect do
+          klazz.rescue_actor(error_instance, action: :index, format: :json, context: rescue_context)
+        end.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(1).once
+      end
+    end
+
+    it_behaves_like "rescuable actor handler class method", "multiple matching actor_rescuers" do
+      let(:rescue_context) { Object.new }
+
+      before do
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(1) }
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(2) }
+        klazz.rescue_act_from RuntimeError, with: -> { equal?(3) }
+      end
+
+      it "rescues using most recently declared actor_rescuer" do
+        allow(rescue_context).to receive(:equal?)
+        expect { rescuable }.not_to raise_error
+        expect(rescue_context).to have_received(:equal?).with(3).once
+      end
+    end
+
+    context "when rescuee is not string and symbol" do
+      include_context "with rescuable actor handler class method"
+
+      before do
+        klazz.actor_rescuers << [123, nil, nil, proc {}]
+      end
+
+      it "raise #{TypeError}" do
+        expect { rescuable }.to raise_error(TypeError, "class or module required")
+      end
+    end
+  end
+
   describe "#rescue_actor" do
     let(:error_class) { RuntimeError }
 

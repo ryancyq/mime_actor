@@ -5,6 +5,19 @@ require "mime_actor/stage"
 RSpec.describe MimeActor::Stage do
   let(:klazz) { Class.new.include described_class }
 
+  describe "#dispatch_cue" do
+    it "alias #dispatch_act" do
+      expect(klazz).not_to be_method_defined(:dispatch_cue)
+      expect(klazz.singleton_class).to be_method_defined(:dispatch_cue)
+    end
+
+    it "logs deprecation warning" do
+      expect { klazz.dispatch_cue { "test" } }.to have_deprecated(
+        %r{dispatch_cue is deprecated .*no longer support anonymous proc with rescue}
+      )
+    end
+  end
+
   describe "#raise_on_actor_error" do
     it "allows class attribute reader" do
       expect(klazz.raise_on_actor_error).to be_falsey
@@ -22,6 +35,127 @@ RSpec.describe MimeActor::Stage do
       expect { klazz.new.raise_on_actor_error = true }.to raise_error(
         NoMethodError, %r{undefined method `raise_on_actor_error='}
       )
+    end
+  end
+
+  describe "#actor?" do
+    subject { klazz.actor? actor_name }
+
+    context "with deprecation" do
+      it "logs deprecation warning" do
+        expect { klazz.actor? :any }.to have_deprecated(
+          %r{actor\? is deprecated .*no longer supported, use Object#respond_to\?}
+        )
+      end
+    end
+
+    context "when actor exists" do
+      before { klazz.define_method(:supporting_actor) { "supporting" } }
+
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+
+        it { is_expected.to be_truthy }
+      end
+    end
+
+    context "when actor does not exist" do
+      context "with actor name in Symbol" do
+        let(:actor_name) { :supporting_actor }
+
+        it { is_expected.to be_falsey }
+      end
+
+      context "with actor name in String" do
+        let(:actor_name) { "supporting_actor" }
+
+        it { is_expected.to be_falsey }
+      end
+    end
+  end
+
+  describe "#dispatch_act" do
+    let(:stub_proc) { proc { to_s } }
+
+    it "requires block" do
+      expect { klazz.dispatch_act }.to raise_error(ArgumentError, "block must be provided")
+    end
+
+    it "returns a Proc" do
+      dispatch = klazz.dispatch_act(&stub_proc)
+      expect(dispatch).to be_a(Proc)
+      expect(dispatch).not_to eq stub_proc
+    end
+
+    context "with deprecation" do
+      it "logs deprecation warning" do
+        expect { klazz.dispatch_act(&stub_proc) }.to have_deprecated(
+          %r{dispatch_act is deprecated .*no longer support anonymous proc with rescue}
+        )
+      end
+    end
+
+    context "with context" do
+      let(:object_class) { stub_const "MyObject", Class.new }
+      let(:object_instance) { object_class.new }
+
+      it "invokes under class context" do
+        dispatch = klazz.dispatch_act(context: object_class, &stub_proc)
+        expect(dispatch.call).to eq "MyObject"
+        expect(stub_proc.call).to match(%r{RSpec::.*DispatchAct::WithContext:})
+      end
+
+      it "invokes under object context" do
+        dispatch = klazz.dispatch_act(context: object_instance, &stub_proc)
+        expect(dispatch.call).to match(%r{MyObject:})
+        expect(stub_proc.call).to match(%r{RSpec::.*DispatchAct::WithContext})
+      end
+    end
+
+    describe "rescue_actor" do
+      before { klazz.define_singleton_method(:rescue_actor) { |*_args| "rescue" } }
+
+      describe "when error is handled" do
+        let(:object_instance) { Object.new }
+
+        it "does not bubbles up" do
+          allow(klazz).to receive(:rescue_actor).and_return(true)
+          dispatch = klazz.dispatch_act(
+            action:  :abc,
+            format:  "xyz",
+            context: object_instance
+          ) { raise "my error" }
+
+          expect { dispatch.call }.not_to raise_error
+          expect(klazz).to have_received(:rescue_actor).with(
+            kind_of(RuntimeError),
+            a_hash_including(
+              action:  :abc,
+              format:  "xyz",
+              context: object_instance
+            )
+          )
+        end
+      end
+
+      describe "when error is not handled" do
+        it "bubbles up" do
+          allow(klazz).to receive(:rescue_actor)
+          dispatch = klazz.dispatch_act { raise "my error" }
+
+          expect { dispatch.call }.to raise_error do |ex|
+            expect(ex).to be_a(RuntimeError)
+            expect(ex.message).to eq "my error"
+          end
+          expect(klazz).to have_received(:rescue_actor)
+        end
+      end
     end
   end
 
