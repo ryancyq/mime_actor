@@ -5,6 +5,7 @@
 require "mime_actor/validator"
 
 require "active_support/callbacks"
+require "active_support/code_generator"
 require "active_support/concern"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/object/blank"
@@ -30,6 +31,7 @@ module MimeActor
       define_callbacks :act, skip_after_callbacks_if_terminated: true
 
       %i[before after around].each { |kind| define_act_callbacks(kind) }
+      generate_act_callback_methods
     end
 
     module ClassMethods
@@ -88,6 +90,43 @@ module MimeActor
       def validate_callback_options!(action, format)
         validate!(:action_or_actions, action) unless action.nil?
         validate!(:format_or_formats, format) unless format.nil?
+      end
+
+      def generate_act_callback_methods
+        ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
+          %i[before after around].each do |kind|
+            generate_act_callback_kind(owner, kind)
+          end
+        end
+        # as: check against the defined method in owner, code only generated after #batch block is yielded
+        ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
+          %i[before after around].each do |kind|
+            owner.define_cached_method(:"act_#{kind}", as: :"append_act_#{kind}", namespace: :mime_callbacks)
+          end
+        end
+      end
+
+      def generate_act_callback_kind(generator, kind)
+        generator.define_cached_method(:"append_act_#{kind}", namespace: :mime_callbacks) do |batch|
+          batch.push(
+            "def append_act_#{kind}(*callbacks, action: nil, format: nil, &block)",
+            "validate_callback_options!(action, format)",
+            "configure_callbacks(callbacks, action, format, block) do |chain, callback, options|",
+            "set_callback(chain, :#{kind}, callback, options)",
+            "end",
+            "end"
+          )
+        end
+        generator.define_cached_method(:"prepend_act_#{kind}", namespace: :mime_callbacks) do |batch|
+          batch.push(
+            "def prepend_act_#{kind}(*callbacks, action: nil, format: nil, &block)",
+            "validate_callback_options!(action, format)",
+            "configure_callbacks(callbacks, action, format, block) do |chain, callback, options|",
+            "set_callback(chain, :#{kind}, callback, options.merge!(prepend: true))",
+            "end",
+            "end"
+          )
+        end
       end
 
       def define_act_callbacks(kind)
