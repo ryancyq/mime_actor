@@ -113,19 +113,26 @@ module MimeActor
         ActiveSupport::CodeGenerator.batch(generated_action_methods, __FILE__, __LINE__) do |owner|
           actions.each do |action|
             owner.define_cached_method(action, namespace: :mime_scene) do |batch|
-              batch.push(
-                "def #{action}",
-                "if respond_to?(:start_scene)",
-                "start_scene { raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super); super } ",
-                "else",
-                "raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super)",
-                "super",
-                "end",
-                "end"
-              )
+              batch << action_method_template(action)
             end
           end
         end
+      end
+
+      def action_method_template(action)
+        <<-RUBY
+          def #{action}
+            if respond_to?(:start_scene)
+              start_scene do
+                raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super)
+                super
+              end
+            else
+              raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super)
+              super
+            end
+          end
+        RUBY
       end
     end
   end
