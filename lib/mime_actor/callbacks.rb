@@ -160,15 +160,15 @@ module MimeActor
     #   # - my_act_before_one
     #   # - my_act_before_two
     #   # - my_act_before_four
+    #   # - my_act_before_three
     #   # - my_act_around_one
+    #   # - my_act_around_two
     #   # - my_act_around_three
     #   # - my_act_around_four
-    #   # - my_act_before_three
-    #   # - my_act_around_two
-    #   # - my_act_after_one
     #   # - my_act_after_four
     #   # - my_act_after_three
     #   # - my_act_after_two
+    #   # - my_act_after_one
     #
     def run_act_callbacks(action:, format:)
       @_act_action = action.to_sym
