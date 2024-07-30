@@ -24,9 +24,9 @@ RSpec.describe MimeActor::Action do
 
   describe "#start_scene" do
     let(:klazz_instance) { klazz.new }
-    let(:start) { klazz_instance.start_scene }
+    let(:scene_handler) { proc { "scene handled" } }
+    let(:start) { klazz_instance.start_scene(&scene_handler) }
     let(:start_action) { :create }
-    let(:actor_name) { "create_html" }
     let(:stub_collector) { instance_double(ActionController::MimeResponds::Collector) }
     let(:stub_logger) { instance_double(ActiveSupport::Logger) }
 
@@ -42,6 +42,39 @@ RSpec.describe MimeActor::Action do
         allow(klazz_instance).to receive(:respond_to)
         expect { start }.not_to raise_error
         expect(klazz_instance).to have_received(:respond_to)
+      end
+
+      it "calls the handler" do
+        allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
+        allow(stub_collector).to receive(:html)
+        expect { start }.not_to raise_error
+        expect(stub_collector).to have_received(:html) do |&block|
+          allow(klazz_instance).to receive(:cue_actor).and_call_original
+          expect(block.call).to eq "scene handled"
+          expect(klazz_instance).to have_received(:cue_actor).with(scene_handler, :create, :html, format: :html)
+        end
+      end
+
+      context "without block provided" do
+        let(:start) { klazz_instance.start_scene }
+
+        before do
+          allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
+          allow(stub_logger).to receive(:warn)
+        end
+
+        it "logs missing handler" do
+          expect { start }.not_to raise_error
+          expect(stub_logger).to have_received(:warn) do |&logger|
+            expect(logger.call).to eq "no #respond_to handler found for action: :create format: :html"
+          end
+        end
+
+        it "does not call #respond_to collector" do
+          allow(stub_collector).to receive(:html)
+          expect { start }.not_to raise_error
+          expect(stub_collector).not_to have_received(:html)
+        end
       end
     end
 
@@ -63,38 +96,18 @@ RSpec.describe MimeActor::Action do
           expect(logger.call).to eq "no format found for action: \"create\""
         end
       end
-    end
 
-    describe "when actor is defined" do
-      before { klazz.define_method(actor_name) { "my actor" } }
-
-      it "calls #cue_actor" do
-        allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
-        allow(stub_collector).to receive(:html)
-
-        expect { start }.not_to raise_error
-
-        expect(klazz_instance).to have_received(:respond_to)
-        expect(stub_collector).to have_received(:html) do |&block|
-          allow(klazz_instance).to receive(:cue_actor).and_call_original
-          expect(block.call).to eq "my actor"
-          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, :create, :html, format: :html)
-        end
+      it "calls the handler" do
+        expect(start).to eq "scene handled"
       end
-    end
 
-    describe "when actor undefined" do
-      it "calls #cue_actor" do
-        allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
-        allow(stub_collector).to receive(:html)
+      context "without block provided" do
+        let(:start) { klazz_instance.start_scene }
 
-        expect { start }.not_to raise_error
-
-        expect(klazz_instance).to have_received(:respond_to)
-        expect(stub_collector).to have_received(:html) do |&block|
-          allow(klazz_instance).to receive(:cue_actor)
-          expect(block.call).to be_nil
-          expect(klazz_instance).to have_received(:cue_actor).with(actor_name, :create, :html, format: :html)
+        it "does not call #responds_to" do
+          allow(klazz_instance).to receive(:respond_to)
+          expect { start }.not_to raise_error
+          expect(klazz_instance).not_to have_received(:respond_to)
         end
       end
     end
