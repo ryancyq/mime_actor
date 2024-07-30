@@ -30,15 +30,17 @@ module MimeActor
 
     # The core logic where rendering logics are collected as `Proc` and passed over to `ActionController::MimeResponds`
     #
+    # @param block the block to be evaluated
+    #
     # @example process `create` action
     #   # it uses AbstractController#action_name to process
-    #   start_scene
+    #   start_scene { create_internal }
     #
     #   # it is equivalent to the following if `create` action is configured with `html` and `json` formats
     #   def create
     #     respond_to |format|
-    #       format.html { public_send(:create_html) }
-    #       format.json { public_send(:create_json) }
+    #       format.html { create_internal }
+    #       format.json { create_internal }
     #     end
     #   end
     #

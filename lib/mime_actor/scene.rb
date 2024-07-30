@@ -14,26 +14,20 @@ module MimeActor
   #
   # Scene provides configuration for `action` + `format` definitions
   #
-  # @example register a `html` format on action `index`
-  #   respond_act_to :html, on: :index
+  # @example register a `html` format on action `create`
+  #   act_on_action :create, format: :html
   #
-  #   # this method should be defined in the class
-  #   def index_html; end
   # @example register `html`, `json` formats on actions `index`, `show`
-  #   respond_act_to :html, :json , on: [:index, :show]
+  #   act_on_action :index, :show, format: [:html, :json]
   #
-  #   # these methods should be defined in the class
-  #   def index_html; end
-  #   def index_json; end
-  #   def show_html; end
-  #   def show_json; end
   # @example register a `html` format on action `index` with respond handler method
-  #   respond_act_to :html, on: :index, with: :render_html
+  #   act_on_action :index, format: :html, with: :render_html
   #
-  #   # this method should be defined in the class
-  #   def render_html; end
-  # @example register a `html` format on action `index` with respond handler proc
-  #   respond_act_to :html, on: :index do
+  # @example register a `html` format on action `index` with respond handler Proc
+  #   act_on_action :index, format: :html, with: -> { render html: "<h1>my header</h1>" }
+  #
+  # @example register a `html` format on action `index` with respond handler block
+  #   act_on_action :html, on: :index do
   #     render :index
   #   end
   #
@@ -53,7 +47,7 @@ module MimeActor
       #
       # @param action a collection of `action`
       # @param format a single `format` or a collection of `format`
-      # @param with the response handler for the given `action` + `format`
+      # @param with the respond handler for the given `action` + `format`
       # @param block the `block` to be yieled for the given `action` + `format`
       #
       # @example register a `html` format on action `create`
@@ -67,14 +61,21 @@ module MimeActor
       #   # these action methods will be defined in the class
       #   def index; end
       #   def show; end
-      # @example register a `html` format on action `index` with response handler method
+      # @example register a `html` format on action `index` with respond handler method
       #   act_on_action :index, format: :html, with: :render_html
       #
       #   # an action method will be defined in the class
+      #   # the handler method will be called by the action method.
       #   def index; end
       #   # the given method should be defined in the class
       #   def render_html; end
-      # @example register a `html` format on action `index` with response handler block
+      # @example register a `html` format on action `index` with respond handler Proc
+      #   act_on_action :index, format: :html, with: -> { render html: "<h1>my header</h1>" }
+      #
+      #   # an action method will be defined in the class,
+      #   # the handler Proc will be called by the action method.
+      #   def index; end
+      # @example register a `html` format on action `index` with respond handler block
       #   act_on_action :html, on: :index do
       #     render :index
       #   end
