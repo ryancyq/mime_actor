@@ -30,7 +30,6 @@ module MimeActor
     included do
       define_callbacks :act, skip_after_callbacks_if_terminated: true
 
-      %i[before after around].each { |kind| define_act_callbacks(kind) }
       generate_act_callback_methods
     end
 
@@ -127,39 +126,6 @@ module MimeActor
             "end"
           )
         end
-      end
-
-      def define_act_callbacks(kind)
-        module_eval(
-          # def self.before_act(*callbacks, action: nil, format: nil, &block)
-          #   validate_callback_options!(action, format)
-          #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-          #     set_callback(chain, :before, callback, options)
-          #   end
-          # end
-          #
-          # def self.prepend_before_act(*callbacks, action: nil, format: nil, &block)
-          #   validate_callback_options!(action, format)
-          #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-          #     set_callback(chain, :before, callback, options.merge!(prepend: true))
-          #   end
-          # end
-          <<-RUBY, __FILE__, __LINE__ + 1
-            def self.#{kind}_act(*callbacks, action: nil, format: nil, &block)
-              validate_callback_options!(action, format)
-              configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-                set_callback(chain, :#{kind}, callback, options)
-              end
-            end
-
-            def self.prepend_#{kind}_act(*callbacks, action: nil, format: nil, &block)
-              validate_callback_options!(action, format)
-              configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-                set_callback(chain, :#{kind}, callback, options.merge!(prepend: true))
-              end
-            end
-          RUBY
-        )
       end
     end
 
