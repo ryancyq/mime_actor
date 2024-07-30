@@ -29,47 +29,151 @@ However, it can be a litte bit messy when some actions render more than a single
 ## Usage
 
 **Mime Actor** allows you to do something like:
+
+#### Customize Action for certain MIME type
 ```rb
-class EventsController < ActionController::Base
-  include MimeActor::Action
+  act_on_action :index, :show, format: %i[html json]
+  act_on_action :create, format: :json
 
-  before_act -> { @events = Event.all }, action: :index
-  before_act :load_event, action: %i[show update]
-  before_act -> { @event_categories = EventCategory.all }, action: :show, format: :html
+  def index
+    @events = Event.all
+  end
+  def show
+    @event = Event.find(params[:id])
+  end
+  def create
+    @event = Event.new.save!
+  end
+```
+The above is equivalent to the following:
+```rb
+  def index
+    respond_to do |format|
+      format.html { @events = Event.all }
+      format.json { @events = Event.all }
+    end
+  end
+  def show
+    respond_to do |format|
+      format.html { @event = Event.find(params[:id]) }
+      format.json { @event = Event.find(params[:id]) }
+    end
+  end
+  def create
+    respond_to do |format|
+      format.json { @event = Event.new.save! }
+    end
+  end
+```
 
-  respond_act_to :html, :json, on: :update
-  respond_act_to :html, on: %i[index show], with: :render_html
-  respond_act_to :json, on: %i[index show], with: -> { render json: { action: action_name } }
+#### Callback registration for certain Action + MIME type
+```rb
+  act_before :load_event_categories, action: :index, format: :html
 
-  rescue_act_from ActiveRecord::RecordNotFound, format: :json, with: :handle_json_error
-  rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show, with: -> { redirect_to "/events" }
+  act_on_action :index, :show, format: %i[html json]
 
-  private
-
-  def update_html
-    # ...
-    redirect_to "/events/#{@event.id}" # redirect to show upon sucessful update
-  rescue ActiveRecord::RecordNotFound
-    render html: :edit
+  def index
+    @events = Event.all
   end
 
-  def update_json
-    # ...
-    render json: @event # render with #to_json
+  def show
+    @event = Event.find(params[:id])
   end
 
-  def render_html
-    render html: action_name
+  def load_event_categories
+    @event_categories = EventCategory.all
+  end
+```
+The above is equivalent to the following:
+```rb
+  def index
+    respond_to do |format|
+      format.html do 
+        load_event_categories
+        @events = Event.all
+      end
+      format.json { @events = Event.all }
+    end
+  end
+
+  def show
+    respond_to do |format|
+      format.html { @event = Event.find(params[:id]) }
+      format.json { @event = Event.find(params[:id]) }
+    end
+  end
+
+  def load_event_categories
+    @event_categories = EventCategory.all
+  end
+```
+
+#### Rescue handler registration for certain Action + MIME type
+```rb
+  act_before :load_event, action: %i[show update]
+
+  act_on_action :show, :update, format: :json
+  act_on_action :show, format: :html
+
+  rescue_act_from ActiveRecord::RecordNotFound, ActiveRecord::RecordNotSaved, format: :json, with: :handle_json_error
+  rescue_act_from ActiveRecord::RecordNotSaved, action: :show, format: :html, with: -> { redirect_to "/events" }
+  rescue_act_from ActiveRecord::RecordNotSaved, action: :update, format: :html, with: -> { render :edit }
+
+  def show
+    # ...
+  end
+
+  def update
+    @event.name = params[:name]
+    @event.save!
+    redirect_to "/events/#{@event.id}"
   end
 
   def load_event
-    @event = Event.find(params.require(:event_id))
+    @event = Event.find(params[:id])
   end
 
   def handle_json_error(error)
     render status: :bad_request, json: { error: error.message }
   end
-end
+```
+The above is equivalent to the following:
+```rb
+  before_action :load_event, only: %i[show update]
+
+  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found_error
+  rescue_from ActiveRecord::RecordNotSaved, with: :handle_not_saved_error
+
+  def show
+    respond_to do |format|
+      format.html { ... }
+      format.json { ... }
+    end
+  end
+
+  def update
+    @event.name = params[:name]
+    @event.save!
+    redirect_to "/events/#{@event.id}"
+  end
+
+  def handle_not_found_error(error)
+    respond_to do |format|
+      format.html { redirect_to "/events" }
+      format.json { handle_json_error(error) }
+    end
+  end
+
+  def handle_not_saved_error(error)
+    respond_to do |format|
+      format.html { render :edit }
+      format.json { handle_json_error(error) }
+    end
+  end
+
+  def handle_json_error(error)
+    render status: :bad_request, json: { error: error.message }
+  end
 ```
 
 ## Features

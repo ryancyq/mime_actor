@@ -56,18 +56,18 @@ end
 #### before
 ```rb
 class EventsController < ActionController::Base
-    def index
-        @events = Event.all
-        respond_to do |format|
-            format.html do
-                @event_categories = EventCategory.all
+  def index
+    @events = Event.all
+    respond_to do |format|
+      format.html do
+        @event_categories = EventCategory.all
 
-                # render html using @events and @event_categories
-                render :index 
-            end
-            format.json { render json: @events } # render json using #as_json
-        end
+        # render html using @events and @event_categories
+        render :index 
+      end
+      format.json { render json: @events } # render json using #as_json
     end
+  end
 end
 ```
 #### after
@@ -75,21 +75,21 @@ end
 class EventsController < ActionController::Base
   include MimeActor::Action
 
-  before_act -> { @events = Event.all }, action: :index
+  act_before -> { @events = Event.all }, action: :index
 
   # dynamically defines the action method according to on: argument
-  respond_act_to :html, :json, on: :index
+  act_on_action :index, format: %i[html json]
 
-  def index_html
-      @event_categories = EventCategory.all
-      
-      # render html using @events and @event_categories
-      render :index
+  act_after :render_index_html, action: :index, format: :html
+  act_after -> { render json: @events }, action: :index, format: :json
+
+  def index
+    @event_categories = EventCategory.all
   end
-
-  def index_json
-      # render json using #as_json
-      render json: @events
+  
+  def render_index_html
+    # render html using @events and @event_categories
+    render :index
   end
 end
 ```
@@ -145,28 +145,36 @@ end
 class EventsController < ActionController::Base
   include MimeActor::Action
 
-  before_act :load_event, action: %i[show update]
+  act_before :load_event, action: %i[show update]
 
-  respond_act_to :html, on: %i[show update]
-  respond_act_to :json, on: %i[show update], with: -> { render json: @event } # render json using #as_json
+  act_on_action :show, :update, format: :html
+  act_on_action :show, :update, format: :json, with: -> { render json: @event } # render json using #as_json
+
+  act_after :render_show_html, action: :show, format: :html
+  act_after :redirect_to_show, action: :update, format: :html
 
   rescue_act_from ActiveRecord::RecordNotFound, format: :json, with: :handle_json_error
-
   rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show do
     redirect_to events_path
   end
+  rescue_act_from ActiveRecord::RecrodNotSaved, format: :html, action: :update, with: -> { render :edit }
+
+  def show
+    # ...
+  end
+
+  def update
+    # ...
+  end
 
   private
-  
-  def show_html
+
+  def render_show_html
     render :show # render html using @event
   end
 
-  def update_html
-    # ...
+  def redirect_to_show
     redirect_to event_path(@event.id) # redirect to show upon sucessful update
-  rescue ActiveRecord::RecordNotFound
-    render :edit
   end
 
   def handle_json_error(error)
