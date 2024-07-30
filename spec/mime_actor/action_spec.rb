@@ -51,7 +51,9 @@ RSpec.describe MimeActor::Action do
         expect(stub_collector).to have_received(:html) do |&block|
           allow(klazz_instance).to receive(:cue_actor).and_call_original
           expect(block.call).to eq "scene handled"
-          expect(klazz_instance).to have_received(:cue_actor).with(scene_handler, :create, :html, format: :html)
+          expect(klazz_instance).to have_received(:cue_actor).with(
+            scene_handler, :create, :html, action: :create, format: :html
+          )
         end
       end
 

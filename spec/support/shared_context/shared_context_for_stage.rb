@@ -10,12 +10,10 @@ RSpec.shared_context "with stage cue" do
   let(:format_filter) { :html }
   let(:stub_logger) { instance_double(ActiveSupport::Logger) }
   let(:cue) do
-    klazz_instance.cue_actor(actor, *acting_instructions, format: format_filter)
+    klazz_instance.cue_actor(actor, *acting_instructions, action: action_filter, format: format_filter)
   end
 
   before do
-    klazz.define_method(:action_name) { "placeholder" }
-    allow(klazz_instance).to receive(:action_name).and_return(action_filter.to_s)
     klazz.config.logger = stub_logger
   end
 end
