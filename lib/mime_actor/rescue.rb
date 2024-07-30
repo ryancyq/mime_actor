@@ -6,9 +6,7 @@ require "mime_actor/dispatcher"
 require "mime_actor/validator"
 
 require "active_support/concern"
-require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attribute_accessors"
-require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/inflections"
 
 module MimeActor
@@ -93,8 +91,8 @@ module MimeActor
       return unless error
 
       *_, rescuer = actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
-        next unless action_filter.nil? || Array.wrap(action_filter).include?(action)
-        next unless format_filter.nil? || Array.wrap(format_filter).include?(format)
+        next unless action_filter.nil? || Array(action_filter).include?(action)
+        next unless format_filter.nil? || Array(format_filter).include?(format)
         next unless (klazz = constantize_rescuee(rescuee))
 
         error.is_a?(klazz)
