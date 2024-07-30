@@ -145,8 +145,8 @@ RSpec.describe MimeActor::Stage do
           klazz.define_method(actor) { "my actor" }
           allow(klazz_instance).to receive(actor).and_call_original
 
-          klazz.before_act :my_before_callback, action: action_filter
-          klazz.after_act :my_after_callback, format: format_filter
+          klazz.act_before :my_before_callback, action: action_filter
+          klazz.act_after :my_after_callback, format: format_filter
           klazz.define_method(:my_before_callback) { "before error" }
           klazz.define_method(:my_after_callback) { "after error" }
         end
@@ -187,9 +187,9 @@ RSpec.describe MimeActor::Stage do
       before do
         klazz.define_method(actor) { "my actor" }
 
-        klazz.before_act :my_before_callback, action: :create
-        klazz.before_act :my_html_callback, format: :html
-        klazz.after_act :my_after_html_callback, action: :create, format: :html
+        klazz.act_before :my_before_callback, action: :create
+        klazz.act_before :my_html_callback, format: :html
+        klazz.act_after :my_after_html_callback, action: :create, format: :html
 
         klazz.define_method(:my_before_callback) { "my callback" }
         klazz.define_method(:my_html_callback) { "my html" }

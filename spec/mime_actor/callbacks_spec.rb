@@ -101,33 +101,33 @@ RSpec.describe MimeActor::Callbacks do
     context "with or without action filter" do
       let(:act_action) { :create }
       let(:before_callbacks) do
-        klazz.before_act :my_before_act_one
-        klazz.before_act :my_before_act_two, action: :create
-        klazz.before_act :my_before_act_three
+        klazz.act_before :my_act_before_one
+        klazz.act_before :my_act_before_two, action: :create
+        klazz.act_before :my_act_before_three
       end
       let(:around_callbacks) do
-        klazz.around_act :my_around_act_one
-        klazz.around_act :my_around_act_two, action: :create
-        klazz.around_act :my_around_act_three
+        klazz.act_around :my_act_around_one
+        klazz.act_around :my_act_around_two, action: :create
+        klazz.act_around :my_act_around_three
       end
       let(:after_callbacks) do
-        klazz.after_act :my_after_act_one
-        klazz.after_act :my_after_act_two, action: :create
-        klazz.after_act :my_after_act_three
+        klazz.act_after :my_act_after_one
+        klazz.act_after :my_act_after_two, action: :create
+        klazz.act_after :my_act_after_three
       end
 
       it "calls in order" do
         klazz_instance.run_act_callbacks(:html)
         expect(sequence).to eq %i[
-          my_before_act_one
-          my_before_act_two
-          my_before_act_three
-          my_around_act_one
-          my_around_act_two
-          my_around_act_three
-          my_after_act_three
-          my_after_act_two
-          my_after_act_one
+          my_act_before_one
+          my_act_before_two
+          my_act_before_three
+          my_act_around_one
+          my_act_around_two
+          my_act_around_three
+          my_act_after_three
+          my_act_after_two
+          my_act_after_one
         ]
       end
     end
@@ -135,59 +135,59 @@ RSpec.describe MimeActor::Callbacks do
     context "with format filter" do
       let(:act_action) { :create }
       let(:before_callbacks) do
-        klazz.before_act :my_before_act_one
-        klazz.before_act :my_before_act_two, action: :create
-        klazz.before_act :my_before_act_three, action: :create, format: :html
-        klazz.before_act :my_before_act_four
+        klazz.act_before :my_act_before_one
+        klazz.act_before :my_act_before_two, action: :create
+        klazz.act_before :my_act_before_three, action: :create, format: :html
+        klazz.act_before :my_act_before_four
       end
       let(:around_callbacks) do
-        klazz.around_act :my_around_act_one
-        klazz.around_act :my_around_act_two, action: :create, format: :html
-        klazz.around_act :my_around_act_three, action: :create
-        klazz.around_act :my_around_act_four
+        klazz.act_around :my_act_around_one
+        klazz.act_around :my_act_around_two, action: :create, format: :html
+        klazz.act_around :my_act_around_three, action: :create
+        klazz.act_around :my_act_around_four
       end
       let(:after_callbacks) do
-        klazz.after_act :my_after_act_one, format: :html
-        klazz.after_act :my_after_act_two
-        klazz.after_act :my_after_act_three, action: :create
-        klazz.after_act :my_after_act_four
+        klazz.act_after :my_act_after_one, format: :html
+        klazz.act_after :my_act_after_two
+        klazz.act_after :my_act_after_three, action: :create
+        klazz.act_after :my_act_after_four
       end
 
       it "calls in order" do
         klazz_instance.run_act_callbacks(:html)
         expect(sequence).to eq %i[
-          my_before_act_one
-          my_before_act_two
-          my_before_act_four
-          my_around_act_one
-          my_around_act_three
-          my_around_act_four
-          my_before_act_three
-          my_around_act_two
-          my_after_act_one
-          my_after_act_four
-          my_after_act_three
-          my_after_act_two
+          my_act_before_one
+          my_act_before_two
+          my_act_before_four
+          my_act_around_one
+          my_act_around_three
+          my_act_around_four
+          my_act_before_three
+          my_act_around_two
+          my_act_after_one
+          my_act_after_four
+          my_act_after_three
+          my_act_after_two
         ]
       end
     end
 
     context "with different action/format filters" do
       let(:before_callbacks) do
-        klazz.before_act :before_a, action: %i[create show]
-        klazz.before_act :before_f, format: %i[json html]
-        klazz.before_act :before_anything
+        klazz.act_before :before_a, action: %i[create show]
+        klazz.act_before :before_f, format: %i[json html]
+        klazz.act_before :before_anything
       end
       let(:around_callbacks) do
-        klazz.around_act :around_a, action: :show
-        klazz.around_act :around_f, format: :json
-        klazz.around_act :around_anything
+        klazz.act_around :around_a, action: :show
+        klazz.act_around :around_f, format: :json
+        klazz.act_around :around_anything
       end
       let(:after_callbacks) do
-        klazz.after_act :after_a, action: :create
-        klazz.after_act :after_f, format: :html
-        klazz.after_act :after_a_f, action: :show, format: :json
-        klazz.after_act :after_anything
+        klazz.act_after :after_a, action: :create
+        klazz.act_after :after_f, format: :html
+        klazz.act_after :after_a_f, action: :show, format: :json
+        klazz.act_after :after_anything
       end
 
       context "with action name :create" do
