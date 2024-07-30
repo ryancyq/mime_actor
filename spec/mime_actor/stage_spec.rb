@@ -68,7 +68,13 @@ RSpec.describe MimeActor::Stage do
 
       context "with block passed" do
         let(:cue) do
-          klazz_instance.cue_actor(actor, *acting_instructions, format: format_filter, &another_actor)
+          klazz_instance.cue_actor(
+            actor,
+            *acting_instructions,
+            action: action_filter,
+            format: format_filter,
+            &another_actor
+          )
         end
         let(:actor) { -> { 4 } }
         let(:another_actor) { ->(num) { num**num } }

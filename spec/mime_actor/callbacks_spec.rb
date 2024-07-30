@@ -87,11 +87,9 @@ RSpec.describe MimeActor::Callbacks do
       around_callbacks
       after_callbacks
 
-      klazz.define_method(:action_name) { "placeholder" }
       klazz.define_method(:method_missing) { |*_args| "missed" }
       klazz.define_method(:respond_to_missing?) { |*_args| "responded" }
 
-      allow(klazz_instance).to receive(:action_name).and_return(act_action.to_s)
       allow(klazz_instance).to receive(:method_missing).and_wrap_original do |_method, method_name, *_args, &block|
         sequence << method_name
         block&.call
@@ -99,7 +97,6 @@ RSpec.describe MimeActor::Callbacks do
     end
 
     context "with or without action filter" do
-      let(:act_action) { :create }
       let(:before_callbacks) do
         klazz.act_before :my_act_before_one
         klazz.act_before :my_act_before_two, action: :create
@@ -117,7 +114,7 @@ RSpec.describe MimeActor::Callbacks do
       end
 
       it "calls in order" do
-        klazz_instance.run_act_callbacks(:html)
+        klazz_instance.run_act_callbacks(action: :create, format: :html)
         expect(sequence).to eq %i[
           my_act_before_one
           my_act_before_two
@@ -133,7 +130,6 @@ RSpec.describe MimeActor::Callbacks do
     end
 
     context "with format filter" do
-      let(:act_action) { :create }
       let(:before_callbacks) do
         klazz.act_before :my_act_before_one
         klazz.act_before :my_act_before_two, action: :create
@@ -154,20 +150,20 @@ RSpec.describe MimeActor::Callbacks do
       end
 
       it "calls in order" do
-        klazz_instance.run_act_callbacks(:html)
+        klazz_instance.run_act_callbacks(action: :create, format: :html)
         expect(sequence).to eq %i[
           my_act_before_one
           my_act_before_two
+          my_act_before_three
           my_act_before_four
           my_act_around_one
+          my_act_around_two
           my_act_around_three
           my_act_around_four
-          my_act_before_three
-          my_act_around_two
-          my_act_after_one
           my_act_after_four
           my_act_after_three
           my_act_after_two
+          my_act_after_one
         ]
       end
     end
@@ -191,10 +187,8 @@ RSpec.describe MimeActor::Callbacks do
       end
 
       context "with action name :create" do
-        let(:act_action) { :create }
-
         it "calls xml callbacks in order" do
-          klazz_instance.run_act_callbacks(:xml)
+          klazz_instance.run_act_callbacks(action: :create, format: :xml)
           expect(sequence).to eq %i[
             before_a
             before_anything
@@ -205,26 +199,26 @@ RSpec.describe MimeActor::Callbacks do
         end
 
         it "calls html callbacks in order" do
-          klazz_instance.run_act_callbacks(:html)
+          klazz_instance.run_act_callbacks(action: :create, format: :html)
           expect(sequence).to eq %i[
             before_a
+            before_f
             before_anything
             around_anything
-            before_f
-            after_f
             after_anything
+            after_f
             after_a
           ]
         end
 
         it "calls json callbacks in order" do
-          klazz_instance.run_act_callbacks(:json)
+          klazz_instance.run_act_callbacks(action: :create, format: :json)
           expect(sequence).to eq %i[
             before_a
-            before_anything
-            around_anything
             before_f
+            before_anything
             around_f
+            around_anything
             after_anything
             after_a
           ]
@@ -232,10 +226,8 @@ RSpec.describe MimeActor::Callbacks do
       end
 
       context "with action name :show" do
-        let(:act_action) { :show }
-
         it "calls xml callbacks in order" do
-          klazz_instance.run_act_callbacks(:xml)
+          klazz_instance.run_act_callbacks(action: :show, format: :xml)
           expect(sequence).to eq %i[
             before_a
             before_anything
@@ -246,29 +238,29 @@ RSpec.describe MimeActor::Callbacks do
         end
 
         it "calls html callbacks in order" do
-          klazz_instance.run_act_callbacks(:html)
+          klazz_instance.run_act_callbacks(action: :show, format: :html)
           expect(sequence).to eq %i[
             before_a
+            before_f
             before_anything
             around_a
             around_anything
-            before_f
-            after_f
             after_anything
+            after_f
           ]
         end
 
         it "calls json callbacks in order" do
-          klazz_instance.run_act_callbacks(:json)
+          klazz_instance.run_act_callbacks(action: :show, format: :json)
           expect(sequence).to eq %i[
             before_a
+            before_f
             before_anything
             around_a
-            around_anything
-            before_f
             around_f
-            after_a_f
+            around_anything
             after_anything
+            after_a_f
           ]
         end
       end

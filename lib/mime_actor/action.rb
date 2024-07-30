@@ -67,7 +67,7 @@ module MimeActor
             next
           end
 
-          dispatch = -> { cue_actor(callable, action, format, format:) }
+          dispatch = -> { cue_actor(callable, action, format, action:, format:) }
           collector.public_send(format, &dispatch)
         end
       end

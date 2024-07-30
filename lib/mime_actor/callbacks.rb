@@ -7,8 +7,7 @@ require "mime_actor/validator"
 require "active_support/callbacks"
 require "active_support/code_generator"
 require "active_support/concern"
-require "active_support/core_ext/array/wrap"
-require "active_support/core_ext/object/blank"
+require "active_support/core_ext/module/attr_internal"
 
 module MimeActor
   # # MimeActor Callbacks
@@ -34,19 +33,25 @@ module MimeActor
     include MimeActor::Validator
 
     included do
+      attr_internal_reader :act_action, :act_format
       define_callbacks :act, skip_after_callbacks_if_terminated: true
-
       generate_act_callback_methods
     end
 
     module ClassMethods
-      class ActionMatcher
-        def initialize(actions)
-          @actions = Array.wrap(actions).to_set(&:to_s)
+      class ActMatcher
+        attr_reader :actions, :formats
+
+        def initialize(actions, formats)
+          @actions = actions&.then { |a| Array(a).to_set(&:to_sym) }
+          @formats = formats&.then { |f| Array(f).to_set(&:to_sym) }
         end
 
         def match?(controller)
-          @actions.include?(controller.action_name)
+          matched = true
+          matched &= actions.include?(controller.act_action) if !actions.nil? && controller.respond_to?(:act_action)
+          matched &= formats.include?(controller.act_format) if !formats.nil? && controller.respond_to?(:act_format)
+          matched
         end
 
         alias after  match?
@@ -54,41 +59,15 @@ module MimeActor
         alias around match?
       end
 
-      def callback_chain_name(format = nil)
-        if format.nil?
-          :act
-        else
-          validate!(:format, format)
-          :"act_#{format}"
-        end
-      end
-
-      def callback_chain_defined?(name)
-        !!get_callbacks(name)
-      end
-
       private
-
-      def define_callback_chain(name)
-        return if callback_chain_defined?(name)
-
-        define_callbacks name, skip_after_callbacks_if_terminated: true
-      end
 
       def configure_callbacks(callbacks, actions, formats, block)
         options = {}
-        options[:if] = ActionMatcher.new(actions) unless actions.nil?
+        options[:if] = ActMatcher.new(actions, formats) unless actions.nil? && formats.nil?
         callbacks.push(block) if block
 
-        formats = Array.wrap(formats)
-        formats << nil if formats.empty?
-
         callbacks.each do |callback|
-          formats.each do |format|
-            chain = callback_chain_name(format)
-            define_callback_chain(chain)
-            yield chain, callback, options
-          end
+          yield callback, options
         end
       end
 
@@ -116,8 +95,8 @@ module MimeActor
           batch.push(
             "def append_act_#{kind}(*callbacks, action: nil, format: nil, &block)",
             "validate_callback_options!(action, format)",
-            "configure_callbacks(callbacks, action, format, block) do |chain, callback, options|",
-            "set_callback(chain, :#{kind}, callback, options)",
+            "configure_callbacks(callbacks, action, format, block) do |callback, options|",
+            "set_callback(:act, :#{kind}, callback, options)",
             "end",
             "end"
           )
@@ -126,8 +105,8 @@ module MimeActor
           batch.push(
             "def prepend_act_#{kind}(*callbacks, action: nil, format: nil, &block)",
             "validate_callback_options!(action, format)",
-            "configure_callbacks(callbacks, action, format, block) do |chain, callback, options|",
-            "set_callback(chain, :#{kind}, callback, options.merge!(prepend: true))",
+            "configure_callbacks(callbacks, action, format, block) do |callback, options|",
+            "set_callback(:act, :#{kind}, callback, options.merge!(prepend: true))",
             "end",
             "end"
           )
@@ -136,7 +115,6 @@ module MimeActor
     end
 
     # Callbacks invocation sequence depends on the order of callback definition.
-    # (except for callbacks with `format` filter).
     #
     # @example callbacks with/without action filter
     #   act_before :my_act_before_one
@@ -182,30 +160,22 @@ module MimeActor
     #   # - my_act_before_one
     #   # - my_act_before_two
     #   # - my_act_before_four
+    #   # - my_act_before_three
     #   # - my_act_around_one
+    #   # - my_act_around_two
     #   # - my_act_around_three
     #   # - my_act_around_four
-    #   # - my_act_before_three
-    #   # - my_act_around_two
-    #   # - my_act_after_one
     #   # - my_act_after_four
     #   # - my_act_after_three
     #   # - my_act_after_two
+    #   # - my_act_after_one
     #
-    def run_act_callbacks(format)
-      action_chain = self.class.callback_chain_name
-      format_chain = self.class.callback_chain_name(format)
+    def run_act_callbacks(action:, format:)
+      @_act_action = action.to_sym
+      @_act_format = format.to_sym
 
-      if self.class.callback_chain_defined?(format_chain)
-        run_callbacks action_chain do
-          run_callbacks format_chain do
-            yield if block_given?
-          end
-        end
-      else
-        run_callbacks action_chain do
-          yield if block_given?
-        end
+      run_callbacks :act do
+        yield if block_given?
       end
     end
   end
