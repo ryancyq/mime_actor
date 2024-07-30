@@ -138,16 +138,4 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
       expect(klazz_instance).to have_received(:start_scene).exactly(expected_scenes.size)
     end
   end
-
-  describe "when #start_scene is undefined for #{scene_name || "the scene"}" do
-    let(:klazz_instance) { klazz.new }
-
-    it "does not get called by the newly defined action method" do
-      expect(klazz).not_to be_method_defined(:start_scene)
-      expect { compose }.not_to raise_error
-      expected_scenes.each_key do |action_name|
-        expect(klazz_instance.send(action_name)).to be_falsey
-      end
-    end
-  end
 end

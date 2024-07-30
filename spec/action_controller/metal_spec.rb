@@ -17,8 +17,7 @@ RSpec.describe ActionController::Metal do
   let(:action_request) { ActionDispatch::Request.new(env) }
   let(:action_response) { ActionDispatch::Response.new.tap { |res| res.request = action_request } }
   let(:action_name) { "new" }
-  let(:action_format) { "json" }
-  let(:action_actor) { "#{action_name}_#{action_format}" }
+  let(:act_action) { action_name.to_sym }
   let(:stub_logger) { instance_double(ActiveSupport::Logger) }
 
   before do
@@ -27,13 +26,13 @@ RSpec.describe ActionController::Metal do
 
   describe "when actor method is defined" do
     before do
-      controller_class.act_on_action :new, format: :json
-      controller_class.define_method(action_actor) { equal?("my actor 123") }
+      controller_class.act_on_action act_action, format: :json
+      controller_class.define_method(act_action) { equal?("my actor 123") }
     end
 
     it "calls the actor method" do
-      expect(controller_class.action_methods).to include(action_actor)
-      expect(controller_class).to be_method_defined(action_actor)
+      expect(controller_class.action_methods).to include(act_action.to_s)
+      expect(controller_class).to be_method_defined(act_action)
 
       allow(controller).to receive(:equal?)
       expect { dispatch }.not_to raise_error
@@ -41,20 +40,38 @@ RSpec.describe ActionController::Metal do
     end
   end
 
-  describe "when actor methods for some formats are undefined" do
+  describe "when actor method is undefined" do
     before do
-      controller_class.act_on_action :new, format: %i[json html]
-      controller_class.define_method(:new_html) { render plain: :ok }
+      controller_class.act_on_action act_action, format: :json
+    end
+
+    it "raises #{MimeActor::ActionNotImplemented}" do
+      # proxy method is defined
+      expect(controller_class.action_methods).to include(act_action.to_s)
+      expect(controller_class).to be_method_defined(act_action)
+
+      expect { dispatch }.to raise_error(
+        MimeActor::ActionNotImplemented,
+        "action #{act_action.inspect} not implemented"
+      )
+    end
+  end
+
+  describe "when actor method provided is undefined" do
+    let(:actor_method) { :undefined_actor }
+
+    before do
+      controller_class.act_on_action act_action, format: %i[json html], with: actor_method
     end
 
     it "logs the missing actor method" do
-      expect(controller_class.action_methods).not_to include(action_actor)
-      expect(controller_class).not_to be_method_defined(action_actor)
+      expect(controller_class.action_methods).not_to include(actor_method.to_s)
+      expect(controller_class).not_to be_method_defined(actor_method)
 
       allow(stub_logger).to receive(:error)
       expect { dispatch }.not_to raise_error
       expect(stub_logger).to have_received(:error) do |&logger|
-        expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> \"new_json\" not found"
+        expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> :undefined_actor not found"
       end
     end
 
@@ -62,9 +79,9 @@ RSpec.describe ActionController::Metal do
       before { controller_class.raise_on_actor_error = true }
 
       it "raises #{MimeActor::ActorNotFound}" do
-        expect(controller_class.action_methods).not_to include(action_actor)
-        expect(controller_class).not_to be_method_defined(action_actor)
-        expect { dispatch }.to raise_error(MimeActor::ActorNotFound, "\"new_json\" not found")
+        expect(controller_class.action_methods).not_to include(actor_method.to_s)
+        expect(controller_class).not_to be_method_defined(actor_method)
+        expect { dispatch }.to raise_error(MimeActor::ActorNotFound, ":undefined_actor not found")
       end
     end
   end
