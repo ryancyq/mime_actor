@@ -2,7 +2,7 @@
 
 RSpec.shared_examples "runnable act callbacks action filter" do |kind, filter, acceptance: true|
   let(:klazz) { Class.new.include described_class }
-  let(:kind_act) { :"#{kind}_act" }
+  let(:kind_act) { :"act_#{kind}" }
   let(:kind_callback) { :"my_#{kind}" }
   let(:action_filter) { nil }
   let(:run) { klazz.public_send(kind_act, kind_callback, action: action_filter) }
@@ -20,7 +20,7 @@ end
 
 RSpec.shared_examples "runnable act callbacks format filter" do |kind, filter, acceptance: true|
   let(:klazz) { Class.new.include described_class }
-  let(:kind_act) { :"#{kind}_act" }
+  let(:kind_act) { :"act_#{kind}" }
   let(:kind_callback) { :"my_#{kind}" }
   let(:format_filter) { nil }
   let(:run) { klazz.public_send(kind_act, kind_callback, format: format_filter) }
@@ -40,7 +40,7 @@ RSpec.shared_examples "runnable act callbacks" do |kind|
   include_context "with act callbacks"
 
   describe ":#{kind}" do
-    let(:kind_act) { :"#{kind}_act" }
+    let(:kind_act) { :"act_#{kind}" }
     let(:kind_callback) { :"my_#{kind}" }
 
     before do

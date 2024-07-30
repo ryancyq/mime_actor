@@ -5,6 +5,7 @@
 require "mime_actor/validator"
 
 require "active_support/callbacks"
+require "active_support/code_generator"
 require "active_support/concern"
 require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/object/blank"
@@ -14,9 +15,15 @@ module MimeActor
   #
   # MimeActor provides hooks during the life cycle of an act. Available callbacks are:
   #
-  # - before_act
-  # - around_act
-  # - after_act
+  # - append_act_before
+  # - append_act_around
+  # - append_act_after
+  # - act_before
+  # - act_around
+  # - act_after
+  # - prepend_act_before
+  # - prepend_act_around
+  # - prepend_act_after
   #
   # NOTE: Calling the same callback multiple times will overwrite previous callback definitions.
   #
@@ -29,7 +36,7 @@ module MimeActor
     included do
       define_callbacks :act, skip_after_callbacks_if_terminated: true
 
-      %i[before after around].each { |kind| define_act_callbacks(kind) }
+      generate_act_callback_methods
     end
 
     module ClassMethods
@@ -90,37 +97,41 @@ module MimeActor
         validate!(:format_or_formats, format) unless format.nil?
       end
 
-      def define_act_callbacks(kind)
-        module_eval(
-          # def self.before_act(*callbacks, action: nil, format: nil, &block)
-          #   validate_callback_options!(action, format)
-          #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-          #     set_callback(chain, :before, callback, options)
-          #   end
-          # end
-          #
-          # def self.prepend_before_act(*callbacks, action: nil, format: nil, &block)
-          #   validate_callback_options!(action, format)
-          #   configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-          #     set_callback(chain, :before, callback, options.merge!(prepend: true))
-          #   end
-          # end
-          <<-RUBY, __FILE__, __LINE__ + 1
-            def self.#{kind}_act(*callbacks, action: nil, format: nil, &block)
-              validate_callback_options!(action, format)
-              configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-                set_callback(chain, :#{kind}, callback, options)
-              end
-            end
+      def generate_act_callback_methods
+        ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
+          %i[before after around].each do |kind|
+            generate_act_callback_kind(owner, kind)
+          end
+        end
+        # as: check against the defined method in owner, code only generated after #batch block is yielded
+        ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
+          %i[before after around].each do |kind|
+            owner.define_cached_method(:"act_#{kind}", as: :"append_act_#{kind}", namespace: :mime_callbacks)
+          end
+        end
+      end
 
-            def self.prepend_#{kind}_act(*callbacks, action: nil, format: nil, &block)
-              validate_callback_options!(action, format)
-              configure_callbacks(callbacks, action, format, block) do |chain, callback, options|
-                set_callback(chain, :#{kind}, callback, options.merge!(prepend: true))
-              end
-            end
-          RUBY
-        )
+      def generate_act_callback_kind(generator, kind)
+        generator.define_cached_method(:"append_act_#{kind}", namespace: :mime_callbacks) do |batch|
+          batch.push(
+            "def append_act_#{kind}(*callbacks, action: nil, format: nil, &block)",
+            "validate_callback_options!(action, format)",
+            "configure_callbacks(callbacks, action, format, block) do |chain, callback, options|",
+            "set_callback(chain, :#{kind}, callback, options)",
+            "end",
+            "end"
+          )
+        end
+        generator.define_cached_method(:"prepend_act_#{kind}", namespace: :mime_callbacks) do |batch|
+          batch.push(
+            "def prepend_act_#{kind}(*callbacks, action: nil, format: nil, &block)",
+            "validate_callback_options!(action, format)",
+            "configure_callbacks(callbacks, action, format, block) do |chain, callback, options|",
+            "set_callback(chain, :#{kind}, callback, options.merge!(prepend: true))",
+            "end",
+            "end"
+          )
+        end
       end
     end
 
@@ -128,58 +139,58 @@ module MimeActor
     # (except for callbacks with `format` filter).
     #
     # @example callbacks with/without action filter
-    #   before_act :my_before_act_one
-    #   before_act :my_before_act_two, action: :create
-    #   before_act :my_before_act_three
+    #   act_before :my_act_before_one
+    #   act_before :my_act_before_two, action: :create
+    #   act_before :my_act_before_three
     #
-    #   around_act :my_around_act_one
-    #   around_act :my_around_act_two, action: :create
-    #   around_act :my_around_act_three
+    #   act_around :my_act_around_one
+    #   act_around :my_act_around_two, action: :create
+    #   act_around :my_act_around_three
     #
-    #   after_act :my_after_act_one
-    #   after_act :my_after_act_two, action: :create
-    #   after_act :my_after_act_three
+    #   act_after :my_act_after_one
+    #   act_after :my_act_after_two, action: :create
+    #   act_after :my_act_after_three
     #
     #   # actual sequence:
-    #   # - my_before_act_one
-    #   # - my_before_act_two
-    #   # - my_before_act_three
-    #   # - my_around_act_one
-    #   # - my_around_act_two
-    #   # - my_around_act_three
-    #   # - my_after_act_three
-    #   # - my_after_act_two
-    #   # - my_after_act_one
+    #   # - my_act_before_one
+    #   # - my_act_before_two
+    #   # - my_act_before_three
+    #   # - my_act_around_one
+    #   # - my_act_around_two
+    #   # - my_act_around_three
+    #   # - my_act_after_three
+    #   # - my_act_after_two
+    #   # - my_act_after_one
     #
     # @example callbacks with format filter
-    #   before_act :my_before_act_one
-    #   before_act :my_before_act_two, action: :create
-    #   before_act :my_before_act_three, action: :create, format: :html
-    #   before_act :my_before_act_four
+    #   act_before :my_act_before_one
+    #   act_before :my_act_before_two, action: :create
+    #   act_before :my_act_before_three, action: :create, format: :html
+    #   act_before :my_act_before_four
     #
-    #   around_act :my_around_act_one
-    #   around_act :my_around_act_two, action: :create, format: :html
-    #   around_act :my_around_act_three, action: :create
-    #   around_act :my_around_act_four
+    #   act_around :my_act_around_one
+    #   act_around :my_act_around_two, action: :create, format: :html
+    #   act_around :my_act_around_three, action: :create
+    #   act_around :my_act_around_four
     #
-    #   after_act :my_after_act_one, format: :html
-    #   after_act :my_after_act_two
-    #   after_act :my_after_act_three, action: :create
-    #   after_act :my_after_act_four
+    #   act_after :my_act_after_one, format: :html
+    #   act_after :my_act_after_two
+    #   act_after :my_act_after_three, action: :create
+    #   act_after :my_act_after_four
     #
     #   # actual sequence:
-    #   # - my_before_act_one
-    #   # - my_before_act_two
-    #   # - my_before_act_four
-    #   # - my_around_act_one
-    #   # - my_around_act_three
-    #   # - my_around_act_four
-    #   # - my_before_act_three
-    #   # - my_around_act_two
-    #   # - my_after_act_one
-    #   # - my_after_act_four
-    #   # - my_after_act_three
-    #   # - my_after_act_two
+    #   # - my_act_before_one
+    #   # - my_act_before_two
+    #   # - my_act_before_four
+    #   # - my_act_around_one
+    #   # - my_act_around_three
+    #   # - my_act_around_four
+    #   # - my_act_before_three
+    #   # - my_act_around_two
+    #   # - my_act_after_one
+    #   # - my_act_after_four
+    #   # - my_act_after_three
+    #   # - my_act_after_two
     #
     def run_act_callbacks(format)
       action_chain = self.class.callback_chain_name
