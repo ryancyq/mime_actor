@@ -34,13 +34,13 @@ module MimeActor
     # @param actor either a method name or a Proc to evaluate
     # @param args arguments to be passed when calling the actor
     #
-    def cue_actor(actor, *args, format:)
+    def cue_actor(actor, *args, action:, format:)
       dispatcher = MimeActor::Dispatcher.build(actor, *args)
       raise TypeError, "invalid actor, got: #{actor.inspect}" unless dispatcher
 
       self.class.validate!(:format, format)
 
-      run_act_callbacks(format) do
+      run_act_callbacks(action:, format:) do
         result = dispatcher.call(self)
         block_given? ? yield(result) : result
       end
@@ -48,7 +48,7 @@ module MimeActor
       logger.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error
       raise e if raise_on_actor_error
     rescue StandardError => e
-      rescued = rescue_actor(e, action: action_name.to_sym, format: format)
+      rescued = rescue_actor(e, action:, format:)
       rescued || raise
     end
   end
