@@ -7,8 +7,6 @@ require "mime_actor/scene"
 require "mime_actor/stage"
 
 require "active_support/concern"
-require "active_support/core_ext/module/attribute_accessors"
-require "active_support/core_ext/object/blank"
 require "active_support/lazy_load_hooks"
 require "abstract_controller/rendering"
 require "action_controller/metal/mime_responds"
@@ -48,20 +46,21 @@ module MimeActor
     #     end
     #   end
     #
-    def start_scene
+    def start_scene(&block)
       action = action_name.to_sym
       formats = acting_scenes.fetch(action, {})
-      return respond_to_scene(action, formats) unless formats.empty?
+      return respond_to_scene(action, formats, block) unless formats.empty?
 
       logger.warn { "no format found for action: #{action_name.inspect}" }
+      yield if block_given?
     end
 
     private
 
-    def respond_to_scene(action, formats)
+    def respond_to_scene(action, formats, block)
       respond_to do |collector|
         formats.each do |format, actor|
-          callable = actor.presence || actor_delegator.call(action, format)
+          callable = actor.presence || block
           dispatch = -> { cue_actor(callable, action, format, format:) }
           collector.public_send(format, &dispatch)
         end
