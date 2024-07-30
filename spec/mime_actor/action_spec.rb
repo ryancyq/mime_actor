@@ -31,7 +31,7 @@ RSpec.describe MimeActor::Action do
     let(:stub_logger) { instance_double(ActiveSupport::Logger) }
 
     before do
-      klazz.respond_act_to :html, on: start_action
+      klazz.act_on_action start_action, format: :html
       klazz.config.logger = stub_logger
       klazz.define_method(:action_name) { "placeholder" }
       allow(klazz_instance).to receive(:action_name).and_return(start_action.to_s)

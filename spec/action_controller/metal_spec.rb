@@ -27,7 +27,7 @@ RSpec.describe ActionController::Metal do
 
   describe "when actor method is defined" do
     before do
-      controller_class.respond_act_to :json, on: :new
+      controller_class.act_on_action :new, format: :json
       controller_class.define_method(action_actor) { equal?("my actor 123") }
     end
 
@@ -43,7 +43,7 @@ RSpec.describe ActionController::Metal do
 
   describe "when actor methods for some formats are undefined" do
     before do
-      controller_class.respond_act_to :json, :html, on: :new
+      controller_class.act_on_action :new, format: %i[json html]
       controller_class.define_method(:new_html) { render plain: :ok }
     end
 

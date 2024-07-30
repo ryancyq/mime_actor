@@ -14,7 +14,7 @@ RSpec.shared_examples "composable scene action" do |action_name, acceptance: tru
     it "rejects #{action_name || "the action"}" do
       expect(klazz.acting_scenes).to be_empty
       expect { compose }.to raise_error(error_class_raised, error_message_raised)
-      expect(klazz.acting_scenes.keys).not_to include([])
+      expect(klazz.acting_scenes).to be_empty
     end
   end
 end
@@ -43,9 +43,9 @@ RSpec.shared_examples "composable scene with handler" do |handler_name, handler_
 
   let(:compose) do
     if format_filter.is_a?(Enumerable)
-      klazz.respond_act_to(*format_filter, on: action_filter, with: handler)
+      klazz.act_on_action(*action_filter, format: format_filter, with: handler)
     else
-      klazz.respond_act_to(format_filter, on: action_filter, with: handler)
+      klazz.act_on_action(action_filter, format: format_filter, with: handler)
     end
   end
   let(:expected_scenes) do

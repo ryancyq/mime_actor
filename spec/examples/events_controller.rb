@@ -11,9 +11,9 @@ class EventsController < ActionController::Base
   before_act :load_event, action: %i[show update]
   before_act -> { @event_categories = EventCategory.all }, action: :show, format: :html
 
-  respond_act_to :html, :json, on: :update
-  respond_act_to :html, on: %i[index show], with: :render_html
-  respond_act_to :json, on: %i[index show], with: -> { render json: { action: action_name } }
+  act_on_action :update, format: %i[html json]
+  act_on_action :index, :show, format: :html, with: :render_html
+  act_on_action :index, :show, format: :json, with: -> { render json: { action: action_name } }
 
   rescue_act_from ActiveRecord::RecordNotFound, format: :json, with: :handle_json_error
   rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show, with: -> { redirect_to "/events" }
