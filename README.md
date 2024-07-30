@@ -191,7 +191,8 @@ You can find the documentation on [RubyDoc][doc_mime_actor].
 ## Requirements
 
 - Ruby: MRI 3.1+
-- Rails: 5.0+
+- ActiveSupport: 7.0+
+- ActionPack: 7.0+
 
 ## Installation
 
