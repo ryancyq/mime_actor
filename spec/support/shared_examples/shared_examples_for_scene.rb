@@ -110,20 +110,6 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
     end
   end
 
-  describe "when action method has already defined for #{scene_name || "the scene"}" do
-    before do
-      expected_scenes.each_key do |action_name|
-        klazz.define_method(action_name) { "stub #{action_name}" }
-      end
-    end
-
-    it "raises #{MimeActor::ActionExisted}" do
-      expect { compose }.to raise_error(
-        MimeActor::ActionExisted, "action :#{expected_scenes.keys.first} already existed"
-      )
-    end
-  end
-
   describe "when #start_scene is defined for #{scene_name || "the scene"}" do
     let(:klazz_instance) { klazz.new }
 
