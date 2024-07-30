@@ -7,8 +7,6 @@ require "mime_actor/scene"
 require "mime_actor/stage"
 
 require "active_support/concern"
-require "active_support/core_ext/module/attribute_accessors"
-require "active_support/core_ext/object/blank"
 require "active_support/lazy_load_hooks"
 require "abstract_controller/rendering"
 require "action_controller/metal/mime_responds"
@@ -30,37 +28,46 @@ module MimeActor
     include Stage
     include Logging
 
-    included do
-      mattr_accessor :actor_delegator, instance_writer: false, default: ->(action, format) { "#{action}_#{format}" }
-    end
-
     # The core logic where rendering logics are collected as `Proc` and passed over to `ActionController::MimeResponds`
+    #
+    # @param block the block to be evaluated
     #
     # @example process `create` action
     #   # it uses AbstractController#action_name to process
-    #   start_scene
+    #   start_scene { create_internal }
     #
     #   # it is equivalent to the following if `create` action is configured with `html` and `json` formats
     #   def create
     #     respond_to |format|
-    #       format.html { public_send(:create_html) }
-    #       format.json { public_send(:create_json) }
+    #       format.html { create_internal }
+    #       format.json { create_internal }
     #     end
     #   end
     #
-    def start_scene
+    def start_scene(&block)
       action = action_name.to_sym
       formats = acting_scenes.fetch(action, {})
 
       if formats.empty?
-        logger.warn { "format is empty for action: #{action_name.inspect}" }
-        return
+        logger.warn { "no format found for action: #{action_name.inspect}" }
+        yield if block_given?
+      else
+        respond_to_scene(action, formats, block)
       end
+    end
 
+    private
+
+    def respond_to_scene(action, formats, block)
       respond_to do |collector|
         formats.each do |format, actor|
-          callable = actor.presence || actor_delegator.call(action, format)
-          dispatch = -> { cue_actor(callable, format:) }
+          callable = actor.presence || block
+          if callable.nil?
+            logger.warn { "no #respond_to handler found for action: #{action.inspect} format: #{format.inspect}" }
+            next
+          end
+
+          dispatch = -> { cue_actor(callable, action, format, format:) }
           collector.public_send(format, &dispatch)
         end
       end

@@ -39,9 +39,9 @@ module MimeActor
     end
   end
 
-  class ActionExisted < ActionError
+  class ActionNotImplemented < ActionError
     def generate_message
-      "action #{action.inspect} already existed"
+      "action #{action.inspect} not implemented"
     end
   end
 end

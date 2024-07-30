@@ -14,7 +14,7 @@ RSpec.shared_examples "composable scene action" do |action_name, acceptance: tru
     it "rejects #{action_name || "the action"}" do
       expect(klazz.acting_scenes).to be_empty
       expect { compose }.to raise_error(error_class_raised, error_message_raised)
-      expect(klazz.acting_scenes.keys).not_to include([])
+      expect(klazz.acting_scenes).to be_empty
     end
   end
 end
@@ -43,9 +43,9 @@ RSpec.shared_examples "composable scene with handler" do |handler_name, handler_
 
   let(:compose) do
     if format_filter.is_a?(Enumerable)
-      klazz.respond_act_to(*format_filter, on: action_filter, with: handler)
+      klazz.act_on_action(*action_filter, format: format_filter, with: handler)
     else
-      klazz.respond_act_to(format_filter, on: action_filter, with: handler)
+      klazz.act_on_action(action_filter, format: format_filter, with: handler)
     end
   end
   let(:expected_scenes) do
@@ -110,20 +110,6 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
     end
   end
 
-  describe "when action method has already defined for #{scene_name || "the scene"}" do
-    before do
-      expected_scenes.each_key do |action_name|
-        klazz.define_method(action_name) { "stub #{action_name}" }
-      end
-    end
-
-    it "raises #{MimeActor::ActionExisted}" do
-      expect { compose }.to raise_error(
-        MimeActor::ActionExisted, "action :#{expected_scenes.keys.first} already existed"
-      )
-    end
-  end
-
   describe "when #start_scene is defined for #{scene_name || "the scene"}" do
     let(:klazz_instance) { klazz.new }
 
@@ -136,18 +122,6 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
         expect(klazz_instance.send(action_name)).to eq "start a scene"
       end
       expect(klazz_instance).to have_received(:start_scene).exactly(expected_scenes.size)
-    end
-  end
-
-  describe "when #start_scene is undefined for #{scene_name || "the scene"}" do
-    let(:klazz_instance) { klazz.new }
-
-    it "does not get called by the newly defined action method" do
-      expect(klazz).not_to be_method_defined(:start_scene)
-      expect { compose }.not_to raise_error
-      expected_scenes.each_key do |action_name|
-        expect(klazz_instance.send(action_name)).to be_falsey
-      end
     end
   end
 end
