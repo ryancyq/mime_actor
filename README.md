@@ -222,7 +222,7 @@ Bug reports and pull requests are welcome on GitHub at [https://github.com/ryanc
 [rubygems_badge]: https://img.shields.io/gem/v/mime_actor.svg
 [rubygems]: https://rubygems.org/gems/mime_actor
 [ci_badge]: https://github.com/ryancyq/mime_actor/actions/workflows/build.yml/badge.svg
-[ci_workflows]: https://github.com/ryancyq/mime_actor/actions/workflows/
+[ci_workflows]: https://github.com/ryancyq/mime_actor/actions/workflows/build.yml
 [coverage_badge]: https://codecov.io/gh/ryancyq/mime_actor/graph/badge.svg?token=4C091RHXC3
 [coverage]: https://codecov.io/gh/ryancyq/mime_actor
 [maintainability_badge]: https://api.codeclimate.com/v1/badges/06689606dc3f3945dc1b/maintainability
