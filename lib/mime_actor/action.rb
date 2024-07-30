@@ -45,10 +45,13 @@ module MimeActor
     def start_scene(&block)
       action = action_name.to_sym
       formats = acting_scenes.fetch(action, {})
-      return respond_to_scene(action, formats, block) unless formats.empty?
 
-      logger.warn { "no format found for action: #{action_name.inspect}" }
-      yield if block_given?
+      if formats.empty?
+        logger.warn { "no format found for action: #{action_name.inspect}" }
+        yield if block_given?
+      else
+        respond_to_scene(action, formats, block)
+      end
     end
 
     private
@@ -57,6 +60,11 @@ module MimeActor
       respond_to do |collector|
         formats.each do |format, actor|
           callable = actor.presence || block
+          if callable.nil?
+            logger.warn { "no #respond_to handler found for action: #{action.inspect} format: #{format.inspect}" }
+            next
+          end
+
           dispatch = -> { cue_actor(callable, action, format, format:) }
           collector.public_send(format, &dispatch)
         end
