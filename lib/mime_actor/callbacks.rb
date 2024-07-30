@@ -7,7 +7,6 @@ require "mime_actor/validator"
 require "active_support/callbacks"
 require "active_support/code_generator"
 require "active_support/concern"
-require "active_support/core_ext/array/wrap"
 require "active_support/core_ext/module/attr_internal"
 
 module MimeActor
@@ -44,14 +43,14 @@ module MimeActor
         attr_reader :actions, :formats
 
         def initialize(actions, formats)
-          @actions = Array.wrap(actions).to_set(&:to_sym)
-          @formats = Array.wrap(formats).to_set(&:to_sym)
+          @actions = actions&.then { |a| Array(a).to_set(&:to_sym) }
+          @formats = formats&.then { |f| Array(f).to_set(&:to_sym) }
         end
 
         def match?(controller)
           matched = true
-          matched &= actions.include?(controller.act_action) if !actions.empty? && controller.respond_to?(:act_action)
-          matched &= formats.include?(controller.act_format) if !formats.empty? && controller.respond_to?(:act_format)
+          matched &= actions.include?(controller.act_action) if !actions.nil? && controller.respond_to?(:act_action)
+          matched &= formats.include?(controller.act_format) if !formats.nil? && controller.respond_to?(:act_format)
           matched
         end
 
