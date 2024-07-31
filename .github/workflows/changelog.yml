@@ -38,10 +38,10 @@ jobs:
         run: |
           git add CHANGELOG.md
           if [ -n "$(git status -s --porcelain)" ]; then
+            echo "Changes detected in CHANGELOG.md"
+          else
             echo "No changes detected in CHANGELOG.md"
             echo "NO_CHANGES=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Changes detected in CHANGELOG.md"
           fi
 
       - name: Commit CHANGELOG.md
