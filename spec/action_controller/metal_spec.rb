@@ -1,24 +1,29 @@
 # frozen_string_literal: true
 
-require "action_controller"
 require "mime_actor"
+
+require "active_support/logger"
+require "active_support/tagged_logging"
+require "action_controller"
 
 RSpec.describe ActionController::Metal do
   let(:controller_class) { Class.new(described_class).include(MimeActor::Action) }
   let(:controller) { controller_class.new }
 
-  let(:dispatch) { controller.dispatch(action_name, action_request, action_response) }
+  let(:dispatch) do
+    action_request = ActionDispatch::Request.new(env)
+    action_response = ActionDispatch::Response.new.tap { |res| res.request = action_request }
+    controller.dispatch(act_action.to_s, action_request, action_response)
+  end
   let(:env) do
     {
       "REQUEST_METHOD" => "POST",
       "HTTP_ACCEPT"    => "application/json,application/xml"
     }
   end
-  let(:action_request) { ActionDispatch::Request.new(env) }
-  let(:action_response) { ActionDispatch::Response.new.tap { |res| res.request = action_request } }
-  let(:action_name) { "new" }
-  let(:act_action) { action_name.to_sym }
-  let(:stub_logger) { instance_double(ActiveSupport::Logger) }
+  let(:act_action) { :new }
+  let(:log_output) { nil }
+  let(:stub_logger) { ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(log_output)) }
 
   before do
     controller_class.config.logger = stub_logger
@@ -59,6 +64,7 @@ RSpec.describe ActionController::Metal do
 
   describe "when actor method provided is undefined" do
     let(:actor_method) { :undefined_actor }
+    let(:log_output) { StringIO.new }
 
     before do
       controller_class.act_on_action act_action, format: %i[json html], with: actor_method
@@ -68,11 +74,10 @@ RSpec.describe ActionController::Metal do
       expect(controller_class.action_methods).not_to include(actor_method.to_s)
       expect(controller_class).not_to be_method_defined(actor_method)
 
-      allow(stub_logger).to receive(:error)
       expect { dispatch }.not_to raise_error
-      expect(stub_logger).to have_received(:error) do |&logger|
-        expect(logger.call).to eq "actor error, cause: <MimeActor::ActorNotFound> :undefined_actor not found"
-      end
+      expect(log_output.string).to eq(
+        "[MimeActor] [new] [json] actor error, cause: <MimeActor::ActorNotFound> :undefined_actor not found\n"
+      )
     end
 
     context "when raise_on_actor_error is set" do

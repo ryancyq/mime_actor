@@ -3,6 +3,7 @@
 require "mime_actor/action"
 
 require "active_support/logger"
+require "active_support/tagged_logging"
 
 RSpec.describe MimeActor::Action do
   let(:klazz) { Class.new.include described_class }
@@ -28,7 +29,8 @@ RSpec.describe MimeActor::Action do
     let(:start) { klazz_instance.start_scene(&scene_handler) }
     let(:start_action) { :create }
     let(:stub_collector) { instance_double(ActionController::MimeResponds::Collector) }
-    let(:stub_logger) { instance_double(ActiveSupport::Logger) }
+    let(:log_output) { nil }
+    let(:stub_logger) { ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(log_output)) }
 
     before do
       klazz.act_on_action start_action, format: :html
@@ -59,17 +61,15 @@ RSpec.describe MimeActor::Action do
 
       context "without block provided" do
         let(:start) { klazz_instance.start_scene }
+        let(:log_output) { StringIO.new }
 
         before do
           allow(klazz_instance).to receive(:respond_to).and_yield(stub_collector)
-          allow(stub_logger).to receive(:warn)
         end
 
         it "logs missing handler" do
           expect { start }.not_to raise_error
-          expect(stub_logger).to have_received(:warn) do |&logger|
-            expect(logger.call).to eq "no #respond_to handler found for action: :create format: :html"
-          end
+          expect(log_output.string).to eq "no #respond_to handler found for action: :create format: :html\n"
         end
 
         it "does not call #respond_to collector" do
@@ -81,10 +81,9 @@ RSpec.describe MimeActor::Action do
     end
 
     context "without acting_scenes" do
-      before do
-        klazz.acting_scenes.clear
-        allow(stub_logger).to receive(:warn)
-      end
+      let(:log_output) { StringIO.new }
+
+      before { klazz.acting_scenes.clear }
 
       it "does not call #responds_to" do
         allow(klazz_instance).to receive(:respond_to)
@@ -94,9 +93,7 @@ RSpec.describe MimeActor::Action do
 
       it "logs missing formats" do
         expect { start }.not_to raise_error
-        expect(stub_logger).to have_received(:warn) do |&logger|
-          expect(logger.call).to eq "no format found for action: \"create\""
-        end
+        expect(log_output.string).to eq "no format found for action: \"create\"\n"
       end
 
       it "calls the handler" do
