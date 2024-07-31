@@ -6,7 +6,7 @@ on:
     types: [completed]
     branches: [main] # prevent test runs in other branches trigger change log generation in main branch
   schedule:
-    - cron: 30 6 5,23 * *
+    - cron: 0 12 * * 5
 
 concurrency:
   group: generate-changelog
