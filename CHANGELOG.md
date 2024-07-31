@@ -1,15 +1,20 @@
 # Changelog
 
-## [Unreleased](https://github.com/ryancyq/mime_actor/tree/HEAD)
+## [v0.7.1](https://github.com/ryancyq/mime_actor/tree/v0.7.1) (2024-07-31)
 
-[Full Changelog](https://github.com/ryancyq/mime_actor/compare/v0.7.0...HEAD)
+[Full Changelog](https://github.com/ryancyq/mime_actor/compare/v0.7.0...v0.7.1)
 
 **Implemented enhancements:**
 
 - use tagged logging [\#64](https://github.com/ryancyq/mime_actor/issues/64)
 
+**Closed issues:**
+
+- generate change log [\#1](https://github.com/ryancyq/mime_actor/issues/1)
+
 **Merged pull requests:**
 
+- lib: generate CHANGELOG.md [\#67](https://github.com/ryancyq/mime_actor/pull/67) ([ryancyq](https://github.com/ryancyq))
 - feat: tagged logging [\#66](https://github.com/ryancyq/mime_actor/pull/66) ([ryancyq](https://github.com/ryancyq))
 - refactor: code generator with heredoc [\#65](https://github.com/ryancyq/mime_actor/pull/65) ([ryancyq](https://github.com/ryancyq))
 
