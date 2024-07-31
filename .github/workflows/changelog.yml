@@ -1,0 +1,53 @@
+name: Generate CHANGELOG.md
+
+on:
+  workflow_run: # workflow_run only runs on default branch
+    workflows: [publish]
+    types: [completed]
+    branches: [main] # prevent test runs in other branches trigger change log generation in main branch
+  schedule:
+    - cron: 30 6 5,23 * *
+
+concurrency:
+  group: generate-changelog
+  cancel-in-progress: true
+
+jobs:
+  changelog_generator:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Ruby and gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Generate CHANGELOG.md
+        env:
+          CHANGELOG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bundle exec rake changelog
+
+      - name: "Detect changes in CHANGELOG.md"
+        id: detect-changes
+        run: |
+          git add CHANGELOG.md
+          if [ ! -n "$(git status -s --porcelain)" ]; then
+            echo "No changes detected in CHANGELOG.md"
+            echo "NO_CHANGES=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit CHANGELOG.md
+        if: steps.detect-changes.outputs.NO_CHANGES == 'true'
+        uses: swinton/commit@v2.x
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            CHANGELOG.md
+          commit-message: "ci: update CHANGELOG.md"
+          ref: refs/heads/main
