@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate CHANGELOG.md
         env:
-          CHANGELOG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHANGELOG_GITHUB_TOKEN: ${{ github.token }}
         run: |
           bundle exec rake changelog
 
@@ -45,7 +45,7 @@ jobs:
         if: steps.detect-changes.outputs.NO_CHANGES == 'true'
         uses: swinton/commit@v2.x
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         with:
           files: |
             CHANGELOG.md
