@@ -10,13 +10,12 @@ on:
 jobs:
   rubygems:
     runs-on: ubuntu-latest
-    
     permissions:
       contents: write
       id-token: write
-
     environment: release
-
+    timeout-minutes: 3
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
