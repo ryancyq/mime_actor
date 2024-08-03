@@ -51,7 +51,7 @@ jobs:
 
       - name: Commit CHANGELOG.md
         if: steps.detect-changes.outputs.PENDING_CHANGES == 'true'
-        uses: swinton/commit@v2.x
+        uses: tohgarashi/verified-commit@v2.x
         env:
           GH_TOKEN: ${{ github.token }}
         with:
