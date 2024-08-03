@@ -46,7 +46,7 @@ jobs:
           fi
 
       - name: Commit CHANGELOG.md
-        if: steps.detect-changes.outputs.NO_CHANGES == 'true'
+        if: steps.detect-changes.outputs.NO_CHANGES != 'true'
         uses: swinton/commit@v2.x
         env:
           GH_TOKEN: ${{ github.token }}
