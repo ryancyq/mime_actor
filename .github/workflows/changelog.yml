@@ -5,6 +5,7 @@ on:
     workflows: [publish]
     types: [completed]
     branches: [main] # prevent test runs in other branches trigger change log generation in main branch
+  workflow_dispatch: # allow manual run of workflow
   schedule:
     - cron: 0 12 * * 5
 
