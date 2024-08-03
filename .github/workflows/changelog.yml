@@ -40,7 +40,7 @@ jobs:
         id: detect-changes
         run: |
           git add CHANGELOG.md
-          pending=$(git status -s --porcelain)
+          pending=$(git status -suno --porcelain)
           if [ -n "$pending" ]; then
             echo "Changes detected in CHANGELOG.md"
             echo "$pending"
