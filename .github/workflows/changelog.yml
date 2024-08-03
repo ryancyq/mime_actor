@@ -40,15 +40,17 @@ jobs:
         id: detect-changes
         run: |
           git add CHANGELOG.md
-          if [ -n "$(git status -s --porcelain)" ]; then
+          pending = $(git status -s --porcelain)
+          if [ -n "$pending" ]; then
             echo "Changes detected in CHANGELOG.md"
+            echo "$pending"
+            echo "PENDING_CHANGES=true" >> "$GITHUB_OUTPUT"
           else
             echo "No changes detected in CHANGELOG.md"
-            echo "NO_CHANGES=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Commit CHANGELOG.md
-        if: steps.detect-changes.outputs.NO_CHANGES != 'true'
+        if: steps.detect-changes.outputs.PENDING_CHANGES == 'true'
         uses: swinton/commit@v2.x
         env:
           GH_TOKEN: ${{ github.token }}
