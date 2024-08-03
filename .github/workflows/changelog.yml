@@ -17,6 +17,8 @@ jobs:
   changelog_generator:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
     timeout-minutes: 3
     
     steps:
