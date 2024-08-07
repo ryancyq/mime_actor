@@ -36,22 +36,8 @@ jobs:
         run: |
           bundle exec rake changelog
 
-      - name: "Detect changes in CHANGELOG.md"
-        id: detect-changes
-        run: |
-          git add CHANGELOG.md
-          pending=$(git status -suno --porcelain)
-          if [ -n "$pending" ]; then
-            echo "Changes detected in CHANGELOG.md"
-            echo "$pending"
-            echo "PENDING_CHANGES=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No changes detected in CHANGELOG.md"
-          fi
-
       - name: Commit CHANGELOG.md
-        if: steps.detect-changes.outputs.PENDING_CHANGES == 'true'
-        uses: tohgarashi/verified-commit@v2.x
+        uses: ryancyq/signed-commit@v2.1
         env:
           GH_TOKEN: ${{ github.token }}
         with:
