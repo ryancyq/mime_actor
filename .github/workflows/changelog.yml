@@ -37,7 +37,7 @@ jobs:
           bundle exec rake changelog
 
       - name: Commit CHANGELOG.md
-        uses: ryancyq/signed-commit@v2.1
+        uses: ryancyq/signed-commit@v2
         env:
           GH_TOKEN: ${{ github.token }}
         with:
