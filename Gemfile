@@ -11,6 +11,7 @@ group :development, :test do
   gem "rails", "~> 7.0"
   gem "rake", ">= 11.0"
   gem "rspec", "~> 3.12"
+  gem "rspec-activesupport", "~> 0.1"
   gem "simplecov", "~> 0.22.0", require: false
   gem "simplecov-cobertura", require: false
 end
