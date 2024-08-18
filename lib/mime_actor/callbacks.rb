@@ -79,18 +79,12 @@ module MimeActor
       def generate_act_callback_methods
         ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
           %i[before after around].each do |kind|
-            owner.define_cached_method(:"append_act_#{kind}", namespace: :mime_callbacks) do |batch|
+            owner.define_cached_method(:"append_act_#{kind}", as: :"act_#{kind}", namespace: :mime_callbacks) do |batch|
               batch << act_callback_kind_template(kind, append: true)
             end
             owner.define_cached_method(:"prepend_act_#{kind}", namespace: :mime_callbacks) do |batch|
               batch << act_callback_kind_template(kind, append: false)
             end
-          end
-        end
-        # as: check against the defined method in owner, code only generated after #batch block is yielded
-        ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
-          %i[before after around].each do |kind|
-            owner.define_cached_method(:"act_#{kind}", as: :"append_act_#{kind}", namespace: :mime_callbacks)
           end
         end
       end
