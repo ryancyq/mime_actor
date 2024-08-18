@@ -16,4 +16,24 @@ RSpec.describe MimeActor do
       expect(module_name.safe_constantize).to be_a(Module)
     end
   end
+
+  describe "#deprecator" do
+    let(:deprecate) { deprecator.warn "my deprecation" }
+
+    context "when warn using #{described_class.deprecator}" do
+      let(:deprecator) { described_class.deprecator }
+
+      it "warn deprecation" do
+        expect { deprecate }.to warn_deprecation(%r{my deprecation})
+      end
+    end
+
+    context "when warn using #{ActiveSupport::Deprecation}" do
+      let(:deprecator) { ActiveSupport::Deprecation.new }
+
+      it "warn deprecation" do
+        expect { deprecate }.not_to warn_deprecation(%r{my deprecation})
+      end
+    end
+  end
 end

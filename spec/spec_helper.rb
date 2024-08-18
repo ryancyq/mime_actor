@@ -106,5 +106,11 @@ RSpec.configure do |config|
 =end
 end
 
+require "rspec/active_support"
+require "mime_actor/deprecator"
+RSpec.configure do |config|
+  config.deprecator = MimeActor.deprecator
+end
+
 # Load everything from spec/support
 Dir[File.expand_path("support/**/*.rb", __dir__)].each { |rb| require(rb) }
