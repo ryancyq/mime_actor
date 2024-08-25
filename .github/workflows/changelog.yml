@@ -37,11 +37,10 @@ jobs:
           bundle exec rake changelog
 
       - name: Commit CHANGELOG.md
-        uses: ryancyq/signed-commit@v2
+        uses: ryancyq/signed-commit@v1
         env:
           GH_TOKEN: ${{ github.token }}
         with:
           files: |
             CHANGELOG.md
           commit-message: "ci: update CHANGELOG.md"
-          ref: refs/heads/main
