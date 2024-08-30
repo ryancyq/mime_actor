@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased](https://github.com/ryancyq/mime_actor/tree/HEAD)
+
+[Full Changelog](https://github.com/ryancyq/mime_actor/compare/v0.7.2...HEAD)
+
+**Merged pull requests:**
+
+- chore\(deps-dev\): bump rexml from 3.3.5 to 3.3.6 [\#75](https://github.com/ryancyq/mime_actor/pull/75) ([dependabot[bot]](https://github.com/apps/dependabot))
+- lib: rspec-activesupport [\#73](https://github.com/ryancyq/mime_actor/pull/73) ([ryancyq](https://github.com/ryancyq))
+
+## [v0.7.2](https://github.com/ryancyq/mime_actor/tree/v0.7.2) (2024-08-18)
+
+[Full Changelog](https://github.com/ryancyq/mime_actor/compare/v0.7.1...v0.7.2)
+
+**Merged pull requests:**
+
+- chore\(deps\): bump activesupport from 7.1.3.4 to 7.2.0 [\#71](https://github.com/ryancyq/mime_actor/pull/71) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v0.7.1](https://github.com/ryancyq/mime_actor/tree/v0.7.1) (2024-07-31)
 
 [Full Changelog](https://github.com/ryancyq/mime_actor/compare/v0.7.0...v0.7.1)
