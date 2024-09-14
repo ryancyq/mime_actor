@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "actionpack", "~> 7.0"
+gem "actionpack", "~> 7.2"
 gem "activesupport", "~> 7.2"
 
 group :development, :test do
