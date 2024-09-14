@@ -22,22 +22,17 @@ jobs:
     timeout-minutes: 3
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Ruby and gems
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Generate CHANGELOG.md
+      - run: bundle exec rake changelog
         env:
           CHANGELOG_GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          bundle exec rake changelog
 
-      - name: Commit CHANGELOG.md
-        uses: ryancyq/github-signed-commit@v1
+      - uses: ryancyq/github-signed-commit@v1
         env:
           GH_TOKEN: ${{ github.token }}
         with:
