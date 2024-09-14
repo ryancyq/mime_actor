@@ -18,15 +18,11 @@ jobs:
     timeout-minutes: 3
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Ruby and gems
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true
 
-      - name: Run Rspec
-        run: |
-          bundle exec rake spec
+      - run: bundle exec rake spec
