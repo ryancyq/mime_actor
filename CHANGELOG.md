@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- chore\(deps-dev\): bump rubocop-rspec from 3.0.4 to 3.0.5 [\#82](https://github.com/ryancyq/mime_actor/pull/82) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): bump activesupport from 7.2.0 to 7.2.1 [\#81](https://github.com/ryancyq/mime_actor/pull/81) ([dependabot[bot]](https://github.com/apps/dependabot))
 - chore\(deps-dev\): bump rspec-activesupport from 0.1.1 to 0.1.2 [\#80](https://github.com/ryancyq/mime_actor/pull/80) ([dependabot[bot]](https://github.com/apps/dependabot))
 - chore\(deps-dev\): bump rubocop from 1.66.0 to 1.66.1 [\#78](https://github.com/ryancyq/mime_actor/pull/78) ([dependabot[bot]](https://github.com/apps/dependabot))
 - chore\(deps-dev\): bump rubocop from 1.65.1 to 1.66.0 [\#76](https://github.com/ryancyq/mime_actor/pull/76) ([dependabot[bot]](https://github.com/apps/dependabot))
