@@ -68,7 +68,7 @@ module MimeActor
           end
 
           collector.public_send(format) do
-            fill_run_sheet(action, format) { cue_actor(callable, action, format, action:, format:) }
+            fill_run_sheet(action, format) { cue_actor(callable, action, format, action: action, format: format) }
           end
         end
       end

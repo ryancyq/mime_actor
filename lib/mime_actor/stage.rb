@@ -40,7 +40,7 @@ module MimeActor
 
       self.class.validate!(:format, format)
 
-      run_act_callbacks(action:, format:) do
+      run_act_callbacks(action: action, format: format) do
         result = dispatcher.call(self)
         block_given? ? yield(result) : result
       end
@@ -48,7 +48,7 @@ module MimeActor
       logger.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error
       raise e if raise_on_actor_error
     rescue StandardError => e
-      rescued = rescue_actor(e, action:, format:)
+      rescued = rescue_actor(e, action: action, format: format)
       rescued || raise
     end
   end
