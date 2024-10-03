@@ -15,7 +15,7 @@ RSpec.describe MimeActor::Railtie do
   end
 
   it "adds deprecator" do
-    skip "only for Rails >= 7.0" if Rails::VERSION::MAJOR < 7
+    skip "only for Rails >= 7.0" if ActiveSupport.version < "7.1"
     expect(app.deprecators[:mime_actor]).to be_a(ActiveSupport::Deprecation)
   end
 end
