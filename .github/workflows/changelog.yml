@@ -1,11 +1,11 @@
 name: Generate CHANGELOG.md
 
 on:
-  workflow_run: # workflow_run only runs on default branch
-    workflows: [publish]
+  workflow_run: # only runs on default branch
+    workflows: [CI]
     types: [completed]
-    branches: [main] # prevent test runs in other branches trigger change log generation in main branch
-  workflow_dispatch: # allow manual run of workflow
+    branches: [main]
+  workflow_dispatch:
   schedule:
     - cron: 0 12 * * 5
 
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changelog_generator:
+  changelog:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
@@ -23,14 +23,16 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: true
+          fetch-depth: 0
 
-      - run: bundle exec rake changelog
+      - uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: v1.0.0..HEAD
         env:
-          CHANGELOG_GITHUB_TOKEN: ${{ github.token }}
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
 
       - uses: ryancyq/github-signed-commit@v1
         env:
