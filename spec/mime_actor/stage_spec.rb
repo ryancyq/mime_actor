@@ -20,7 +20,8 @@ RSpec.describe MimeActor::Stage do
 
     it "disallows instance writter" do
       expect { klazz.new.raise_on_actor_error = true }.to raise_error(
-        NoMethodError, %r{undefined method `raise_on_actor_error='}
+        NoMethodError,
+        %r{undefined method [`']raise_on_actor_error=' for (#<|an instance of)}
       )
     end
   end
