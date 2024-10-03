@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file. See [conven
 - rspec-activesupport ([#73](/issues/73)) - ([8f4ca8b](https://github.com/ryancyq/mime_actor/commit/8f4ca8b31430c33166f3d9a55c8ce3fef8ea4f33)) - Ryan Chang
 - relax ruby >= 2.5 and rails >= 6.1 - ([e1c23ba](https://github.com/ryancyq/mime_actor/commit/e1c23bafbc43b90ace7b58ee3a05d46ac3408733)) - Ryan Chang
 - relax ruby >= 2.5 and rails >= 6.1 ([#83](/issues/83)) - ([70b4232](https://github.com/ryancyq/mime_actor/commit/70b4232a13512d34b4f161c4ab75e52af45fa14a)) - Ryan Chang
+- relax rubocop version - ([f80bfc7](https://github.com/ryancyq/mime_actor/commit/f80bfc745ff6f969fc56043963a221e928d7c183)) - Ryan Chang
+- bump rspec-activesupport to 0.2.0 - ([0a8436f](https://github.com/ryancyq/mime_actor/commit/0a8436fe55aeb2152c848464e8012342f8713955)) - Ryan Chang
 
 ---
 ## [0.7.2](https://github.com/ryancyq/mime_actor/compare/v0.7.1..v0.7.2) - 2024-08-18
