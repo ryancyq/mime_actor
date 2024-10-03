@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. See [conven
 - use deprecation assertion method from gem - ([c896fe1](https://github.com/ryancyq/mime_actor/commit/c896fe17a47e059db94f8c2ae0f6a46fb652782b)) - Ryan Chang
 - update error message assertion across ruby versions - ([3e12cbd](https://github.com/ryancyq/mime_actor/commit/3e12cbd212d8fb83e8d3f2481b33ffdd3daf935a)) - Ryan Chang
 - update method#inspect string for ruby >2.5 <3.1 - ([ef04198](https://github.com/ryancyq/mime_actor/commit/ef0419836bf3bfdc7de542c0f299522f0dd423f1)) - Ryan Chang
+- implements coverage rake task - ([a8d2458](https://github.com/ryancyq/mime_actor/commit/a8d24588e21f2e936a41b1270b9812dc09f69708)) - Ryan Chang
 
 ### Lib
 
