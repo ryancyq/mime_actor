@@ -1,10 +1,8 @@
-name: publish
+name: Release New Version
 
 on:
   push:
-    branches:
-      - main
-      - "releases/?*-stable"
+    branches: [main]
     paths: ["lib/mime_actor/version.rb"]
 
 jobs:
@@ -21,10 +19,9 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3"
+          ruby-version: "3"
           bundler-cache: true
 
       - run: bundle exec rake spec
 
       - uses: ryancyq/bundle-release-gem@v1
-
