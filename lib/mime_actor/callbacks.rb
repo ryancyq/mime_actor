@@ -46,8 +46,13 @@ module MimeActor
         attr_reader :actions, :formats
 
         def initialize(actions, formats)
-          @actions = actions&.then { |a| Array(a).to_set(&:to_sym) }
-          @formats = formats&.then { |f| Array(f).to_set(&:to_sym) }
+          if RUBY_VERSION < "2.6"
+            @actions = actions ? Array(actions).to_set(&:to_sym) : nil
+            @formats = formats ? Array(formats).to_set(&:to_sym) : nil
+          else
+            @actions = actions&.then { |a| Array(a).to_set(&:to_sym) }
+            @formats = formats&.then { |f| Array(f).to_set(&:to_sym) }
+          end
         end
 
         def match?(controller)
