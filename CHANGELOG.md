@@ -22,20 +22,20 @@ All notable changes to this project will be documented in this file. See [conven
 - upgrade to ruby 3.3.4 - ([de98bce](https://github.com/ryancyq/mime_actor/commit/de98bce438d65a7973b4ad187cc090626593a5a7)) - Ryan Chang
 - update gemfile lock - ([d06496b](https://github.com/ryancyq/mime_actor/commit/d06496b25197f2bffaed6a90f5b6a66d9360bc90)) - Ryan Chang
 - install rspec-activesupport - ([4e12218](https://github.com/ryancyq/mime_actor/commit/4e12218d62e88f04455467794915bdc2b12cc750)) - Ryan Chang
-- rspec-activesupport ([#73](/issues/73)) - ([8f4ca8b](https://github.com/ryancyq/mime_actor/commit/8f4ca8b31430c33166f3d9a55c8ce3fef8ea4f33)) - Ryan Chang
+- rspec-activesupport ([#73](https://github.com/ryancyq/mime_actor/issues/73)) - ([8f4ca8b](https://github.com/ryancyq/mime_actor/commit/8f4ca8b31430c33166f3d9a55c8ce3fef8ea4f33)) - Ryan Chang
 - relax ruby >= 2.5 and rails >= 6.1 - ([e1c23ba](https://github.com/ryancyq/mime_actor/commit/e1c23bafbc43b90ace7b58ee3a05d46ac3408733)) - Ryan Chang
-- relax ruby >= 2.5 and rails >= 6.1 ([#83](/issues/83)) - ([70b4232](https://github.com/ryancyq/mime_actor/commit/70b4232a13512d34b4f161c4ab75e52af45fa14a)) - Ryan Chang
+- relax ruby >= 2.5 and rails >= 6.1 ([#83](https://github.com/ryancyq/mime_actor/issues/83)) - ([70b4232](https://github.com/ryancyq/mime_actor/commit/70b4232a13512d34b4f161c4ab75e52af45fa14a)) - Ryan Chang
 - relax rubocop version - ([f80bfc7](https://github.com/ryancyq/mime_actor/commit/f80bfc745ff6f969fc56043963a221e928d7c183)) - Ryan Chang
 - bump rspec-activesupport to 0.2.0 - ([0a8436f](https://github.com/ryancyq/mime_actor/commit/0a8436fe55aeb2152c848464e8012342f8713955)) - Ryan Chang
 - fallback to ruby 2.5 syntax for anonymous block arguments forwarding, value omission in hash literals - ([374286e](https://github.com/ryancyq/mime_actor/commit/374286e418d06bdc0f253847ee69490a61825ada)) - Ryan Chang
-- use backward compatible APIs for older rubies ([#87](/issues/87)) - ([8ca713a](https://github.com/ryancyq/mime_actor/commit/8ca713a4a9fabed97686d7765283d867b8d606aa)) - Ryan Chang
+- use backward compatible APIs for older rubies ([#87](https://github.com/ryancyq/mime_actor/issues/87)) - ([8ca713a](https://github.com/ryancyq/mime_actor/commit/8ca713a4a9fabed97686d7765283d867b8d606aa)) - Ryan Chang
 - use activesupport code generator only when >= 7.2 - ([95f9b41](https://github.com/ryancyq/mime_actor/commit/95f9b41de3107b685a1cd771061b209b79d21071)) - Ryan Chang
 - use ActiveSupport.version string for backward compatibility check - ([b5b69cb](https://github.com/ryancyq/mime_actor/commit/b5b69cb0ceaecebe2ce4ab6db3714d6db5b0dc26)) - Ryan Chang
 - Rails.application.deprecators only added for ActiveSupport >= 7.1 - ([47a0096](https://github.com/ryancyq/mime_actor/commit/47a00965b399e7cb38f9bbfce86ee304b929691c)) - Ryan Chang
 - guard rails for #then for ruby >= 2.6 - ([cacf07f](https://github.com/ryancyq/mime_actor/commit/cacf07ff84be8a872674a6d08c274b2e8bc64383)) - Ryan Chang
-- use backward compatible APIs for older rails ([#88](/issues/88)) - ([7908644](https://github.com/ryancyq/mime_actor/commit/79086445b530c3cf9ced91ee107d01ec783961ec)) - Ryan Chang
+- use backward compatible APIs for older rails ([#88](https://github.com/ryancyq/mime_actor/issues/88)) - ([7908644](https://github.com/ryancyq/mime_actor/commit/79086445b530c3cf9ced91ee107d01ec783961ec)) - Ryan Chang
 - use appraisal gem to generate Gemfile for different rails version - ([19c224c](https://github.com/ryancyq/mime_actor/commit/19c224c9f568a6f0570b88f35a228116c93cd1d2)) - Ryan Chang
-- use appraisal gem to generate Gemfile for different rails version ([#86](/issues/86)) - ([9279d6e](https://github.com/ryancyq/mime_actor/commit/9279d6e38efb7fddf04a4b013e80fef3fe916198)) - Ryan Chang
+- use appraisal gem to generate Gemfile for different rails version ([#86](https://github.com/ryancyq/mime_actor/issues/86)) - ([9279d6e](https://github.com/ryancyq/mime_actor/commit/9279d6e38efb7fddf04a4b013e80fef3fe916198)) - Ryan Chang
 
 ---
 ## [0.7.2](https://github.com/ryancyq/mime_actor/compare/v0.7.1..v0.7.2) - 2024-08-18
@@ -61,13 +61,13 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Features
 
-- tagged logging ([#66](/issues/66)) - ([e5e8fda](https://github.com/ryancyq/mime_actor/commit/e5e8fdad0ebdcadbc2b081fafaaa874c0cf5c2d3)) - Ryan Chang
+- tagged logging ([#66](https://github.com/ryancyq/mime_actor/issues/66)) - ([e5e8fda](https://github.com/ryancyq/mime_actor/commit/e5e8fdad0ebdcadbc2b081fafaaa874c0cf5c2d3)) - Ryan Chang
 
 ### Refactoring
 
 - use heredoc for callback kind template - ([18a9e90](https://github.com/ryancyq/mime_actor/commit/18a9e90c7f13a287eff4f8517cd83ec97529da56)) - Ryan Chang
 - use heredoc for action method template - ([e52be70](https://github.com/ryancyq/mime_actor/commit/e52be70e0e300d99e41672e82785170b4a71421a)) - Ryan Chang
-- code generator with heredoc ([#65](/issues/65)) - ([67ee9d1](https://github.com/ryancyq/mime_actor/commit/67ee9d1fa8bbbb759561297cb29bbbe0becc4b94)) - Ryan Chang
+- code generator with heredoc ([#65](https://github.com/ryancyq/mime_actor/issues/65)) - ([67ee9d1](https://github.com/ryancyq/mime_actor/commit/67ee9d1fa8bbbb759561297cb29bbbe0becc4b94)) - Ryan Chang
 
 ### Tests
 
@@ -80,7 +80,7 @@ All notable changes to this project will be documented in this file. See [conven
 - exclude pre-release tags - ([26f324f](https://github.com/ryancyq/mime_actor/commit/26f324fd42b79a4869e7611932688a16f9623061)) - Ryan Chang
 - generate changelog.md - ([e055c9f](https://github.com/ryancyq/mime_actor/commit/e055c9f88c0d9f2a66397b3afd47ce17d95748a2)) - Ryan Chang
 - include changelog in gemspec - ([f0f5084](https://github.com/ryancyq/mime_actor/commit/f0f50847a1e14bde5a1681f77f52f249753093c1)) - Ryan Chang
-- generate CHANGELOG.md ([#67](/issues/67)) - ([ac36d54](https://github.com/ryancyq/mime_actor/commit/ac36d542cfd77eac1aa635e328d9b5aeed7fbf5b)) - Ryan Chang
+- generate CHANGELOG.md ([#67](https://github.com/ryancyq/mime_actor/issues/67)) - ([ac36d54](https://github.com/ryancyq/mime_actor/commit/ac36d542cfd77eac1aa635e328d9b5aeed7fbf5b)) - Ryan Chang
 
 ---
 ## [0.7.0](https://github.com/ryancyq/mime_actor/compare/v0.6.4..v0.7.0) - 2024-07-30
@@ -93,8 +93,8 @@ All notable changes to this project will be documented in this file. See [conven
 - remove duplicate require in logging - ([5479cfc](https://github.com/ryancyq/mime_actor/commit/5479cfc87b4074d2bf7ec6bf2b5e99ed942607ed)) - Ryan Chang
 - change all arg validation presence check to #nil? instead of #present? - ([7d50fdf](https://github.com/ryancyq/mime_actor/commit/7d50fdf736560cc126b1075013e738c34631dd50)) - Ryan Chang
 - actions/formats validator to guard against empty enumerable - ([6464654](https://github.com/ryancyq/mime_actor/commit/6464654fa582bcba37072a4f13ab04b7eca072fe)) - Ryan Chang
-- action/format validation ([#60](/issues/60)) - ([c8715dc](https://github.com/ryancyq/mime_actor/commit/c8715dcf0d0ac6233bfb8062154c32e611265a95)) - Ryan Chang
-- callback chain sequence respect definition ordering ([#63](/issues/63)) - ([17c9fcd](https://github.com/ryancyq/mime_actor/commit/17c9fcd9f3fa9684c1cb22c56ee6e526d407d143)) - Ryan Chang
+- action/format validation ([#60](https://github.com/ryancyq/mime_actor/issues/60)) - ([c8715dc](https://github.com/ryancyq/mime_actor/commit/c8715dcf0d0ac6233bfb8062154c32e611265a95)) - Ryan Chang
+- callback chain sequence respect definition ordering ([#63](https://github.com/ryancyq/mime_actor/issues/63)) - ([17c9fcd](https://github.com/ryancyq/mime_actor/commit/17c9fcd9f3fa9684c1cb22c56ee6e526d407d143)) - Ryan Chang
 
 ### Documentation
 
@@ -106,12 +106,12 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Features
 
-- #act_on_action to replace #respond_act_to ([#61](/issues/61)) - ([ad482ba](https://github.com/ryancyq/mime_actor/commit/ad482babf1d6790fb439470dfbdaf415b4a9505d)) - Ryan Chang
+- #act_on_action to replace #respond_act_to ([#61](https://github.com/ryancyq/mime_actor/issues/61)) - ([ad482ba](https://github.com/ryancyq/mime_actor/commit/ad482babf1d6790fb439470dfbdaf415b4a9505d)) - Ryan Chang
 
 ### Refactoring
 
 - extra respond_to logic into private method - ([123692d](https://github.com/ryancyq/mime_actor/commit/123692d1fee5409dbb96e8412deb1533fa66368b)) - Ryan Chang
-- callback generator ([#62](/issues/62)) - ([ff2e93b](https://github.com/ryancyq/mime_actor/commit/ff2e93bd8498a959f9faa1294194e8ab26f55cd2)) - Ryan Chang
+- callback generator ([#62](https://github.com/ryancyq/mime_actor/issues/62)) - ([ff2e93b](https://github.com/ryancyq/mime_actor/commit/ff2e93bd8498a959f9faa1294194e8ab26f55cd2)) - Ryan Chang
 
 ### Style
 
@@ -164,12 +164,12 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Features
 
-- actor delegator ([#57](/issues/57)) - ([cac6562](https://github.com/ryancyq/mime_actor/commit/cac6562fa9f583612acfd699bb6fe0ccf68894be)) - Ryan Chang
+- actor delegator ([#57](https://github.com/ryancyq/mime_actor/issues/57)) - ([cac6562](https://github.com/ryancyq/mime_actor/commit/cac6562fa9f583612acfd699bb6fe0ccf68894be)) - Ryan Chang
 
 ### Refactoring
 
 - rename with validator into callable validator for more generic naming - ([81a81d3](https://github.com/ryancyq/mime_actor/commit/81a81d314a5d88ab5eebb1160339710f89743688)) - Ryan Chang
-- rename with validator into callable validator ([#54](/issues/54)) - ([2bac018](https://github.com/ryancyq/mime_actor/commit/2bac01819bb252f47205b8fbd8dc32bce6b0f945)) - Ryan Chang
+- rename with validator into callable validator ([#54](https://github.com/ryancyq/mime_actor/issues/54)) - ([2bac018](https://github.com/ryancyq/mime_actor/commit/2bac01819bb252f47205b8fbd8dc32bce6b0f945)) - Ryan Chang
 
 ### Tests
 
@@ -180,10 +180,10 @@ All notable changes to this project will be documented in this file. See [conven
 ### Lib
 
 - extract deprecation into separate file - ([6eebef1](https://github.com/ryancyq/mime_actor/commit/6eebef11d9d2ceddcf53b7e7c0205cf8d600d2f7)) - Ryan Chang
-- extract deprecation into separate file ([#55](/issues/55)) - ([e8b3792](https://github.com/ryancyq/mime_actor/commit/e8b379284d1abc536f499d02b8ba4336ac337317)) - Ryan Chang
+- extract deprecation into separate file ([#55](https://github.com/ryancyq/mime_actor/issues/55)) - ([e8b3792](https://github.com/ryancyq/mime_actor/commit/e8b379284d1abc536f499d02b8ba4336ac337317)) - Ryan Chang
 - add railtie initializers - ([6e1c6bf](https://github.com/ryancyq/mime_actor/commit/6e1c6bf450785486198acb2324614b0d06e954b3)) - Ryan Chang
 - add deprecator to railtie - ([238ebc9](https://github.com/ryancyq/mime_actor/commit/238ebc9e10e2690e3edafaf8f348854ad563fce5)) - Ryan Chang
-- add railtie for deprecation config ([#56](/issues/56)) - ([17bf3f1](https://github.com/ryancyq/mime_actor/commit/17bf3f1580283c491c448d050fae269f7f500d1a)) - Ryan Chang
+- add railtie for deprecation config ([#56](https://github.com/ryancyq/mime_actor/issues/56)) - ([17bf3f1](https://github.com/ryancyq/mime_actor/commit/17bf3f1580283c491c448d050fae269f7f500d1a)) - Ryan Chang
 - extract actor_name generation into a class level generator for configurable purpose - ([d84a1a2](https://github.com/ryancyq/mime_actor/commit/d84a1a20fd74a62442593d4991d77e53d5421ef7)) - Ryan Chang
 
 ---
@@ -191,8 +191,8 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Bug Fixes
 
-- use controller#action_name ([#52](/issues/52)) - ([47ffee1](https://github.com/ryancyq/mime_actor/commit/47ffee11bb25895c6795d8d70773fc8deb859499)) - Ryan Chang
-- validate format arg for #cue_actor ([#53](/issues/53)) - ([48fe4c3](https://github.com/ryancyq/mime_actor/commit/48fe4c3e4fbff7079753d060cc12d68e2a16143e)) - Ryan Chang
+- use controller#action_name ([#52](https://github.com/ryancyq/mime_actor/issues/52)) - ([47ffee1](https://github.com/ryancyq/mime_actor/commit/47ffee11bb25895c6795d8d70773fc8deb859499)) - Ryan Chang
+- validate format arg for #cue_actor ([#53](https://github.com/ryancyq/mime_actor/issues/53)) - ([48fe4c3](https://github.com/ryancyq/mime_actor/commit/48fe4c3e4fbff7079753d060cc12d68e2a16143e)) - Ryan Chang
 
 ### Documentation
 
@@ -200,12 +200,12 @@ All notable changes to this project will be documented in this file. See [conven
 - update README with tested EventsController - ([48ae392](https://github.com/ryancyq/mime_actor/commit/48ae3921c47975302d59420e252876d10b44865d)) - Ryan Chang
 - update COMPARE with actor responder API - ([53c0ede](https://github.com/ryancyq/mime_actor/commit/53c0ede5a0172fdd1e6e81bb2674e51d9923d0a1)) - Ryan Chang
 - update README and COMPARE - ([4055a3d](https://github.com/ryancyq/mime_actor/commit/4055a3dafdc53ddbe0609f53fed75dc68aedc4a6)) - Ryan Chang
-- example controller spec ([#31](/issues/31)) - ([ee81e05](https://github.com/ryancyq/mime_actor/commit/ee81e05f757734d32beb3be62d7211e1b3b79df8)) - Ryan Chang
+- example controller spec ([#31](https://github.com/ryancyq/mime_actor/issues/31)) - ([ee81e05](https://github.com/ryancyq/mime_actor/commit/ee81e05f757734d32beb3be62d7211e1b3b79df8)) - Ryan Chang
 
 ### Features
 
 - run act callbacks in `cue_actor` to allow callbacks to be rescued - ([04f7cb7](https://github.com/ryancyq/mime_actor/commit/04f7cb7724492fcbf2d1ec8b16dbc2382afca407)) - Ryan Chang
-- rescue act callbacks ([#51](/issues/51)) - ([d2c4171](https://github.com/ryancyq/mime_actor/commit/d2c41718c749764852dd589d265a6ae313f6eba1)) - Ryan Chang
+- rescue act callbacks ([#51](https://github.com/ryancyq/mime_actor/issues/51)) - ([d2c4171](https://github.com/ryancyq/mime_actor/commit/d2c41718c749764852dd589d265a6ae313f6eba1)) - Ryan Chang
 
 ### Refactoring
 
@@ -224,7 +224,7 @@ All notable changes to this project will be documented in this file. See [conven
 ### Lib
 
 - allow actor of any visibility to be called - ([b72cb30](https://github.com/ryancyq/mime_actor/commit/b72cb300229b30dbd903469008886e4385f35c26)) - Ryan Chang
-- allow actor of any visibility to be called ([#50](/issues/50)) - ([1f96f76](https://github.com/ryancyq/mime_actor/commit/1f96f76319a81504de55f3934a0783a488c694c3)) - Ryan Chang
+- allow actor of any visibility to be called ([#50](https://github.com/ryancyq/mime_actor/issues/50)) - ([1f96f76](https://github.com/ryancyq/mime_actor/commit/1f96f76319a81504de55f3934a0783a488c694c3)) - Ryan Chang
 - avoid passing action around when running through the flow from #start_scene to #cue_actor - ([83b063c](https://github.com/ryancyq/mime_actor/commit/83b063ccca6fd5fa096bba76a896fb62c9c364c3)) - Ryan Chang
 - add format validation for #cue_actor - ([e7409ff](https://github.com/ryancyq/mime_actor/commit/e7409ff015cda61114d94c762dc7d1c7fa172c10)) - Ryan Chang
 
@@ -236,7 +236,7 @@ All notable changes to this project will be documented in this file. See [conven
 - validator lookup should be targeting public methods - ([e3f3a9b](https://github.com/ryancyq/mime_actor/commit/e3f3a9b9081edb4d41765d7923e0fb6c34c0f205)) - Ryan Chang
 - dispatcher usage in cue_actor and rescue_actor - ([c2d5bdf](https://github.com/ryancyq/mime_actor/commit/c2d5bdf3a21d4784cc5e00ca19bb71d5dcd3711b)) - Ryan Chang
 - callback configuration loop through formats - ([53248d4](https://github.com/ryancyq/mime_actor/commit/53248d4aac92cc161d8018ac5bcc0ac8ba4b3219)) - Ryan Chang
-- support collection argument for  action/format filters in act_callacbks configuration ([#47](/issues/47)) - ([68adddd](https://github.com/ryancyq/mime_actor/commit/68addddca707e708be60b36cfed0ddcbc0759aaf)) - Ryan Chang
+- support collection argument for  action/format filters in act_callacbks configuration ([#47](https://github.com/ryancyq/mime_actor/issues/47)) - ([68adddd](https://github.com/ryancyq/mime_actor/commit/68addddca707e708be60b36cfed0ddcbc0759aaf)) - Ryan Chang
 
 ### Documentation
 
@@ -245,13 +245,13 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Features
 
-- run act callbacks during `start_scene` ([#49](/issues/49)) - ([816aa2d](https://github.com/ryancyq/mime_actor/commit/816aa2dfb2072f2669108cd94de44dc6a6d00fee)) - Ryan Chang
+- run act callbacks during `start_scene` ([#49](https://github.com/ryancyq/mime_actor/issues/49)) - ([816aa2d](https://github.com/ryancyq/mime_actor/commit/816aa2dfb2072f2669108cd94de44dc6a6d00fee)) - Ryan Chang
 
 ### Refactoring
 
-- dispatcher callable API ([#45](/issues/45)) - ([3c109b9](https://github.com/ryancyq/mime_actor/commit/3c109b9e5778456fc9eb7cc67c00e0082d6c6edb)) - Ryan Chang
+- dispatcher callable API ([#45](https://github.com/ryancyq/mime_actor/issues/45)) - ([3c109b9](https://github.com/ryancyq/mime_actor/commit/3c109b9e5778456fc9eb7cc67c00e0082d6c6edb)) - Ryan Chang
 - move action collection vs single action rule into a composed rule in validator - ([0cd9485](https://github.com/ryancyq/mime_actor/commit/0cd9485bf7afa7981e7369c143af1677413e610f)) - Ryan Chang
-- move action collection vs single action rule into a composed rule in validator ([#46](/issues/46)) - ([a1ad2b8](https://github.com/ryancyq/mime_actor/commit/a1ad2b872783a88a8479c4c086b9e019cd3f8394)) - Ryan Chang
+- move action collection vs single action rule into a composed rule in validator ([#46](https://github.com/ryancyq/mime_actor/issues/46)) - ([a1ad2b8](https://github.com/ryancyq/mime_actor/commit/a1ad2b872783a88a8479c4c086b9e019cd3f8394)) - Ryan Chang
 
 ### Tests
 
@@ -261,7 +261,7 @@ All notable changes to this project will be documented in this file. See [conven
 - callback action/format filters accept array - ([fda6781](https://github.com/ryancyq/mime_actor/commit/fda67818606eb2dfcf2a77fc95e6fe9573fc1d5f)) - Ryan Chang
 - add act callbacks test sequence - ([050f53b](https://github.com/ryancyq/mime_actor/commit/050f53b4ee3ddb06d24330d1558be7eb1353ba6f)) - Ryan Chang
 - add example for callback sequence run as test - ([3b449b4](https://github.com/ryancyq/mime_actor/commit/3b449b486bfe3895deb57845bd31ddf521875001)) - Ryan Chang
-- add act callbacks test sequence ([#48](/issues/48)) - ([e9b3b70](https://github.com/ryancyq/mime_actor/commit/e9b3b7048ecfd5cbc92129afff9508b2e626451c)) - Ryan Chang
+- add act callbacks test sequence ([#48](https://github.com/ryancyq/mime_actor/issues/48)) - ([e9b3b70](https://github.com/ryancyq/mime_actor/commit/e9b3b7048ecfd5cbc92129afff9508b2e626451c)) - Ryan Chang
 - stub empty block using variable - ([82423f6](https://github.com/ryancyq/mime_actor/commit/82423f60a90eb1ae92fbd3a1ab46fd1c551b152b)) - Ryan Chang
 - add test around start_scene which will run the callbacks before calling actor - ([4de6c64](https://github.com/ryancyq/mime_actor/commit/4de6c646ef349f9c7cdf983eae473c8f7fbdc492)) - Ryan Chang
 
@@ -292,12 +292,12 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Features
 
-- act callbacks ([#42](/issues/42)) - ([7b413a1](https://github.com/ryancyq/mime_actor/commit/7b413a17e149e506abd8d843391054c63d01b366)) - Ryan Chang
+- act callbacks ([#42](https://github.com/ryancyq/mime_actor/issues/42)) - ([7b413a1](https://github.com/ryancyq/mime_actor/commit/7b413a17e149e506abd8d843391054c63d01b366)) - Ryan Chang
 
 ### Refactoring
 
-- dispatcher call ([#38](/issues/38)) - ([3871431](https://github.com/ryancyq/mime_actor/commit/3871431585cad6ae40da9e462a30452646f6ea71)) - Ryan Chang
-- replace dispatch_act rescue with dispatch_actor rescue ([#39](/issues/39)) - ([697a1e6](https://github.com/ryancyq/mime_actor/commit/697a1e6bcc158218bfa933eafff4aa8b74e72786)) - Ryan Chang
+- dispatcher call ([#38](https://github.com/ryancyq/mime_actor/issues/38)) - ([3871431](https://github.com/ryancyq/mime_actor/commit/3871431585cad6ae40da9e462a30452646f6ea71)) - Ryan Chang
+- replace dispatch_act rescue with dispatch_actor rescue ([#39](https://github.com/ryancyq/mime_actor/issues/39)) - ([697a1e6](https://github.com/ryancyq/mime_actor/commit/697a1e6bcc158218bfa933eafff4aa8b74e72786)) - Ryan Chang
 
 ### Tests
 
@@ -323,16 +323,16 @@ All notable changes to this project will be documented in this file. See [conven
 ### Lib
 
 - keep version as string - ([42a8935](https://github.com/ryancyq/mime_actor/commit/42a8935a91a36d008a142ffbbc1a617a84483ec9)) - Ryan Chang
-- keep version as string ([#36](/issues/36)) - ([afa6ea4](https://github.com/ryancyq/mime_actor/commit/afa6ea4e29d933eee226b424ca18657f913d0bea)) - Ryan Chang
+- keep version as string ([#36](https://github.com/ryancyq/mime_actor/issues/36)) - ([afa6ea4](https://github.com/ryancyq/mime_actor/commit/afa6ea4e29d933eee226b424ca18657f913d0bea)) - Ryan Chang
 - add gem deprecation message - ([45f36f0](https://github.com/ryancyq/mime_actor/commit/45f36f014f6724a13b27de38bba996aef9705c98)) - Ryan Chang
-- add gem deprecation message ([#37](/issues/37)) - ([7d20468](https://github.com/ryancyq/mime_actor/commit/7d204685f26f6a5a73f2a9da27d92a7930ec1920)) - Ryan Chang
+- add gem deprecation message ([#37](https://github.com/ryancyq/mime_actor/issues/37)) - ([7d20468](https://github.com/ryancyq/mime_actor/commit/7d204685f26f6a5a73f2a9da27d92a7930ec1920)) - Ryan Chang
 - introduce dispatcher which does not store call context, instead require context upon invocation - ([7dae104](https://github.com/ryancyq/mime_actor/commit/7dae104e847def45eb62ecb2b13108860d9f4836)) - Ryan Chang
 - use dispatcher for cue_actor - ([263a9cf](https://github.com/ryancyq/mime_actor/commit/263a9cff62b11f21a5eda97f78dd1593745b11cf)) - Ryan Chang
 - add validation to dispatcher params - ([ef4bda6](https://github.com/ryancyq/mime_actor/commit/ef4bda6c75e9344177807dfcdacc4e8de264e685)) - Ryan Chang
 - allow cue_actor to config current action + format context - ([888c141](https://github.com/ryancyq/mime_actor/commit/888c141a5c5bfba9ce3140ff9ce60c9ff3c5e325)) - Ryan Chang
 - replace dispatch_act with cue_actor directly and call rescue_actor within cue_actor - ([a82a615](https://github.com/ryancyq/mime_actor/commit/a82a6155450b0a64302b544c2e6c91a99a5b6aa2)) - Ryan Chang
 - promote instance method rescue_actor to public - ([a88abb3](https://github.com/ryancyq/mime_actor/commit/a88abb332bd30018087ec9b195a73b2edfc4d699)) - Ryan Chang
-- instance method rescue_actor to public ([#40](/issues/40)) - ([f2165d9](https://github.com/ryancyq/mime_actor/commit/f2165d997a860f10ef079384774ed40bcb2c4823)) - Ryan Chang
+- instance method rescue_actor to public ([#40](https://github.com/ryancyq/mime_actor/issues/40)) - ([f2165d9](https://github.com/ryancyq/mime_actor/commit/f2165d997a860f10ef079384774ed40bcb2c4823)) - Ryan Chang
 - use active support deprecation instead of gem deprecate in favor of semver over timeline - ([a03fa7f](https://github.com/ryancyq/mime_actor/commit/a03fa7f2583a81ccd5fc7ff9f86a21915e32408c)) - Ryan Chang
 - act callbacks - ([c26c874](https://github.com/ryancyq/mime_actor/commit/c26c874beb1a776f4216cceb66ac5ba6b3ac0e21)) - Ryan Chang
 - add action and format to callbacks - ([d2c0de6](https://github.com/ryancyq/mime_actor/commit/d2c0de62f1b5dce5c6fde4ed9bce28ce85f26895)) - Ryan Chang
@@ -346,10 +346,10 @@ All notable changes to this project will be documented in this file. See [conven
 ### Bug Fixes
 
 - rename dispatch_cue to dispatch_act and alias the method for compatibility - ([561daa8](https://github.com/ryancyq/mime_actor/commit/561daa8a227361f77a1f85c424ca28b4dad6299d)) - Ryan Chang
-- use `#dispatch_act` ([#33](/issues/33)) - ([e56ae67](https://github.com/ryancyq/mime_actor/commit/e56ae67362b4203be6941a9edddbd4ed5ecb60df)) - Ryan Chang
+- use `#dispatch_act` ([#33](https://github.com/ryancyq/mime_actor/issues/33)) - ([e56ae67](https://github.com/ryancyq/mime_actor/commit/e56ae67362b4203be6941a9edddbd4ed5ecb60df)) - Ryan Chang
 - removed unused require - ([23cc1c6](https://github.com/ryancyq/mime_actor/commit/23cc1c6728d0a492c514e65e3e950affdbf3bc84)) - Ryan Chang
 - use module eval inside module - ([13001bd](https://github.com/ryancyq/mime_actor/commit/13001bd18c844bc06623fb09628d981a4ec76097)) - Ryan Chang
-- use `module_eval` inside module ([#34](/issues/34)) - ([ef85a57](https://github.com/ryancyq/mime_actor/commit/ef85a57b41a985e5de1268def9c228a5ff2cead2)) - Ryan Chang
+- use `module_eval` inside module ([#34](https://github.com/ryancyq/mime_actor/issues/34)) - ([ef85a57](https://github.com/ryancyq/mime_actor/commit/ef85a57b41a985e5de1268def9c228a5ff2cead2)) - Ryan Chang
 - use %r for regex - ([75b4354](https://github.com/ryancyq/mime_actor/commit/75b435428ba66a35ae1c3b7ba6611e8e75c57b46)) - Ryan Chang
 
 ### Documentation
@@ -368,26 +368,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - alias act_on_format to respond_act_to - ([df5f212](https://github.com/ryancyq/mime_actor/commit/df5f2122c221660fe7d84c3c24fd2df8c30752e3)) - Ryan Chang
 - ensure validation message use #inspect to describe invalid values - ([c1cd365](https://github.com/ryancyq/mime_actor/commit/c1cd365cb5326c8dfa8d3dac41d4485262941b7a)) - Ryan Chang
-- ensure validation message use #inspect  ([#22](/issues/22)) - ([024a04d](https://github.com/ryancyq/mime_actor/commit/024a04d7e9c398f5a7b061ae91028e653ed84a71)) - Ryan Chang
+- ensure validation message use #inspect  ([#22](https://github.com/ryancyq/mime_actor/issues/22)) - ([024a04d](https://github.com/ryancyq/mime_actor/commit/024a04d7e9c398f5a7b061ae91028e653ed84a71)) - Ryan Chang
 - ensure using present? on nil works via active support - ([afe6c72](https://github.com/ryancyq/mime_actor/commit/afe6c72adff633c8fbc0fa175b572932f8a5f23b)) - Ryan Chang
-- require active support `nil` class extension ([#23](/issues/23)) - ([c7dcf97](https://github.com/ryancyq/mime_actor/commit/c7dcf97c18f9613b17c19584c0ac3414749775c9)) - Ryan Chang
+- require active support `nil` class extension ([#23](https://github.com/ryancyq/mime_actor/issues/23)) - ([c7dcf97](https://github.com/ryancyq/mime_actor/commit/c7dcf97c18f9613b17c19584c0ac3414749775c9)) - Ryan Chang
 - switch back to ruby original public + private class methods definitions - ([d1cd88e](https://github.com/ryancyq/mime_actor/commit/d1cd88e8a28f91a38d6b9f5a31efb11bb88998ab)) - Ryan Chang
-- switch back to ClassMethods ([#24](/issues/24)) - ([581f42f](https://github.com/ryancyq/mime_actor/commit/581f42f0f2bb1e5ef6270433240af482205fde0e)) - Ryan Chang
+- switch back to ClassMethods ([#24](https://github.com/ryancyq/mime_actor/issues/24)) - ([581f42f](https://github.com/ryancyq/mime_actor/commit/581f42f0f2bb1e5ef6270433240af482205fde0e)) - Ryan Chang
 - use alias instead of alias_method - ([0d52680](https://github.com/ryancyq/mime_actor/commit/0d5268045945f0f32ead6678a96f902e771ff51f)) - Ryan Chang
 - avoid inline access modifier - ([e66cb38](https://github.com/ryancyq/mime_actor/commit/e66cb38e64fb8efc9f6d61e49e81eaac2f3015af)) - Ryan Chang
-- rubocop access modifier ([#26](/issues/26)) - ([78d6d54](https://github.com/ryancyq/mime_actor/commit/78d6d54c7e3a98adde919d360061a04e785c9189)) - Ryan Chang
+- rubocop access modifier ([#26](https://github.com/ryancyq/mime_actor/issues/26)) - ([78d6d54](https://github.com/ryancyq/mime_actor/commit/78d6d54c7e3a98adde919d360061a04e785c9189)) - Ryan Chang
 - extract with + block validation from with validator - ([d720b65](https://github.com/ryancyq/mime_actor/commit/d720b656a07ecf8eb5d6738194c70704b83b4534)) - Ryan Chang
 - refactor rescuer dispatch to dynamically handle arguments - ([34831a4](https://github.com/ryancyq/mime_actor/commit/34831a45cd53b73cc324faf0fc4d7c45ef02ff35)) - Ryan Chang
 - error class message to use inspect - ([991a20f](https://github.com/ryancyq/mime_actor/commit/991a20f87d97b02f9e3e165dc61271767a68bf4e)) - Ryan Chang
 - log message with inspect when param is included - ([ab5ff9c](https://github.com/ryancyq/mime_actor/commit/ab5ff9c40f8220c1a789e68d7d8a3e4264edc758)) - Ryan Chang
-- error message should use `#inspect` for param ([#27](/issues/27)) - ([3777278](https://github.com/ryancyq/mime_actor/commit/37772786d99ed47f1bc63edc7eb776ba8a8848d3)) - Ryan Chang
+- error message should use `#inspect` for param ([#27](https://github.com/ryancyq/mime_actor/issues/27)) - ([3777278](https://github.com/ryancyq/mime_actor/commit/37772786d99ed47f1bc63edc7eb776ba8a8848d3)) - Ryan Chang
 - add respond handler registration to scene - ([d4ddc34](https://github.com/ryancyq/mime_actor/commit/d4ddc34318555627d28fb09cbdd4d7e8f8f7a6b0)) - Ryan Chang
 - start_scene to pass actor to cue_actor if present, otherwise fallback to action_format - ([80e2983](https://github.com/ryancyq/mime_actor/commit/80e29838f01b52c95ae3a98a9d1d3c66dbb5cd2c)) - Ryan Chang
 - cue_actor to work with string/symbol/proc actor - ([e5e8827](https://github.com/ryancyq/mime_actor/commit/e5e88275807603224a5e40ded2f19d46c7cd8314)) - Ryan Chang
 - update type check logic to raise TypeError instead - ([b733074](https://github.com/ryancyq/mime_actor/commit/b7330742ebc436e7929a6edd5f6d3dd3f635d8aa)) - Ryan Chang
-- update type check logic to raise `TypeError` instead ([#29](/issues/29)) - ([6cb557f](https://github.com/ryancyq/mime_actor/commit/6cb557f82f706426a313b18ecae7925c520a0dfb)) - Ryan Chang
+- update type check logic to raise `TypeError` instead ([#29](https://github.com/ryancyq/mime_actor/issues/29)) - ([6cb557f](https://github.com/ryancyq/mime_actor/commit/6cb557f82f706426a313b18ecae7925c520a0dfb)) - Ryan Chang
 - ensure actor passed to cue_actor is executed within the instance - ([73885f2](https://github.com/ryancyq/mime_actor/commit/73885f2930626b334ec0dc67ac69cc0db5d0dfd5)) - Ryan Chang
-- ensure `actor` passed to `#cue_actor` is executed within the instance ([#30](/issues/30)) - ([ae1e420](https://github.com/ryancyq/mime_actor/commit/ae1e420e0d9d1c25774db8607749176cf5daaef8)) - Ryan Chang
+- ensure `actor` passed to `#cue_actor` is executed within the instance ([#30](https://github.com/ryancyq/mime_actor/issues/30)) - ([ae1e420](https://github.com/ryancyq/mime_actor/commit/ae1e420e0d9d1c25774db8607749176cf5daaef8)) - Ryan Chang
 
 ### Documentation
 
@@ -397,15 +397,15 @@ All notable changes to this project will be documented in this file. See [conven
 ### Features
 
 - add respond handler functionality to scene composition - ([08f1c00](https://github.com/ryancyq/mime_actor/commit/08f1c0059553c22a715caa3d92043aea5f210b61)) - Ryan Chang
-- actor responder ([#28](/issues/28)) - ([6b2844a](https://github.com/ryancyq/mime_actor/commit/6b2844aa77e1cfea504d7dc242b9a81849231f8d)) - Ryan Chang
+- actor responder ([#28](https://github.com/ryancyq/mime_actor/issues/28)) - ([6b2844a](https://github.com/ryancyq/mime_actor/commit/6b2844aa77e1cfea504d7dc242b9a81849231f8d)) - Ryan Chang
 
 ### Refactoring
 
 - explicit declare key argument for #act_on_format - ([d638786](https://github.com/ryancyq/mime_actor/commit/d6387861ab8d9de1954a2c5f498d4b4d2fe1f862)) - Ryan Chang
 - change act_on_format to respond_act_to - ([e054f76](https://github.com/ryancyq/mime_actor/commit/e054f7697340706167f7836291851ade6bce6eae)) - Ryan Chang
-- act_on_format with respond_act_to ([#21](/issues/21)) - ([8aa93da](https://github.com/ryancyq/mime_actor/commit/8aa93da12db830845e54efc7b98387d232aadad2)) - Ryan Chang
+- act_on_format with respond_act_to ([#21](https://github.com/ryancyq/mime_actor/issues/21)) - ([8aa93da](https://github.com/ryancyq/mime_actor/commit/8aa93da12db830845e54efc7b98387d232aadad2)) - Ryan Chang
 - skip validation if block is assigned to with in rescue - ([2e87801](https://github.com/ryancyq/mime_actor/commit/2e8780186166afe6e1a653a740eb4f445ea313e9)) - Ryan Chang
-- rescue validation + dispatch ([#25](/issues/25)) - ([24a3593](https://github.com/ryancyq/mime_actor/commit/24a3593994acf308c19f475f4791e57f47235eca)) - Ryan Chang
+- rescue validation + dispatch ([#25](https://github.com/ryancyq/mime_actor/issues/25)) - ([24a3593](https://github.com/ryancyq/mime_actor/commit/24a3593994acf308c19f475f4791e57f47235eca)) - Ryan Chang
 - remove unused require in spec - ([4ff8dbf](https://github.com/ryancyq/mime_actor/commit/4ff8dbf434e4e318ff20aa2331629440086ec4a7)) - Ryan Chang
 
 ### Tests
@@ -426,15 +426,15 @@ All notable changes to this project will be documented in this file. See [conven
 ### Bug Fixes
 
 - promote act_on_format to the public API, compose_scene remains a private method without args validations - ([652eea0](https://github.com/ryancyq/mime_actor/commit/652eea0fdd63bd855570163fdbf32c0e4ff44aba)) - Ryan Chang
-- promote `#act_on_format` to the public API ([#16](/issues/16)) - ([9464236](https://github.com/ryancyq/mime_actor/commit/946423678ed27daacc17bde8b88633fe2083faae)) - Ryan Chang
+- promote `#act_on_format` to the public API ([#16](https://github.com/ryancyq/mime_actor/issues/16)) - ([9464236](https://github.com/ryancyq/mime_actor/commit/946423678ed27daacc17bde8b88633fe2083faae)) - Ryan Chang
 - rename rescue_actor_from to rescue_act_from to align with act_on_format - ([1748a59](https://github.com/ryancyq/mime_actor/commit/1748a593255f9bb23b733b9d9c935178e1f2e908)) - Ryan Chang
-- use `#rescue_act_from` ([#17](/issues/17)) - ([f4e5443](https://github.com/ryancyq/mime_actor/commit/f4e54430eece5ff762773027afd5e0793dbd5a71)) - Ryan Chang
+- use `#rescue_act_from` ([#17](https://github.com/ryancyq/mime_actor/issues/17)) - ([f4e5443](https://github.com/ryancyq/mime_actor/commit/f4e54430eece5ff762773027afd5e0793dbd5a71)) - Ryan Chang
 - combine multiple if into a single if statement - ([93cc763](https://github.com/ryancyq/mime_actor/commit/93cc763bfd4b3f874a20e9fcb2a5b6bf7db74f60)) - Ryan Chang
 - switch over to active support class methods to allow private class methods - ([8df5c8a](https://github.com/ryancyq/mime_actor/commit/8df5c8ae0e8c1eb966924e6d430fd368f433d6f6)) - Ryan Chang
-- switch over to active support class methods ([#19](/issues/19)) - ([ebed5fe](https://github.com/ryancyq/mime_actor/commit/ebed5fe9b0b62a1cf32c5d7dc748525469fc223f)) - Ryan Chang
+- switch over to active support class methods ([#19](https://github.com/ryancyq/mime_actor/issues/19)) - ([ebed5fe](https://github.com/ryancyq/mime_actor/commit/ebed5fe9b0b62a1cf32c5d7dc748525469fc223f)) - Ryan Chang
 - use switch case for action args validation - ([af4e8a6](https://github.com/ryancyq/mime_actor/commit/af4e8a69e20406729cbec4a3ca5882f8c1755b3d)) - Ryan Chang
 - simplify action and format validation if-else - ([89f8e89](https://github.com/ryancyq/mime_actor/commit/89f8e897ea55796c5bd119065ceafebe13a12545)) - Ryan Chang
-- refactor rescue validations ([#20](/issues/20)) - ([afd68ed](https://github.com/ryancyq/mime_actor/commit/afd68ed57a9da12bf5b9a4986094ffe3180d7234)) - Ryan Chang
+- refactor rescue validations ([#20](https://github.com/ryancyq/mime_actor/issues/20)) - ([afd68ed](https://github.com/ryancyq/mime_actor/commit/afd68ed57a9da12bf5b9a4986094ffe3180d7234)) - Ryan Chang
 
 ### Documentation
 
@@ -442,7 +442,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 ### Refactoring
 
-- top level comments ([#18](/issues/18)) - ([43dbc7c](https://github.com/ryancyq/mime_actor/commit/43dbc7cd7f111a853a1293ffb4ab480d10015e0a)) - Ryan Chang
+- top level comments ([#18](https://github.com/ryancyq/mime_actor/issues/18)) - ([43dbc7c](https://github.com/ryancyq/mime_actor/commit/43dbc7cd7f111a853a1293ffb4ab480d10015e0a)) - Ryan Chang
 
 ### Lib
 
@@ -454,7 +454,7 @@ All notable changes to this project will be documented in this file. See [conven
 ### Bug Fixes
 
 - alias compose_scene with act_on_format - ([2f18d75](https://github.com/ryancyq/mime_actor/commit/2f18d7548222992f5643fd964aaddc57183a7ee2)) - Ryan Chang
-- alias compose_scene to act_on_format ([#15](/issues/15)) - ([7f82257](https://github.com/ryancyq/mime_actor/commit/7f8225725e2ffa0974ac5c7b9f6341dc512e8aff)) - Ryan Chang
+- alias compose_scene to act_on_format ([#15](https://github.com/ryancyq/mime_actor/issues/15)) - ([7f82257](https://github.com/ryancyq/mime_actor/commit/7f8225725e2ffa0974ac5c7b9f6341dc512e8aff)) - Ryan Chang
 
 ### Documentation
 
@@ -476,7 +476,7 @@ All notable changes to this project will be documented in this file. See [conven
 ### Bug Fixes
 
 - ensure block is passed when calling dispatch_cue - ([d4d46df](https://github.com/ryancyq/mime_actor/commit/d4d46dff19cf878fb80c29e1ebbd8f1ea4105b20)) - Ryan Chang
-- ensure block is passed when calling dispatch_cue ([#13](/issues/13)) - ([e5e2650](https://github.com/ryancyq/mime_actor/commit/e5e2650efb4a0bb4cecce9698af3109940013c91)) - Ryan Chang
+- ensure block is passed when calling dispatch_cue ([#13](https://github.com/ryancyq/mime_actor/issues/13)) - ([e5e2650](https://github.com/ryancyq/mime_actor/commit/e5e2650efb4a0bb4cecce9698af3109940013c91)) - Ryan Chang
 
 ### Documentation
 
@@ -485,7 +485,7 @@ All notable changes to this project will be documented in this file. See [conven
 - add COMPARE.md to show before/after using MimeActor - ([f73487d](https://github.com/ryancyq/mime_actor/commit/f73487d7ef45041900e24c0631f70265bd8d38f6)) - Ryan Chang
 - add rubydoc link in README - ([34c6d2a](https://github.com/ryancyq/mime_actor/commit/34c6d2a4dcdca7f0587511cf1fab45c0220a10c1)) - Ryan Chang
 - add rdoc documentation in code - ([2ee6586](https://github.com/ryancyq/mime_actor/commit/2ee6586fe4be0f02faef03fbf8942bc77ba76403)) - Ryan Chang
-- update class/methods with rdoc compatible comments ([#14](/issues/14)) - ([d6e875e](https://github.com/ryancyq/mime_actor/commit/d6e875e637afb4f3a59b0d5ef853defb45b1735b)) - Ryan Chang
+- update class/methods with rdoc compatible comments ([#14](https://github.com/ryancyq/mime_actor/issues/14)) - ([d6e875e](https://github.com/ryancyq/mime_actor/commit/d6e875e637afb4f3a59b0d5ef853defb45b1735b)) - Ryan Chang
 
 ---
 ## [0.5.1](https://github.com/ryancyq/mime_actor/compare/v0.4.0..v0.5.1) - 2024-06-28
@@ -493,7 +493,7 @@ All notable changes to this project will be documented in this file. See [conven
 ### Bug Fixes
 
 - refine logging message to be clearer in context - ([863fc6d](https://github.com/ryancyq/mime_actor/commit/863fc6d50aa4550133cedc08961e229db23a9571)) - Ryan Chang
-- refine logging message to be clearer in context ([#10](/issues/10)) - ([64aaf6d](https://github.com/ryancyq/mime_actor/commit/64aaf6d6641386239bbfb41e39bda87cd9a0b3d4)) - Ryan Chang
+- refine logging message to be clearer in context ([#10](https://github.com/ryancyq/mime_actor/issues/10)) - ([64aaf6d](https://github.com/ryancyq/mime_actor/commit/64aaf6d6641386239bbfb41e39bda87cd9a0b3d4)) - Ryan Chang
 
 ### Documentation
 
@@ -510,15 +510,15 @@ All notable changes to this project will be documented in this file. See [conven
 - fix mime_actor autoload test - ([18f9da9](https://github.com/ryancyq/mime_actor/commit/18f9da97c5355a8004a8b1aa56ef8af17a646298)) - Ryan Chang
 - add test for cue_actor when actor method not defined - ([e0acb94](https://github.com/ryancyq/mime_actor/commit/e0acb942f66f6614340a48a7c56f7a03f1cc7bb3)) - Ryan Chang
 - add non class/string error filter to rescue tests - ([56aecf8](https://github.com/ryancyq/mime_actor/commit/56aecf8f32d3bf2e4c5e2522e985e06de08c219d)) - Ryan Chang
-- improve coverage ([#6](/issues/6)) - ([ab2decc](https://github.com/ryancyq/mime_actor/commit/ab2decce2ff2a5623e24e7d3a449dfd79f0316e6)) - Ryan Chang
+- improve coverage ([#6](https://github.com/ryancyq/mime_actor/issues/6)) - ([ab2decc](https://github.com/ryancyq/mime_actor/commit/ab2decce2ff2a5623e24e7d3a449dfd79f0316e6)) - Ryan Chang
 - add tests to logging module - ([6c1f9d6](https://github.com/ryancyq/mime_actor/commit/6c1f9d60f4a61728b7b41a12404b3516f6130385)) - Ryan Chang
-- add tests to logging module ([#7](/issues/7)) - ([271db39](https://github.com/ryancyq/mime_actor/commit/271db3997b3b326e6c42709c73f7964a4d32f0bb)) - Ryan Chang
+- add tests to logging module ([#7](https://github.com/ryancyq/mime_actor/issues/7)) - ([271db39](https://github.com/ryancyq/mime_actor/commit/271db3997b3b326e6c42709c73f7964a4d32f0bb)) - Ryan Chang
 - add tests around rescue handler invocation context - ([3ea7f40](https://github.com/ryancyq/mime_actor/commit/3ea7f403b9c91b8e74668a96a55df2e14c5b9e4e)) - Ryan Chang
-- add tests around rescue handler invocation context ([#8](/issues/8)) - ([6f26124](https://github.com/ryancyq/mime_actor/commit/6f26124417f0e8607369618f91b66b15a115db02)) - Ryan Chang
+- add tests around rescue handler invocation context ([#8](https://github.com/ryancyq/mime_actor/issues/8)) - ([6f26124](https://github.com/ryancyq/mime_actor/commit/6f26124417f0e8607369618f91b66b15a115db02)) - Ryan Chang
 - add tests for different type of error class - ([5603f81](https://github.com/ryancyq/mime_actor/commit/5603f8199cf7bc7fc6d559266bbd52a919284b9e)) - Ryan Chang
-- add tests for different type of error class ([#9](/issues/9)) - ([981c3cc](https://github.com/ryancyq/mime_actor/commit/981c3cc6820877dc81d667435ffc4123d9c3ae77)) - Ryan Chang
+- add tests for different type of error class ([#9](https://github.com/ryancyq/mime_actor/issues/9)) - ([981c3cc](https://github.com/ryancyq/mime_actor/commit/981c3cc6820877dc81d667435ffc4123d9c3ae77)) - Ryan Chang
 - add action controller specific test - ([dff85ea](https://github.com/ryancyq/mime_actor/commit/dff85ea808278b5b755417c803c871f588c60f03)) - Ryan Chang
-- add action controller specific test ([#11](/issues/11)) - ([d09642c](https://github.com/ryancyq/mime_actor/commit/d09642cb3fc48cd267b23941bbc88809be421fd7)) - Ryan Chang
+- add action controller specific test ([#11](https://github.com/ryancyq/mime_actor/issues/11)) - ([d09642c](https://github.com/ryancyq/mime_actor/commit/d09642cb3fc48cd267b23941bbc88809be421fd7)) - Ryan Chang
 
 ### Lib
 
