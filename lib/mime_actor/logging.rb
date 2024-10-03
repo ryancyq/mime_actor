@@ -4,7 +4,7 @@
 
 # required by active_support/tagged_logging
 require "active_support/version"
-require "active_support/isolated_execution_state" if ActiveSupport::VERSION::MAJOR >= 7
+require "active_support/isolated_execution_state" if ActiveSupport.version >= "7.0"
 
 require "active_support/concern"
 require "active_support/configurable"
@@ -22,7 +22,7 @@ module MimeActor
 
     included do
       default_logger = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new($stdout))
-      if ActiveSupport::VERSION::MAJOR >= 7
+      if ActiveSupport.version >= "7.0"
         config_accessor :logger, default: default_logger
       else
         config_accessor :logger do
