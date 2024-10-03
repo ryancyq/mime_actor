@@ -5,9 +5,9 @@
 require "mime_actor/validator"
 
 require "active_support/callbacks"
-require "active_support/code_generator"
 require "active_support/concern"
 require "active_support/core_ext/module/attr_internal"
+require "active_support/version"
 
 module MimeActor
   # # MimeActor Callbacks
@@ -32,10 +32,13 @@ module MimeActor
     include ActiveSupport::Callbacks
     include MimeActor::Validator
 
+    LIFECYCLES = %i[before after around].freeze
+
     included do
       attr_internal_reader :act_action, :act_format
       define_callbacks :act, skip_after_callbacks_if_terminated: true
-      generate_act_callback_methods
+
+      ActiveSupport.version >= "7.2" ? generate_act_callback_methods : eval_act_callback_methods
     end
 
     module ClassMethods
@@ -76,9 +79,27 @@ module MimeActor
         validate!(:format_or_formats, format) unless format.nil?
       end
 
+      def eval_act_callback_methods
+        singleton_class.module_eval(<<-RUBY, __FILE__, __LINE__ + 1)
+          # def append_act_before(*callbacks, action: nil, format: nil, &block)
+          #   validate_callback_options!(action, format)
+          #   configure_callbacks(callbacks, action, format, block) do |callback, options|
+          #     set_callback(:act, :before, callback, options.merge!(prepend: false))
+          #   end
+          # end
+          #
+          # alias_method :act_before, :append_act_before
+          #
+          #{LIFECYCLES.map { |kind| act_callback_kind_template(kind, append: true) }.join(";")}
+          #{LIFECYCLES.map { |kind| act_callback_kind_template(kind, append: false) }.join(";")}
+          #{LIFECYCLES.map { |kind| "alias_method :act_#{kind}, :append_act_#{kind}" }.join(";")}
+        RUBY
+      end
+
       def generate_act_callback_methods
+        require "active_support/code_generator"
         ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
-          %i[before after around].each do |kind|
+          LIFECYCLES.each do |kind|
             owner.define_cached_method(:"append_act_#{kind}", as: :"act_#{kind}", namespace: :mime_callbacks) do |batch|
               batch << act_callback_kind_template(kind, append: true)
             end

@@ -5,9 +5,9 @@
 require "mime_actor/errors"
 require "mime_actor/validator"
 
-require "active_support/code_generator"
 require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
+require "active_support/version"
 
 module MimeActor
   # # MimeActor Scene
@@ -100,7 +100,7 @@ module MimeActor
           end
         end
 
-        generate_action_methods(actions)
+        ActiveSupport.version >= "7.2" ? generate_action_methods(actions) : eval_action_methods(actions)
       end
 
       private
@@ -109,7 +109,26 @@ module MimeActor
         @generated_action_methods ||= Module.new.tap { |mod| prepend mod }
       end
 
+      def eval_action_methods(actions)
+        generated_action_methods.module_eval(<<-RUBY, __FILE__, __LINE__ + 1)
+          # def index
+          #   if respond_to?(:start_scene)
+          #     start_scene do
+          #       raise MimeActor::ActionNotImplemented, :index unless defined?(super)
+          #       super
+          #     end
+          #   else
+          #     raise MimeActor::ActionNotImplemented}, :index unless defined?(super)
+          #     super
+          #   end
+          # end
+          #
+          #{actions.each.map { |action| action_method_template(action) }.join(";")}
+        RUBY
+      end
+
       def generate_action_methods(actions)
+        require "active_support/code_generator"
         ActiveSupport::CodeGenerator.batch(generated_action_methods, __FILE__, __LINE__) do |owner|
           actions.each do |action|
             owner.define_cached_method(action, namespace: :mime_scene) do |batch|
