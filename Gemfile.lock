@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     mime_actor (0.7.2)
-      actionpack (~> 7.0)
-      activesupport (~> 7.0)
+      actionpack (>= 6.1)
+      activesupport (>= 6.1)
 
 GEM
   remote: https://rubygems.org/
