@@ -76,12 +76,12 @@ module MimeActor
       return if visited.include?(error)
 
       visited << error
-      rescuer = find_rescuer(error, format:, action:)
+      rescuer = find_rescuer(error, format: format, action: action)
       if (dispatch = MimeActor::Dispatcher.build(rescuer, error, format, action))
         dispatch.call(self)
         error
       elsif error&.cause
-        rescue_actor(error.cause, format:, action:, visited:)
+        rescue_actor(error.cause, format: format, action: action, visited: visited)
       end
     end
 

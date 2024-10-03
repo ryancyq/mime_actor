@@ -33,12 +33,12 @@ module MimeActor
 
     private
 
-    def fill_run_sheet(*scenes, &)
+    def fill_run_sheet(*scenes, &block)
       return yield unless logger.respond_to?(:tagged)
 
       scenes.unshift "MimeActor" unless logger.formatter.current_tags.include?("MimeActor")
 
-      logger.tagged(*scenes, &)
+      logger.tagged(*scenes, &block)
     end
   end
 end

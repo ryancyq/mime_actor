@@ -26,7 +26,9 @@ module MimeActor
       private
 
       def validate!
-        raise ArgumentError, "invalid method name: #{method_name.inspect}" unless method_name in String | Symbol
+        return if method_name.is_a?(String) || method_name.is_a?(Symbol)
+
+        raise ArgumentError, "invalid method name: #{method_name.inspect}"
       end
     end
 
@@ -47,7 +49,7 @@ module MimeActor
       private
 
       def validate!
-        raise ArgumentError, "invalid block: #{block.inspect}" unless block in Proc
+        raise ArgumentError, "invalid block: #{block.inspect}" unless block.is_a?(Proc)
       end
     end
 
