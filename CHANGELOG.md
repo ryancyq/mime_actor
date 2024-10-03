@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. See [conven
 
 - use deprecation assertion method from gem - ([c896fe1](https://github.com/ryancyq/mime_actor/commit/c896fe17a47e059db94f8c2ae0f6a46fb652782b)) - Ryan Chang
 - update error message assertion across ruby versions - ([3e12cbd](https://github.com/ryancyq/mime_actor/commit/3e12cbd212d8fb83e8d3f2481b33ffdd3daf935a)) - Ryan Chang
+- update method#inspect string for ruby >2.5 <3.1 - ([ef04198](https://github.com/ryancyq/mime_actor/commit/ef0419836bf3bfdc7de542c0f299522f0dd423f1)) - Ryan Chang
 
 ### Lib
 
@@ -20,6 +21,8 @@ All notable changes to this project will be documented in this file. See [conven
 - relax ruby >= 2.5 and rails >= 6.1 ([#83](/issues/83)) - ([70b4232](https://github.com/ryancyq/mime_actor/commit/70b4232a13512d34b4f161c4ab75e52af45fa14a)) - Ryan Chang
 - relax rubocop version - ([f80bfc7](https://github.com/ryancyq/mime_actor/commit/f80bfc745ff6f969fc56043963a221e928d7c183)) - Ryan Chang
 - bump rspec-activesupport to 0.2.0 - ([0a8436f](https://github.com/ryancyq/mime_actor/commit/0a8436fe55aeb2152c848464e8012342f8713955)) - Ryan Chang
+- fallback to ruby 2.5 syntax for anonymous block arguments forwarding, value omission in hash literals - ([374286e](https://github.com/ryancyq/mime_actor/commit/374286e418d06bdc0f253847ee69490a61825ada)) - Ryan Chang
+- use backward compatible APIs for older rubies ([#87](/issues/87)) - ([8ca713a](https://github.com/ryancyq/mime_actor/commit/8ca713a4a9fabed97686d7765283d867b8d606aa)) - Ryan Chang
 
 ---
 ## [0.7.2](https://github.com/ryancyq/mime_actor/compare/v0.7.1..v0.7.2) - 2024-08-18
