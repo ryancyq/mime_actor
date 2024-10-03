@@ -10,7 +10,8 @@ RSpec.describe EventsController do
     {
       "REQUEST_METHOD" => request_method,
       "HTTP_ACCEPT"    => request_accept,
-      "QUERY_STRING"   => request_params
+      "QUERY_STRING"   => request_params,
+      "rack.input"     => "" # required for ActionPack <= 7.0
     }
   end
   let(:action_request) { ActionDispatch::Request.new(env) }
@@ -38,7 +39,7 @@ RSpec.describe EventsController do
           it "responds" do
             expect(dispatch).to contain_exactly(
               options.dig(:status, mime) || 200,
-              a_hash_including("content-type" => %r{#{mime}}),
+              a_hash_including(%r{content-type}i => %r{#{mime}}),
               kind_of(ActionDispatch::Response::RackBody)
             )
           end
@@ -60,7 +61,7 @@ RSpec.describe EventsController do
         it "responds bad request" do
           expect(dispatch).to contain_exactly(
             400,
-            a_hash_including("content-type" => %r{json}),
+            a_hash_including(%r{content-type}i => %r{json}),
             kind_of(ActionDispatch::Response::RackBody)
           )
         end
@@ -72,7 +73,7 @@ RSpec.describe EventsController do
         it "responds" do
           expect(dispatch).to contain_exactly(
             302,
-            a_hash_including("content-type" => %r{html}),
+            a_hash_including(%r{content-type}i => %r{html}),
             kind_of(ActionDispatch::Response::RackBody)
           )
         end
