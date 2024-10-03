@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file. See [conven
 ---
 ## [Unreleased](https://github.com/ryancyq/mime_actor/tree/HEAD)
 
+### Bug Fixes
+
+- mock rack.input for ActionPack <= 7.0 - ([ff32b86](https://github.com/ryancyq/mime_actor/commit/ff32b8699723a01a87e851801f657f6dbdac1704)) - Ryan Chang
+- older rails will title case HTTP headers, so change to case insensitive comparison - ([b3ff416](https://github.com/ryancyq/mime_actor/commit/b3ff4167df2fed3af79701c460645a0158d24177)) - Ryan Chang
+
 ### Tests
 
 - use deprecation assertion method from gem - ([c896fe1](https://github.com/ryancyq/mime_actor/commit/c896fe17a47e059db94f8c2ae0f6a46fb652782b)) - Ryan Chang
@@ -23,6 +28,13 @@ All notable changes to this project will be documented in this file. See [conven
 - bump rspec-activesupport to 0.2.0 - ([0a8436f](https://github.com/ryancyq/mime_actor/commit/0a8436fe55aeb2152c848464e8012342f8713955)) - Ryan Chang
 - fallback to ruby 2.5 syntax for anonymous block arguments forwarding, value omission in hash literals - ([374286e](https://github.com/ryancyq/mime_actor/commit/374286e418d06bdc0f253847ee69490a61825ada)) - Ryan Chang
 - use backward compatible APIs for older rubies ([#87](/issues/87)) - ([8ca713a](https://github.com/ryancyq/mime_actor/commit/8ca713a4a9fabed97686d7765283d867b8d606aa)) - Ryan Chang
+- use activesupport code generator only when >= 7.2 - ([95f9b41](https://github.com/ryancyq/mime_actor/commit/95f9b41de3107b685a1cd771061b209b79d21071)) - Ryan Chang
+- use ActiveSupport.version string for backward compatibility check - ([b5b69cb](https://github.com/ryancyq/mime_actor/commit/b5b69cb0ceaecebe2ce4ab6db3714d6db5b0dc26)) - Ryan Chang
+- Rails.application.deprecators only added for ActiveSupport >= 7.1 - ([47a0096](https://github.com/ryancyq/mime_actor/commit/47a00965b399e7cb38f9bbfce86ee304b929691c)) - Ryan Chang
+- guard rails for #then for ruby >= 2.6 - ([cacf07f](https://github.com/ryancyq/mime_actor/commit/cacf07ff84be8a872674a6d08c274b2e8bc64383)) - Ryan Chang
+- use backward compatible APIs for older rails ([#88](/issues/88)) - ([7908644](https://github.com/ryancyq/mime_actor/commit/79086445b530c3cf9ced91ee107d01ec783961ec)) - Ryan Chang
+- use appraisal gem to generate Gemfile for different rails version - ([19c224c](https://github.com/ryancyq/mime_actor/commit/19c224c9f568a6f0570b88f35a228116c93cd1d2)) - Ryan Chang
+- use appraisal gem to generate Gemfile for different rails version ([#86](/issues/86)) - ([9279d6e](https://github.com/ryancyq/mime_actor/commit/9279d6e38efb7fddf04a4b013e80fef3fe916198)) - Ryan Chang
 
 ---
 ## [0.7.2](https://github.com/ryancyq/mime_actor/compare/v0.7.1..v0.7.2) - 2024-08-18
