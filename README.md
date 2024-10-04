@@ -190,9 +190,9 @@ You can find the documentation on [RubyDoc][doc_mime_actor].
 
 ## Requirements
 
-- Ruby: MRI 3.1+
-- ActiveSupport: 7.0+
-- ActionPack: 7.0+
+- Ruby: MRI 2.5+
+- ActiveSupport: 6.1+
+- ActionPack: 6.1+
 
 ## Installation
 
