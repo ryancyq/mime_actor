@@ -18,8 +18,7 @@ RSpec.describe ActionController::Metal do
   let(:env) do
     {
       "REQUEST_METHOD" => "POST",
-      "HTTP_ACCEPT"    => "application/json,application/xml",
-      "rack.input"     => "" # required for ActionPack <= 7.0
+      "HTTP_ACCEPT"    => "application/json,application/xml"
     }
   end
   let(:act_action) { :new }
@@ -28,6 +27,7 @@ RSpec.describe ActionController::Metal do
 
   before do
     controller_class.config.logger = stub_logger
+    env["rack.input"] = "" if ActionPack.version < "7.1"
   end
 
   describe "when actor method is defined" do
