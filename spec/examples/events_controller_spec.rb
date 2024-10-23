@@ -10,8 +10,7 @@ RSpec.describe EventsController do
     {
       "REQUEST_METHOD" => request_method,
       "HTTP_ACCEPT"    => request_accept,
-      "QUERY_STRING"   => request_params,
-      "rack.input"     => "" # required for ActionPack <= 7.0
+      "QUERY_STRING"   => request_params
     }
   end
   let(:action_request) { ActionDispatch::Request.new(env) }
@@ -20,6 +19,7 @@ RSpec.describe EventsController do
 
   before do
     described_class.config.logger = stub_logger
+    env["rack.input"] = "" if ActionPack.version < "7.1"
   end
 
   {
