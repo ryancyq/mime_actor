@@ -14,6 +14,7 @@ group :development, :test do
   gem "rspec-activesupport", "~> 0.1"
   gem "simplecov", "~> 0.22.0", require: false
   gem "simplecov-cobertura", require: false
+  gem "webrick", ">= 1.8.2"
 end
 
 group :development do

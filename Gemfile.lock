@@ -242,7 +242,7 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
     useragent (0.16.10)
-    webrick (1.8.1)
+    webrick (1.8.2)
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -270,6 +270,7 @@ DEPENDENCIES
   rubocop-rspec
   simplecov (~> 0.22.0)
   simplecov-cobertura
+  webrick (>= 1.8.2)
 
 BUNDLED WITH
    2.5.14
