@@ -1,0 +1,63 @@
+name: Check Gemfiles
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Gemfile
+      - Gemfile.lock
+      - gemfiles/*
+  pull_request:
+    branches: [main]
+    paths:
+      - Gemfile
+      - Gemfile.lock
+      - gemfiles/*
+
+jobs:
+  gemfile:
+    runs-on: ubuntu-latest
+    env:
+      path: Gemfile{,.lock}
+    timeout-minutes: 3
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3"
+
+      - run: bundle install
+      - run: bundle exec rubocop -A
+
+      - name: Compare Gemfile
+        run: |
+          if [ "$(git diff --text ${{env.path}}/ | wc -l)" -gt "0" ]; then
+            echo "Gemfiles outdated. See status below:"
+            git diff --text ${{env.path}}
+            exit 1
+          fi
+        
+  gemfiles:
+    runs-on: ubuntu-latest
+    env:
+      path: gemfiles/*.gemfile{,.lock}
+    timeout-minutes: 3
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3"
+
+      - run: bundle install
+      - run: bundle exec appraisal install
+      - run: bundle exec rubocop -A
+
+      - name: Compare Gemfiles
+        run: |
+          if [ "$(git diff --text ${{env.path}}/ | wc -l)" -gt "0" ]; then
+            echo "Gemfiles outdated. See status below:"
+            git diff --text ${{env.path}}
+            exit 1
+          fi
