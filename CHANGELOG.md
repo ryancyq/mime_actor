@@ -16,6 +16,11 @@ All notable changes to this project will be documented in this file. See [conven
 - include rack.input env only for actionpack < 7.1 - ([d11944b](https://github.com/ryancyq/mime_actor/commit/d11944b657d8e0008f34dd40ac84ad11d14a0284)) - Ryan Chang
 - rails edge rack input env ([#91](https://github.com/ryancyq/mime_actor/issues/91)) - ([8293b02](https://github.com/ryancyq/mime_actor/commit/8293b02ead3ef0227f4386de018c7c4dc59fd7af)) - Ryan Chang
 
+### Lib
+
+- bump webrick >= 1.8.2 - ([eab7b38](https://github.com/ryancyq/mime_actor/commit/eab7b3856b0def6dd897de5568587a3ad753839a)) - Ryan Chang
+- bump webrick >= 1.8.2 ([#95](https://github.com/ryancyq/mime_actor/issues/95)) - ([9cc0e93](https://github.com/ryancyq/mime_actor/commit/9cc0e934c5cb64cee1ab3eedad2cd32e11c117de)) - Ryan Chang
+
 ---
 ## [1.0.0](https://github.com/ryancyq/mime_actor/compare/v0.7.2..v1.0.0) - 2024-10-03
 
