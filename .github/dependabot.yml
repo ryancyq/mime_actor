@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "bundler"
     directories:
       - "/"
-      - "gemfiles/"
+      - "gemfiles/*"
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
