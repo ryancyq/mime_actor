@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    mime_actor (0.7.2)
+    mime_actor (1.0.0)
       actionpack (>= 6.1)
       activesupport (>= 6.1)
 
