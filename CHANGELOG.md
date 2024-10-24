@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file. See [conven
 ---
 ## [Unreleased](https://github.com/ryancyq/mime_actor/tree/HEAD)
 
+### Bug Fixes
+
+- update mime_actor version for other rails versions - ([f78c0d2](https://github.com/ryancyq/mime_actor/commit/f78c0d2de653ea46e13ea4c216b9ae951b339d50)) - Ryan Chang
+- update gemfiles for other rails versions - ([c572e7f](https://github.com/ryancyq/mime_actor/commit/c572e7fd1944f78ba5babdbfa55cca8dc261f873)) - Ryan Chang
+- update gemfiles for other rails versions ([#93](https://github.com/ryancyq/mime_actor/issues/93)) - ([f4074ea](https://github.com/ryancyq/mime_actor/commit/f4074ea62d9d3c16cc7a5886243f5ff2a308a4d6)) - Ryan Chang
+
 ### Tests
 
 - include rack.input env only for actionpack < 7.1 - ([d11944b](https://github.com/ryancyq/mime_actor/commit/d11944b657d8e0008f34dd40ac84ad11d14a0284)) - Ryan Chang
