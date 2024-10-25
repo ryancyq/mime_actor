@@ -1,13 +1,16 @@
 name: Release New Version
 
 on:
-  push:
+  workflow_run: # only runs on default branch
+    workflows: [CI]
+    types: [completed]
     branches: [main]
     paths: ["lib/mime_actor/version.rb"]
 
 jobs:
   rubygems:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: write
       id-token: write
@@ -21,7 +24,5 @@ jobs:
         with:
           ruby-version: "3"
           bundler-cache: true
-
-      - run: bundle exec rake spec
 
       - uses: ryancyq/bundle-release-gem@v1
