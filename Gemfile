@@ -10,6 +10,7 @@ gem "activesupport", "~> 7.2", ">= 7.2.1.1"
 group :development, :test do
   gem "rails", "~> 7.2", ">= 7.2.1.1"
   gem "rake", ">= 11.0"
+  gem "rexml", ">= 3.3.9"
   gem "rspec", "~> 3.12"
   gem "rspec-activesupport", "~> 0.1"
   gem "simplecov", "~> 0.22.0", require: false
