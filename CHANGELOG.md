@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file. See [conven
 - bump webrick >= 1.8.2 ([#95](https://github.com/ryancyq/mime_actor/issues/95)) - ([9cc0e93](https://github.com/ryancyq/mime_actor/commit/9cc0e934c5cb64cee1ab3eedad2cd32e11c117de)) - Ryan Chang
 - bumps rails and related gems to >= 7.2.1.1 - ([4738411](https://github.com/ryancyq/mime_actor/commit/47384113cf15aaca551c1e15c05f3f9293aa01a2)) - Ryan Chang
 - bumps rails and related gems to >= 7.2.1.1 ([#96](https://github.com/ryancyq/mime_actor/issues/96)) - ([ba1271f](https://github.com/ryancyq/mime_actor/commit/ba1271f57febc5742c4d0da2777702ffd343c26f)) - Ryan Chang
+- bump rexml >= 3.3.9 ([#97](https://github.com/ryancyq/mime_actor/issues/97)) - ([ebb49ee](https://github.com/ryancyq/mime_actor/commit/ebb49ee3917b2d3a7f64a9b25689faf3f917d971)) - Ryan Chang
 
 ---
 ## [1.0.0](https://github.com/ryancyq/mime_actor/compare/v0.7.2..v1.0.0) - 2024-10-03
