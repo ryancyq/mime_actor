@@ -233,6 +233,7 @@ DEPENDENCIES
   mime_actor!
   rails (~> 7.0.0)
   rake (>= 11.0)
+  rexml (>= 3.3.9)
   rspec (~> 3.12)
   rspec-activesupport (~> 0.1)
   rubocop (>= 1.28.2)
