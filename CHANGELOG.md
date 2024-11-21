@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file. See [conven
 - update mime_actor version for other rails versions - ([f78c0d2](https://github.com/ryancyq/mime_actor/commit/f78c0d2de653ea46e13ea4c216b9ae951b339d50)) - Ryan Chang
 - update gemfiles for other rails versions - ([c572e7f](https://github.com/ryancyq/mime_actor/commit/c572e7fd1944f78ba5babdbfa55cca8dc261f873)) - Ryan Chang
 - update gemfiles for other rails versions ([#93](https://github.com/ryancyq/mime_actor/issues/93)) - ([f4074ea](https://github.com/ryancyq/mime_actor/commit/f4074ea62d9d3c16cc7a5886243f5ff2a308a4d6)) - Ryan Chang
+- avoid duplicate loop on actions when evaluating action methods - ([ea2af64](https://github.com/ryancyq/mime_actor/commit/ea2af64843599bf2c4d53971ce992b51928cbba8)) - Ryan Chang
+- avoid duplicate loop on actions when evaluating action methods ([#100](https://github.com/ryancyq/mime_actor/issues/100)) - ([dc27dd8](https://github.com/ryancyq/mime_actor/commit/dc27dd8bb21375cd95790c66f4f4e8da8431e4a9)) - Ryan Chang
 
 ### Tests
 
