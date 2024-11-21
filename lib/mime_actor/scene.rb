@@ -123,7 +123,7 @@ module MimeActor
           #   end
           # end
           #
-          #{actions.each.map { |action| action_method_template(action) }.join(";")}
+          #{actions.map { |action| action_method_template(action) }.join(";")}
         RUBY
       end
 
