@@ -4,11 +4,11 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "actionpack", "~> 7.2", ">= 7.2.1.1"
-gem "activesupport", "~> 7.2", ">= 7.2.1.1"
+gem "actionpack", "~> 8.0"
+gem "activesupport", "~> 8.0"
 
 group :development, :test do
-  gem "rails", "~> 7.2", ">= 7.2.1.1"
+  gem "rails", "~> 8.0"
   gem "rake", ">= 11.0"
   gem "rexml", ">= 3.3.9"
   gem "rspec", "~> 3.12"
