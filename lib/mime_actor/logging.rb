@@ -2,8 +2,10 @@
 
 # :markup: markdown
 
-# required by active_support/tagged_logging
 require "active_support/version"
+# required by active_support/logger
+require "logger" if ActiveSupport.version < "7.1"
+# required by active_support/tagged_logging
 require "active_support/isolated_execution_state" if ActiveSupport.version >= "7.0"
 
 require "active_support/concern"
