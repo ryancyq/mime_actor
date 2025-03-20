@@ -2,6 +2,10 @@
 
 require "mime_actor/action"
 
+require "active_support/version"
+# required by active_support/logger
+require "logger" if ActiveSupport.version < "7.1"
+
 require "active_support/logger"
 require "active_support/tagged_logging"
 
