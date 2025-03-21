@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file. See [conven
 - avoid duplicate loop on actions when evaluating action methods ([#100](https://github.com/ryancyq/mime_actor/issues/100)) - ([dc27dd8](https://github.com/ryancyq/mime_actor/commit/dc27dd8bb21375cd95790c66f4f4e8da8431e4a9)) - Ryan Chang
 - rails < 7.1 issue with active support logger require - ([64c59ed](https://github.com/ryancyq/mime_actor/commit/64c59ed1eceb6b45e2111366cf790459e21b7ba6)) - Ryan Chang
 
+### Features
+
+- bump to rails 8.0 - ([770baf1](https://github.com/ryancyq/mime_actor/commit/770baf1d8e2ad5e17eb8926c6c6d8ebed73d4900)) - Ryan Chang
+
 ### Tests
 
 - include rack.input env only for actionpack < 7.1 - ([d11944b](https://github.com/ryancyq/mime_actor/commit/d11944b657d8e0008f34dd40ac84ad11d14a0284)) - Ryan Chang
@@ -26,6 +30,8 @@ All notable changes to this project will be documented in this file. See [conven
 - bumps rails and related gems to >= 7.2.1.1 - ([4738411](https://github.com/ryancyq/mime_actor/commit/47384113cf15aaca551c1e15c05f3f9293aa01a2)) - Ryan Chang
 - bumps rails and related gems to >= 7.2.1.1 ([#96](https://github.com/ryancyq/mime_actor/issues/96)) - ([ba1271f](https://github.com/ryancyq/mime_actor/commit/ba1271f57febc5742c4d0da2777702ffd343c26f)) - Ryan Chang
 - bump rexml >= 3.3.9 ([#97](https://github.com/ryancyq/mime_actor/issues/97)) - ([ebb49ee](https://github.com/ryancyq/mime_actor/commit/ebb49ee3917b2d3a7f64a9b25689faf3f917d971)) - Ryan Chang
+- upgrade via appraisals - ([38a421c](https://github.com/ryancyq/mime_actor/commit/38a421c03b701af8f2e9d4d857ca4baf313a3fa1)) - Ryan Chang
+- add support to rails 8.0 ([#101](https://github.com/ryancyq/mime_actor/issues/101)) - ([621be40](https://github.com/ryancyq/mime_actor/commit/621be40239c905662505b19c763186b2b7fb9b49)) - Ryan Chang
 
 ---
 ## [1.0.0](https://github.com/ryancyq/mime_actor/compare/v0.7.2..v1.0.0) - 2024-10-03
