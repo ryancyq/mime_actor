@@ -29,6 +29,7 @@ jobs:
           - "7.0"
           - "7.1"
           - "7.2"
+          - "8.0"
         include:
           - ruby-version: "2.5"
             rails-version: "6.1"
@@ -41,11 +42,18 @@ jobs:
           - ruby-version: "head"
             rails-version: "edge"
         exclude:
-          # ruby >= 3.2 for rails >= 7.2
+          # ruby >= 3.1 for rails >= 7.2
           - ruby-version: "2.7"
             rails-version: "7.2"
           - ruby-version: "3.0"
             rails-version: "7.2"
+          # ruby >= 3.2 for rails >= 8.0
+          - ruby-version: "2.7"
+            rails-version: "8.0"
+          - ruby-version: "3.0"
+            rails-version: "8.0"
+          - ruby-version: "3.1"
+            rails-version: "8.0"
 
           # mutex_m dropped from ruby >= 3.4, rails >= 7.2
           - ruby-version: "3.4"
