@@ -168,4 +168,19 @@ RSpec.describe MimeActor::Scene do
       end
     end
   end
+
+  describe "format registered after inclusion" do
+    before do
+      klazz # include before the MIME type exists
+      Mime::Type.register "application/x-mime-actor-late", :mime_actor_late
+    end
+
+    after { Mime::Type.unregister :mime_actor_late }
+
+    it "accepts the format" do
+      expect { klazz.act_on_action :create, format: :mime_actor_late }.not_to raise_error
+      expect { klazz.act_on_action :index, format: %i[html mime_actor_late] }.not_to raise_error
+      expect(klazz.acting_scenes).to include(create: { mime_actor_late: nil })
+    end
+  end
 end

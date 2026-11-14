@@ -68,7 +68,7 @@ module MimeActor
       def validate_format(unchecked)
         return TypeError.new("format must be a Symbol") unless unchecked.is_a?(Symbol)
 
-        NameError.new("invalid format, got: #{unchecked.inspect}") unless scene_formats.include?(unchecked)
+        NameError.new("invalid format, got: #{unchecked.inspect}") unless supported_format?(unchecked)
       end
 
       # Validate `formats` must be an collection of Symbol which each of them is a valid MIME type
@@ -77,9 +77,7 @@ module MimeActor
       def validate_formats(unchecked)
         return TypeError.new("formats must not be empty") if unchecked.empty?
 
-        unfiltered = unchecked.to_set
-        filtered = unfiltered & scene_formats
-        rejected = unfiltered - filtered
+        rejected = unchecked.to_set.reject { |format| supported_format?(format) }
 
         NameError.new("invalid formats, got: #{rejected.map(&:inspect).join(", ")}") if rejected.size.positive?
       end
@@ -107,6 +105,14 @@ module MimeActor
         return if unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
 
         TypeError.new("#{unchecked.inspect} must be a Symbol or Proc")
+      end
+
+      private
+
+      # `scene_formats` is captured when the module is included,
+      # also accept MIME types registered afterwards (e.g. in an initializer)
+      def supported_format?(format)
+        scene_formats.include?(format) || Mime::SET.symbols.include?(format)
       end
     end
   end
