@@ -1,0 +1,39 @@
+# Rails / Ruby test matrix, shared by ci.yml and coverage.yml (read with yq).
+#
+# Base: active rails × compatible rubies (no excludes needed)
+ruby-version:
+  - "3.3"
+  - "3.4"
+  - "4.0"
+  - "head"
+rails-version:
+  - "7.2" # Ruby >= 3.1
+  - "8.0" # Ruby >= 3.2
+  - "8.1" # Ruby >= 3.2
+  - "edge" # Ruby >= 3.3.5, advisory (continue-on-error)
+include:
+  # Rails 7.2 also supports Ruby 3.1 (min for that release)
+  - { rails-version: "7.2", ruby-version: "3.1" }
+  # Ruby 3.2 (min for rails 8.0 and 8.1)
+  - { rails-version: "7.2", ruby-version: "3.2" }
+  - { rails-version: "8.0", ruby-version: "3.2" }
+  - { rails-version: "8.1", ruby-version: "3.2" }
+  # EOL rails, gemspec supports >= 6.1 with Ruby >= 2.5
+  # mutex_m dropped from ruby >= 3.4, required by rails < 7.2
+  - { rails-version: "6.1", ruby-version: "2.5" }
+  - { rails-version: "6.1", ruby-version: "2.6" }
+  - { rails-version: "6.1", ruby-version: "2.7" }
+  - { rails-version: "6.1", ruby-version: "3.0" }
+  - { rails-version: "6.1", ruby-version: "3.1" }
+  - { rails-version: "6.1", ruby-version: "3.2" }
+  - { rails-version: "6.1", ruby-version: "3.3" }
+  - { rails-version: "7.0", ruby-version: "2.7" }
+  - { rails-version: "7.0", ruby-version: "3.0" }
+  - { rails-version: "7.0", ruby-version: "3.1" }
+  - { rails-version: "7.0", ruby-version: "3.2" }
+  - { rails-version: "7.0", ruby-version: "3.3" }
+  - { rails-version: "7.1", ruby-version: "2.7" }
+  - { rails-version: "7.1", ruby-version: "3.0" }
+  - { rails-version: "7.1", ruby-version: "3.1" }
+  - { rails-version: "7.1", ruby-version: "3.2" }
+  - { rails-version: "7.1", ruby-version: "3.3" }
