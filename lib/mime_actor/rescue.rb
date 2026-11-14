@@ -6,7 +6,7 @@ require "mime_actor/dispatcher"
 require "mime_actor/validator"
 
 require "active_support/concern"
-require "active_support/core_ext/module/attribute_accessors"
+require "active_support/core_ext/class/attribute"
 require "active_support/core_ext/string/inflections"
 
 module MimeActor
@@ -23,7 +23,7 @@ module MimeActor
     include Validator
 
     included do
-      mattr_accessor :actor_rescuers, instance_writer: false, default: []
+      class_attribute :actor_rescuers, instance_writer: false, instance_predicate: false, default: []
     end
 
     module ClassMethods
@@ -53,13 +53,15 @@ module MimeActor
         validate!(:action_or_actions, action) unless action.nil?
         validate!(:format_or_formats, format) unless format.nil?
 
-        klazzes.each do |klazz|
+        rescuers = klazzes.map do |klazz|
           validate!(:klazz, klazz)
           error = klazz.is_a?(Module) ? klazz.name : klazz
-
-          # append at the end because strategies are read in reverse.
-          actor_rescuers << [error, format, action, with]
+          [error, format, action, with]
         end
+
+        # append at the end because strategies are read in reverse.
+        # copy-on-write, registrations must not leak into the parent class or sibling classes
+        self.actor_rescuers += rescuers
       end
     end
 

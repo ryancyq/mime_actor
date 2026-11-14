@@ -6,7 +6,7 @@ require "mime_actor/errors"
 require "mime_actor/validator"
 
 require "active_support/concern"
-require "active_support/core_ext/module/attribute_accessors"
+require "active_support/core_ext/class/attribute"
 require "active_support/version"
 
 module MimeActor
@@ -39,7 +39,7 @@ module MimeActor
     include Validator
 
     included do
-      mattr_accessor :acting_scenes, instance_writer: false, default: {}
+      class_attribute :acting_scenes, instance_writer: false, instance_predicate: false, default: {}
     end
 
     module ClassMethods
@@ -93,17 +93,24 @@ module MimeActor
         validate!(:callable, with) unless with.nil?
         with = block if block_given?
 
-        actions.each do |action|
-          acting_scenes[action] ||= {}
-          Array(format).each do |action_format|
-            acting_scenes[action][action_format] = with
-          end
-        end
-
+        register_acting_scenes(actions, format, with)
         ActiveSupport.version >= "7.2" ? generate_action_methods(actions) : eval_action_methods(actions)
       end
 
       private
+
+      # copy-on-write, registrations must not leak into the parent class or sibling classes
+      def register_acting_scenes(actions, format, with)
+        scenes = acting_scenes.dup
+        actions.each do |action|
+          action_formats = scenes.fetch(action, {}).dup
+          Array(format).each do |action_format|
+            action_formats[action_format] = with
+          end
+          scenes[action] = action_formats
+        end
+        self.acting_scenes = scenes
+      end
 
       def generated_action_methods
         @generated_action_methods ||= Module.new.tap { |mod| prepend mod }
