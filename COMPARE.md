@@ -77,7 +77,7 @@ class EventsController < ActionController::Base
 
   act_before -> { @events = Event.all }, action: :index
 
-  # dynamically defines the action method according to on: argument
+  # dynamically defines the action method for the given actions
   act_on_action :index, format: %i[html json]
 
   act_after :render_index_html, action: :index, format: :html
@@ -157,7 +157,7 @@ class EventsController < ActionController::Base
   rescue_act_from ActiveRecord::RecordNotFound, format: :html, action: :show do
     redirect_to events_path
   end
-  rescue_act_from ActiveRecord::RecrodNotSaved, format: :html, action: :update, with: -> { render :edit }
+  rescue_act_from ActiveRecord::RecordNotSaved, format: :html, action: :update, with: -> { render :edit }
 
   def show
     # ...

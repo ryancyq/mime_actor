@@ -27,7 +27,7 @@ module MimeActor
   #   act_on_action :index, format: :html, with: -> { render html: "<h1>my header</h1>" }
   #
   # @example register a `html` format on action `index` with respond handler block
-  #   act_on_action :html, on: :index do
+  #   act_on_action :index, format: :html do
   #     render :index
   #   end
   #
@@ -76,7 +76,7 @@ module MimeActor
       #   # the handler Proc will be called by the action method.
       #   def index; end
       # @example register a `html` format on action `index` with respond handler block
-      #   act_on_action :html, on: :index do
+      #   act_on_action :index, format: :html do
       #     render :index
       #   end
       #
