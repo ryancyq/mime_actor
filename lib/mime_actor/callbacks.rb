@@ -184,13 +184,20 @@ module MimeActor
     #   # - my_act_after_two
     #   # - my_act_after_one
     #
+    # NOTE: when nested, the enclosing `act_action`/`act_format` are restored once the inner act returns.
+    # The outermost act keeps its `act_action`/`act_format` readable after returning.
     def run_act_callbacks(action:, format:)
+      enclosing_act = [@_act_action, @_act_format] if @_act_depth.to_i.positive?
+      @_act_depth = @_act_depth.to_i + 1
       @_act_action = action.to_sym
       @_act_format = format.to_sym
 
       run_callbacks :act do
         yield if block_given?
       end
+    ensure
+      @_act_depth -= 1
+      @_act_action, @_act_format = enclosing_act if enclosing_act
     end
   end
 end
