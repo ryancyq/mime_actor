@@ -53,7 +53,7 @@ module MimeActor
       formats = acting_scenes.fetch(action, {})
 
       if formats.empty?
-        logger.warn { "no format found for action: #{action_name.inspect}" }
+        logger&.warn { "no format found for action: #{action_name.inspect}" }
         yield if block_given?
       else
         begin
@@ -73,7 +73,7 @@ module MimeActor
         formats.each do |format, actor|
           callable = actor.presence || block
           if callable.nil?
-            logger.warn { "no #respond_to handler found for action: #{action.inspect} format: #{format.inspect}" }
+            logger&.warn { "no #respond_to handler found for action: #{action.inspect} format: #{format.inspect}" }
             next
           end
 

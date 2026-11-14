@@ -45,7 +45,7 @@ module MimeActor
         block_given? ? yield(result) : result
       end
     rescue MimeActor::ActorNotFound => e
-      logger.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error
+      logger&.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error
       raise e if raise_on_actor_error
     rescue StandardError => e
       rescued = rescue_actor(e, action: action, format: format)
