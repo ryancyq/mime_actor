@@ -84,4 +84,29 @@ RSpec.describe MimeActor::Action do
       expect(base_class.raise_on_actor_error).to be false
     end
   end
+
+  describe "action declared on both parent and child" do
+    let(:events) { [] }
+
+    before do
+      recorded = events
+      base_class.act_before { recorded << "act_before:#{act_action}/#{act_format}" }
+      base_class.act_on_action :create, format: :html
+      base_class.define_method(:create) do
+        recorded << "body"
+        head :ok
+      end
+      html_child.act_on_action :create, format: %i[html json]
+    end
+
+    it "runs the scene once" do
+      expect(dispatch(html_child, :create, "application/json").first).to eq 200
+      expect(events).to eq ["act_before:create/json", "body"]
+    end
+
+    it "keeps the parent scene unchanged" do
+      expect { dispatch(base_class, :create, "application/json") }.to raise_error(ActionController::UnknownFormat)
+      expect(events).to be_empty
+    end
+  end
 end
