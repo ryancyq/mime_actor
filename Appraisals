@@ -10,6 +10,8 @@
   appraise "rails-#{rails_version.chomp ".0"}" do
     gem "actionpack", "~> #{rails_version}"
     gem "activesupport", "~> #{rails_version}"
+    # json >= 3 drops quirks_mode, still passed by ActiveSupport::JSON before rails 8.1
+    gem "json", "< 3"
 
     group :development, :test do
       gem "rails", "~> #{rails_version}"
