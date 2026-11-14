@@ -106,7 +106,7 @@ module MimeActor
       case class_or_name
       when String, Symbol
         begin
-          const_get(class_or_name)
+          self.class.const_get(class_or_name)
         rescue NameError
           class_or_name.safe_constantize
         end
