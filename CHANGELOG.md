@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [Unreleased](https://github.com/ryancyq/mime_actor/tree/HEAD)
+
+### Tests
+
+- set request host in events controller spec ([#111](https://github.com/ryancyq/mime_actor/issues/111)) - ([a9d1e0a](https://github.com/ryancyq/mime_actor/commit/a9d1e0a7d27fcadbfb0dffb4c3d4a76f27e6db70)) - Ryan Chang
+
+---
 ## [1.0.1](https://github.com/ryancyq/mime_actor/compare/v1.0.0..v1.0.1) - 2025-03-21
 
 ### Bug Fixes
