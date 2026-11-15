@@ -6,7 +6,6 @@ require "mime_actor/validator"
 
 require "active_support/callbacks"
 require "active_support/concern"
-require "active_support/core_ext/module/attr_internal"
 require "active_support/version"
 
 module MimeActor
@@ -34,8 +33,9 @@ module MimeActor
 
     LIFECYCLES = %i[before after around].freeze
 
+    Act = Struct.new(:action, :format)
+
     included do
-      attr_internal_reader :act_action, :act_format
       define_callbacks :act, skip_after_callbacks_if_terminated: true
 
       ActiveSupport.version >= "7.2" ? generate_act_callback_methods : eval_act_callback_methods
@@ -128,6 +128,18 @@ module MimeActor
       end
     end
 
+    # The `action` of the act being played, `nil` outside of an act.
+    def act_action
+      @_mime_actor_act&.action
+    end
+
+    # The `format` of the act being played, `nil` outside of an act.
+    def act_format
+      @_mime_actor_act&.format
+    end
+
+    private
+
     # Callbacks invocation sequence depends on the order of callback definition.
     #
     # @example callbacks with/without action filter
@@ -184,20 +196,21 @@ module MimeActor
     #   # - my_act_after_two
     #   # - my_act_after_one
     #
-    # NOTE: when nested, the enclosing `act_action`/`act_format` are restored once the inner act returns.
-    # The outermost act keeps its `act_action`/`act_format` readable after returning.
     def run_act_callbacks(action:, format:)
-      enclosing_act = [@_act_action, @_act_format] if @_act_depth.to_i.positive?
-      @_act_depth = @_act_depth.to_i + 1
-      @_act_action = action.to_sym
-      @_act_format = format.to_sym
-
-      run_callbacks :act do
-        yield if block_given?
+      play_act(action, format) do
+        run_callbacks :act do
+          yield if block_given?
+        end
       end
+    end
+
+    # Plays the block as the given act, the enclosing act is restored afterwards.
+    def play_act(action, format)
+      enclosing_act = @_mime_actor_act
+      @_mime_actor_act = Act.new(action.to_sym, format.to_sym)
+      yield
     ensure
-      @_act_depth -= 1
-      @_act_action, @_act_format = enclosing_act if enclosing_act
+      @_mime_actor_act = enclosing_act
     end
   end
 end

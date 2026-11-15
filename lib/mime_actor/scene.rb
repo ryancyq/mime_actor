@@ -2,12 +2,10 @@
 
 # :markup: markdown
 
-require "mime_actor/errors"
 require "mime_actor/validator"
 
 require "active_support/concern"
 require "active_support/core_ext/class/attribute"
-require "active_support/version"
 
 module MimeActor
   # # MimeActor Scene
@@ -53,37 +51,25 @@ module MimeActor
       # @example register a `html` format on action `create`
       #   act_on_action :create, format: :html
       #
-      #   # an action method will be defined in the class
-      #   def indexl; end
       # @example register `html`, `json` formats on actions `index`, `show`
       #   act_on_action :index, :show, format: [:html, :json]
       #
-      #   # these action methods will be defined in the class
-      #   def index; end
-      #   def show; end
       # @example register a `html` format on action `index` with respond handler method
       #   act_on_action :index, format: :html, with: :render_html
       #
-      #   # an action method will be defined in the class
-      #   # the handler method will be called by the action method.
-      #   def index; end
       #   # the given method should be defined in the class
       #   def render_html; end
+      #
       # @example register a `html` format on action `index` with respond handler Proc
       #   act_on_action :index, format: :html, with: -> { render html: "<h1>my header</h1>" }
       #
-      #   # an action method will be defined in the class,
-      #   # the handler Proc will be called by the action method.
-      #   def index; end
       # @example register a `html` format on action `index` with respond handler block
       #   act_on_action :index, format: :html do
       #     render :index
       #   end
       #
-      #   # an action method will be defined in the class
-      #   def index; end
-      #
-      # For each unique `action` being registered, a corresponding `action` method will be defined.
+      # Each `action` gets a base method, so an `action` with only respond handlers is still routable.
+      # A method defined for the `action` in the class or its ancestors takes precedence over the base method.
       def act_on_action(*actions, format:, with: nil, &block)
         raise ArgumentError, "format is required" if format.nil?
         raise ArgumentError, "provide either with: or a block" if !with.nil? && block_given?
@@ -94,7 +80,7 @@ module MimeActor
         with = block if block_given?
 
         register_acting_scenes(actions, format, with)
-        ActiveSupport.version >= "7.2" ? generate_action_methods(actions) : eval_action_methods(actions)
+        define_action_methods(actions)
       end
 
       private
@@ -112,53 +98,30 @@ module MimeActor
         self.acting_scenes = scenes.freeze
       end
 
-      def generated_action_methods
-        @generated_action_methods ||= Module.new.tap { |mod| prepend mod }
+      # included rather than prepended, a method defined in the class wins
+      def action_methods_module
+        @action_methods_module ||= Module.new.tap { |mod| include mod }
       end
 
-      def eval_action_methods(actions)
-        generated_action_methods.module_eval(<<-RUBY, __FILE__, __LINE__ + 1)
-          # def index
-          #   if respond_to?(:start_scene)
-          #     start_scene do
-          #       raise MimeActor::ActionNotImplemented, :index unless defined?(super)
-          #       super
-          #     end
-          #   else
-          #     raise MimeActor::ActionNotImplemented}, :index unless defined?(super)
-          #     super
-          #   end
-          # end
-          #
-          #{actions.map { |action| action_method_template(action) }.join(";")}
-        RUBY
-      end
+      def define_action_methods(actions)
+        actions.each do |action|
+          next if action_methods_module.method_defined?(action)
 
-      def generate_action_methods(actions)
-        require "active_support/code_generator"
-        ActiveSupport::CodeGenerator.batch(generated_action_methods, __FILE__, __LINE__) do |owner|
-          actions.each do |action|
-            owner.define_cached_method(action, namespace: :mime_scene) do |batch|
-              batch << action_method_template(action)
+          action_methods_module.module_eval(<<-RUBY, __FILE__, __LINE__ + 1)
+            # def create
+            #   return super if defined?(super)
+            #
+            #   message = "The action 'create' has no method or format handler for \#{self.class.name}"
+            #   raise AbstractController::ActionNotFound.new(message, self, "create")
+            # end
+            def #{action}
+              return super if defined?(super)
+
+              message = "The action '#{action}' has no method or format handler for \#{self.class.name}"
+              raise AbstractController::ActionNotFound.new(message, self, "#{action}")
             end
-          end
+          RUBY
         end
-      end
-
-      def action_method_template(action)
-        <<-RUBY
-          def #{action}
-            if respond_to?(:start_scene)
-              start_scene do
-                raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super)
-                super
-              end
-            else
-              raise #{MimeActor::ActionNotImplemented}, :#{action} unless defined?(super)
-              super
-            end
-          end
-        RUBY
       end
     end
   end

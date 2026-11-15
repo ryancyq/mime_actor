@@ -65,6 +65,8 @@ module MimeActor
       end
     end
 
+    private
+
     # Resolve the error provided with the registered handlers.
     #
     # The handled error will be returned to indicate successful handling.
@@ -86,8 +88,6 @@ module MimeActor
         rescue_actor(error.cause, format: format, action: action, visited: visited)
       end
     end
-
-    private
 
     def find_rescuer(error, format:, action:)
       return unless error

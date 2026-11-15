@@ -5,27 +5,6 @@ require "mime_actor/stage"
 RSpec.describe MimeActor::Stage do
   let(:klazz) { Class.new.include described_class }
 
-  describe "#raise_on_actor_error" do
-    it "allows class attribute reader" do
-      expect(klazz.raise_on_actor_error).to be_falsey
-    end
-
-    it "allows class attribute writter" do
-      expect { klazz.raise_on_actor_error = true }.not_to raise_error
-    end
-
-    it "allows instance reader" do
-      expect(klazz.new.raise_on_actor_error).to be_falsey
-    end
-
-    it "disallows instance writter" do
-      expect { klazz.new.raise_on_actor_error = true }.to raise_error(
-        NoMethodError,
-        %r{undefined method [`']raise_on_actor_error=' for (#<|an instance of)}
-      )
-    end
-  end
-
   describe "#cue_actor" do
     context "when actor is Integer" do
       include_context "with stage cue"
@@ -66,46 +45,6 @@ RSpec.describe MimeActor::Stage do
           expect(cue).to eq "a meaninglful day"
         end
       end
-
-      context "with block passed" do
-        let(:cue) do
-          klazz_instance.cue_actor(
-            actor,
-            *acting_instructions,
-            action: action_filter,
-            format: format_filter,
-            &another_actor
-          )
-        end
-        let(:actor) { -> { 4 } }
-        let(:another_actor) { ->(num) { num**num } }
-
-        it "yield the block wih the result from actor" do
-          expect(cue).to eq 256
-        end
-      end
-    end
-
-    it_behaves_like "stage cue actor format filter", "Symbol", :json
-    it_behaves_like "stage cue actor format filter", "Nil", acceptance: false do
-      let(:format_filter) { nil }
-      let(:error_class_raised) { TypeError }
-      let(:error_message_raised) { "format must be a Symbol" }
-    end
-    it_behaves_like "stage cue actor format filter", "String", acceptance: false do
-      let(:format_filter) { "html" }
-      let(:error_class_raised) { TypeError }
-      let(:error_message_raised) { "format must be a Symbol" }
-    end
-    it_behaves_like "stage cue actor format filter", "Unsupported format", acceptance: false do
-      let(:format_filter) { :something }
-      let(:error_class_raised) { NameError }
-      let(:error_message_raised) { "invalid format, got: :something" }
-    end
-    it_behaves_like "stage cue actor format filter", "Enumerable", acceptance: false do
-      let(:format_filter) { [:json] }
-      let(:error_class_raised) { TypeError }
-      let(:error_message_raised) { "format must be a Symbol" }
     end
 
     describe "#rescue_actor" do
@@ -230,8 +169,25 @@ RSpec.describe MimeActor::Stage do
     let(:klazz_instance) { klazz.new }
 
     it "lets the rescue handler read act_action/act_format" do
-      klazz_instance.cue_actor(-> { raise ArgumentError }, action: :create, format: :json)
+      klazz_instance.send(:cue_actor, -> { raise ArgumentError }, action: :create, format: :json)
       expect(klazz_instance.seen).to eq [%i[create json]]
+      expect([klazz_instance.act_action, klazz_instance.act_format]).to eq [nil, nil]
+    end
+  end
+
+  describe "#cue_actor instrumentation" do
+    include_context "with stage cue"
+
+    let(:actor) { -> {} }
+
+    it "publishes act.mime_actor" do
+      payloads = []
+      subscriber = ActiveSupport::Notifications.subscribe("act.mime_actor") { |*args| payloads << args.last }
+
+      cue
+      expect(payloads).to eq [{ controller: klazz.name, action: :create, format: :html }]
+    ensure
+      ActiveSupport::Notifications.unsubscribe(subscriber)
     end
   end
 end

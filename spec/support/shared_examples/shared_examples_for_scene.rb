@@ -110,18 +110,30 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
     end
   end
 
-  describe "when #start_scene is defined for #{scene_name || "the scene"}" do
-    let(:klazz_instance) { klazz.new }
-
-    before { klazz.define_method(:start_scene) { "start a scene" } }
-
-    it "called by the newly defined action method" do
-      expect { compose }.not_to raise_error
-      allow(klazz_instance).to receive(:start_scene).and_call_original
-      expected_scenes.each_key do |action_name|
-        expect(klazz_instance.send(action_name)).to eq "start a scene"
+  describe "when action method is defined in the parent for #{scene_name || "the scene"}" do
+    let(:parent) do
+      Class.new.tap do |k|
+        expected_scenes.each_key { |action_name| k.define_method(action_name) { "parent #{action_name}" } }
       end
-      expect(klazz_instance).to have_received(:start_scene).exactly(expected_scenes.size)
+    end
+    let(:klazz) { Class.new(parent).include described_class }
+
+    it "calls the parent action method" do
+      expect { compose }.not_to raise_error
+      expected_scenes.each_key do |action_name|
+        expect(klazz.new.public_send(action_name)).to eq "parent #{action_name}"
+      end
+    end
+  end
+
+  describe "when action method is not defined for #{scene_name || "the scene"}" do
+    it "raises #{AbstractController::ActionNotFound}" do
+      expect { compose }.not_to raise_error
+      expected_scenes.each_key do |action_name|
+        expect { klazz.new.public_send(action_name) }.to raise_error(
+          AbstractController::ActionNotFound, %r{The action '#{action_name}' has no method or format handler}
+        )
+      end
     end
   end
 end
