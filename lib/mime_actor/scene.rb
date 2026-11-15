@@ -39,7 +39,7 @@ module MimeActor
     include Validator
 
     included do
-      class_attribute :acting_scenes, instance_writer: false, instance_predicate: false, default: {}
+      class_attribute :acting_scenes, instance_writer: false, instance_predicate: false, default: {}.freeze
     end
 
     module ClassMethods
@@ -107,9 +107,9 @@ module MimeActor
           Array(format).each do |action_format|
             action_formats[action_format] = with
           end
-          scenes[action] = action_formats
+          scenes[action] = action_formats.freeze
         end
-        self.acting_scenes = scenes
+        self.acting_scenes = scenes.freeze
       end
 
       def generated_action_methods

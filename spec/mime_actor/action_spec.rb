@@ -87,7 +87,7 @@ RSpec.describe MimeActor::Action do
     context "without acting_scenes" do
       let(:log_output) { StringIO.new }
 
-      before { klazz.acting_scenes.clear }
+      before { klazz.acting_scenes = {} }
 
       it "does not call #responds_to" do
         allow(klazz_instance).to receive(:respond_to)

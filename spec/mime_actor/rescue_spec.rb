@@ -378,7 +378,7 @@ RSpec.describe MimeActor::Rescue do
       include_context "with rescuable actor handler"
 
       before do
-        klazz.actor_rescuers << [123, nil, nil, proc {}]
+        klazz.actor_rescuers = [[123, nil, nil, proc {}]]
       end
 
       it "raise #{TypeError}" do

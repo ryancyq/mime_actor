@@ -23,7 +23,7 @@ module MimeActor
     include Validator
 
     included do
-      class_attribute :actor_rescuers, instance_writer: false, instance_predicate: false, default: []
+      class_attribute :actor_rescuers, instance_writer: false, instance_predicate: false, default: [].freeze
     end
 
     module ClassMethods
@@ -61,7 +61,7 @@ module MimeActor
 
         # append at the end because strategies are read in reverse.
         # copy-on-write, registrations must not leak into the parent class or sibling classes
-        self.actor_rescuers += rescuers
+        self.actor_rescuers = (actor_rescuers + rescuers).freeze
       end
     end
 
