@@ -5,7 +5,8 @@
   "7.0.0",
   "7.1.0",
   "7.2.0",
-  "8.0.0"
+  "8.0.0",
+  "8.1.0"
 ].each do |rails_version|
   appraise "rails-#{rails_version.chomp ".0"}" do
     gem "actionpack", "~> #{rails_version}"
