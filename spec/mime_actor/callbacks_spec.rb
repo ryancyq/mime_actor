@@ -266,4 +266,52 @@ RSpec.describe MimeActor::Callbacks do
       end
     end
   end
+
+  describe "#run_act_callbacks when nested" do
+    let(:klazz) do
+      Class.new.tap do |k|
+        k.include described_class
+        k.attr_reader :events
+        k.define_method(:initialize) { @events = [] }
+        k.act_after -> { events << "outer_html_after" }, action: :outer, format: :html
+      end
+    end
+    let(:klazz_instance) { klazz.new }
+
+    def run_outer
+      klazz_instance.run_act_callbacks(action: :outer, format: :html) do
+        yield
+        klazz_instance.events << "after_inner:#{klazz_instance.act_action}/#{klazz_instance.act_format}"
+      end
+    end
+
+    it "restores the outer action/format after the inner act" do
+      run_outer do
+        klazz_instance.run_act_callbacks(action: :inner, format: :json) { klazz_instance.events << "inner_body" }
+      end
+      expect(klazz_instance.events).to eq %w[inner_body after_inner:outer/html outer_html_after]
+    end
+
+    it "restores the outer action/format after the inner act is aborted" do
+      klazz.act_before -> { throw :abort }, action: :inner
+      run_outer do
+        klazz_instance.run_act_callbacks(action: :inner, format: :json) { klazz_instance.events << "inner_body" }
+      end
+      expect(klazz_instance.events).to eq %w[after_inner:outer/html outer_html_after]
+    end
+
+    it "restores the outer action/format after the inner act raises" do
+      run_outer do
+        klazz_instance.run_act_callbacks(action: :inner, format: :json) { raise ArgumentError }
+      rescue ArgumentError
+        klazz_instance.events << "rescued"
+      end
+      expect(klazz_instance.events).to eq %w[rescued after_inner:outer/html outer_html_after]
+    end
+
+    it "keeps the last top-level action/format readable after returning" do
+      klazz_instance.run_act_callbacks(action: :outer, format: :html)
+      expect([klazz_instance.act_action, klazz_instance.act_format]).to eq %i[outer html]
+    end
+  end
 end

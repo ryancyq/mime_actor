@@ -3,6 +3,8 @@
 # :markup: markdown
 # :include: ../README.md
 
+require "active_support" # load the core before its components, required by rails >= 8.2
+
 require "mime_actor/version"
 require "mime_actor/errors"
 

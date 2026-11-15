@@ -8,6 +8,7 @@ RSpec.describe EventsController do
   let(:dispatch) { controller.dispatch(action_name, action_request, action_response) }
   let(:env) do
     {
+      "HTTP_HOST"      => "example.org",
       "REQUEST_METHOD" => request_method,
       "HTTP_ACCEPT"    => request_accept,
       "QUERY_STRING"   => request_params

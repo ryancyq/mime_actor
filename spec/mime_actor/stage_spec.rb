@@ -218,4 +218,20 @@ RSpec.describe MimeActor::Stage do
       end
     end
   end
+
+  describe "#cue_actor when the actor raises" do
+    let(:klazz) do
+      Class.new.tap do |k|
+        k.include described_class
+        k.attr_reader :seen
+        k.rescue_act_from ArgumentError, with: -> { (@seen ||= []) << [act_action, act_format] }
+      end
+    end
+    let(:klazz_instance) { klazz.new }
+
+    it "lets the rescue handler read act_action/act_format" do
+      klazz_instance.cue_actor(-> { raise ArgumentError }, action: :create, format: :json)
+      expect(klazz_instance.seen).to eq [%i[create json]]
+    end
+  end
 end

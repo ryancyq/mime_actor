@@ -8,7 +8,7 @@ require "mime_actor/logging"
 require "mime_actor/rescue"
 
 require "active_support/concern"
-require "active_support/core_ext/module/attribute_accessors"
+require "active_support/core_ext/class/attribute"
 
 module MimeActor
   # # MimeActor Stage
@@ -23,7 +23,7 @@ module MimeActor
     include Logging
 
     included do
-      mattr_accessor :raise_on_actor_error, instance_writer: false, default: false
+      class_attribute :raise_on_actor_error, instance_writer: false, instance_predicate: false, default: false
     end
 
     # Calls the `actor` and passing arguments to it.
@@ -45,7 +45,7 @@ module MimeActor
         block_given? ? yield(result) : result
       end
     rescue MimeActor::ActorNotFound => e
-      logger.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error
+      logger&.error { "actor error, cause: #{e.inspect}" } unless raise_on_actor_error
       raise e if raise_on_actor_error
     rescue StandardError => e
       rescued = rescue_actor(e, action: action, format: format)

@@ -385,5 +385,22 @@ RSpec.describe MimeActor::Rescue do
         expect { rescuable }.to raise_error(TypeError, "class or module required")
       end
     end
+
+    context "when rescuee is a string naming a class-scoped constant" do
+      include_context "with rescuable actor handler"
+
+      let(:error_class) { klazz.const_get(:LocalError) }
+
+      before do
+        klazz.const_set(:LocalError, Class.new(StandardError))
+        klazz.rescue_act_from "LocalError", with: -> { equal?(:local) }
+      end
+
+      it "resolves the constant from the class" do
+        allow(klazz_instance).to receive(:equal?)
+        expect(rescuable).to eq error_instance
+        expect(klazz_instance).to have_received(:equal?).with(:local)
+      end
+    end
   end
 end

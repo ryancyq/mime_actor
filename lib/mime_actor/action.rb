@@ -44,15 +44,25 @@ module MimeActor
     #     end
     #   end
     #
+    # NOTE: when the action is already in a scene, e.g. both parent and child classes declared the same action,
+    # the block is yielded directly so that format negotiation and act callbacks only run once.
     def start_scene(&block)
       action = action_name.to_sym
+      return (yield if block_given?) if @_mime_actor_scene == action
+
       formats = acting_scenes.fetch(action, {})
 
       if formats.empty?
-        logger.warn { "no format found for action: #{action_name.inspect}" }
+        logger&.warn { "no format found for action: #{action_name.inspect}" }
         yield if block_given?
       else
-        respond_to_scene(action, formats, block)
+        begin
+          enclosing_scene = @_mime_actor_scene
+          @_mime_actor_scene = action
+          respond_to_scene(action, formats, block)
+        ensure
+          @_mime_actor_scene = enclosing_scene
+        end
       end
     end
 
@@ -63,7 +73,7 @@ module MimeActor
         formats.each do |format, actor|
           callable = actor.presence || block
           if callable.nil?
-            logger.warn { "no #respond_to handler found for action: #{action.inspect} format: #{format.inspect}" }
+            logger&.warn { "no #respond_to handler found for action: #{action.inspect} format: #{format.inspect}" }
             next
           end
 

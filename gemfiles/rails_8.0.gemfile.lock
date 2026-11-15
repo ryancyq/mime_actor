@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    mime_actor (1.0.0)
+    mime_actor (1.0.1)
       actionpack (>= 6.1)
       activesupport (>= 6.1)
 
@@ -265,6 +265,7 @@ DEPENDENCIES
   actionpack (~> 8.0.0)
   activesupport (~> 8.0.0)
   appraisal (~> 2.5.0)
+  json (< 3)
   mime_actor!
   rails (~> 8.0.0)
   rake (>= 11.0)

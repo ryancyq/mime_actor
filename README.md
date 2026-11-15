@@ -113,10 +113,10 @@ The above is equivalent to the following:
   act_before :load_event, action: %i[show update]
 
   act_on_action :show, :update, format: :json
-  act_on_action :show, format: :html
+  act_on_action :show, :update, format: :html
 
   rescue_act_from ActiveRecord::RecordNotFound, ActiveRecord::RecordNotSaved, format: :json, with: :handle_json_error
-  rescue_act_from ActiveRecord::RecordNotSaved, action: :show, format: :html, with: -> { redirect_to "/events" }
+  rescue_act_from ActiveRecord::RecordNotFound, action: :show, format: :html, with: -> { redirect_to "/events" }
   rescue_act_from ActiveRecord::RecordNotSaved, action: :update, format: :html, with: -> { render :edit }
 
   def show
