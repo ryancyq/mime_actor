@@ -37,7 +37,7 @@ RSpec.describe MimeActor::Action do
     end
   end
 
-  describe "#send_action" do
+  describe "dispatching an action" do
     it "responds with the action method for each format" do
       klazz.act_on_action :create, format: %i[html json]
       klazz.define_method(:create) { render plain: "create #{act_format}" }

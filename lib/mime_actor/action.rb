@@ -28,8 +28,14 @@ module MimeActor
 
     private
 
+    # Routes the declared `action` to the scene, see `AbstractController::Base#method_for_action`.
+    # Rails dispatches the scene once per request, regardless of how many classes in the hierarchy
+    # declared the `action`, then renders by default if the scene did not.
+    def method_for_action(action_name)
+      acting_scenes.key?(action_name.to_sym) ? "_mime_actor_scene" : super
+    end
+
     # The core logic where the acts of an `action` are collected and passed over to `ActionController::MimeResponds`.
-    # It runs once per request, regardless of how many classes in the hierarchy declared the `action`.
     #
     # @example `create` action configured with `html` and `json` formats
     #   act_on_action :create, format: %i[html json]
@@ -39,23 +45,16 @@ module MimeActor
     #     format.html { create }
     #     format.json { create }
     #   end
-    #
-    # NOTE: `ActionController::BasicImplicitRender` is replaced, the default render runs after the act
-    # so that the act callbacks run before it.
-    def send_action(method_name, *args)
-      action = method_name.to_sym
-      formats = acting_scenes[action]
-      return super if formats.nil?
-
+    def _mime_actor_scene(*args)
+      action = action_name.to_sym
       respond_to do |collector|
-        formats.each do |format, actor|
+        acting_scenes.fetch(action).each do |format, actor|
           collector.public_send(format) do
             if actor
               cue_actor(actor, action, format, action: action, format: format)
             else
-              cue_actor(method_name, *args, action: action, format: format)
+              cue_actor(action, *args, action: action, format: format)
             end
-            default_render if !performed? && respond_to?(:default_render, true)
           end
         end
       end
