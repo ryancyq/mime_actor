@@ -29,19 +29,4 @@ module MimeActor
       "#{actor.inspect} not found"
     end
   end
-
-  class ActionError < Error
-    attr_reader :action
-
-    def initialize(action = nil)
-      @action = action
-      super(generate_message)
-    end
-  end
-
-  class ActionNotImplemented < ActionError
-    def generate_message
-      "action #{action.inspect} not implemented"
-    end
-  end
 end

@@ -6,6 +6,7 @@ require "active_support/concern"
 require "active_support/core_ext/object/blank"
 require "set" # required by mime_type with ruby <= 3.1
 require "action_dispatch/http/mime_type"
+require "action_pack/version"
 
 module MimeActor
   # # MimeActor Validator
@@ -21,10 +22,6 @@ module MimeActor
   #
   module Validator
     extend ActiveSupport::Concern
-
-    included do
-      mattr_accessor :scene_formats, instance_writer: false, default: Mime::SET.symbols.to_set
-    end
 
     module ClassMethods
       # Raise the error returned by validator if any.
@@ -109,10 +106,11 @@ module MimeActor
 
       private
 
-      # `scene_formats` is captured when the module is included,
-      # also accept MIME types registered afterwards (e.g. in an initializer)
       def supported_format?(format)
-        scene_formats.include?(format) || Mime::SET.symbols.include?(format)
+        # Mime.symbols supersedes Mime::SET from actionpack 7.1
+        return Mime::SET.symbols.include?(format) if ActionPack.version < Gem::Version.new("7.1")
+
+        Mime.symbols.include?(format)
       end
     end
   end

@@ -20,7 +20,7 @@ RSpec.describe EventsController do
 
   before do
     described_class.config.logger = stub_logger
-    env["rack.input"] = "" if ActionPack.version < "7.1"
+    env["rack.input"] = "" if ActionPack.version < Gem::Version.new("7.1")
   end
 
   {

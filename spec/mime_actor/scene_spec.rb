@@ -62,6 +62,16 @@ RSpec.describe MimeActor::Scene do
     end
 
     describe "unsupported format" do
+      it_behaves_like "composable scene format", "Array of Nil", acceptance: false do
+        let(:format_filter) { [nil] }
+        let(:error_class_raised) { NameError }
+        let(:error_message_raised) { "invalid formats, got: nil" }
+      end
+      it_behaves_like "composable scene format", "extension synonym", acceptance: false do
+        let(:format_filter) { :xhtml }
+        let(:error_class_raised) { NameError }
+        let(:error_message_raised) { "invalid format, got: :xhtml" }
+      end
       it_behaves_like "composable scene format", "Symbol", acceptance: false do
         let(:format_filter) { :my_custom }
         let(:error_class_raised) { NameError }

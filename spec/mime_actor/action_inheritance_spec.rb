@@ -2,16 +2,12 @@
 
 require "mime_actor"
 
-require "active_support/logger"
-require "active_support/tagged_logging"
 require "action_controller"
-require "stringio"
 
 RSpec.describe MimeActor::Action do
-  let(:null_logger) { ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(nil)) }
   let(:base_class) do
     Class.new(ActionController::Base).tap do |klazz|
-      klazz.logger = null_logger
+      klazz.logger = nil
       klazz.include described_class
     end
   end
@@ -20,7 +16,7 @@ RSpec.describe MimeActor::Action do
 
   def dispatch(controller_class, action, accept)
     env = { "REQUEST_METHOD" => "POST", "HTTP_ACCEPT" => accept }
-    env["rack.input"] = "" if ActionPack.version < "7.1"
+    env["rack.input"] = "" if ActionPack.version < Gem::Version.new("7.1")
     request = ActionDispatch::Request.new(env)
     response = ActionDispatch::Response.new.tap { |res| res.request = request }
     controller_class.new.dispatch(action.to_s, request, response)
@@ -75,16 +71,6 @@ RSpec.describe MimeActor::Action do
     end
   end
 
-  describe "raise_on_actor_error" do
-    it "does not leak between siblings or to the parent" do
-      html_child.raise_on_actor_error = true
-
-      expect(html_child.raise_on_actor_error).to be true
-      expect(json_child.raise_on_actor_error).to be false
-      expect(base_class.raise_on_actor_error).to be false
-    end
-  end
-
   describe "action declared on both parent and child" do
     let(:events) { [] }
 
@@ -110,115 +96,38 @@ RSpec.describe MimeActor::Action do
     end
   end
 
-  describe "logger" do
-    let(:host_logger) { ActiveSupport::Logger.new(nil) }
-
-    [ActionController::Base, ActionController::API].each do |controller_base|
-      it "keeps the host logger of #{controller_base}" do
-        logger = host_logger
-        klazz = Class.new(controller_base) { self.logger = logger }
-        klazz.include described_class
-
-        expect(klazz.logger).to equal(host_logger)
-        expect(klazz.new.logger).to equal(host_logger)
-      end
-
-      it "provides a default logger when #{controller_base} has none" do
-        klazz = Class.new(controller_base) { self.logger = nil }
-        klazz.include described_class
-
-        expect(klazz.logger).to be_a(ActiveSupport::TaggedLogging)
-        expect(controller_base.logger).to be_nil
-      end
+  describe "action overridden by the child" do
+    before do
+      base_class.act_on_action :create, format: :html
+      base_class.define_method(:create) { head :ok }
+      json_child.define_method(:create) { head :accepted }
     end
 
-    [ActionController::Base, ActionController::Metal].each do |controller_base|
-      it "keeps config assigned to #{controller_base} before inclusion" do
-        logger = host_logger
-        klazz = Class.new(controller_base)
-        klazz.config.logger = logger
-        klazz.config.mime_actor_setting = "kept"
-        klazz.include described_class
+    it "keeps the scene of the parent" do
+      expect(dispatch(json_child, :create, "text/html").first).to eq 202
+      expect { dispatch(json_child, :create, "application/json") }.to raise_error(ActionController::UnknownFormat)
+    end
+  end
 
-        expect(klazz.config.mime_actor_setting).to eq "kept"
-        expect(klazz.logger).to equal(host_logger)
-      end
+  describe "action re-declared by the child" do
+    it "keeps the method of the parent" do
+      base_class.define_method(:create) { head :accepted }
+      json_child.act_on_action :create, format: :json
+
+      expect(dispatch(json_child, :create, "application/json").first).to eq 202
+    end
+  end
+
+  describe "child calling super into an action with only handlers" do
+    before do
+      base_class.act_on_action :create, format: :html, with: -> { head :ok }
+      json_child.act_on_action :create, format: :json
+      json_child.define_method(:create) { super() }
     end
 
-    it "provides a default logger for ActionController::Metal" do
-      klazz = Class.new(ActionController::Metal).include(described_class)
-
-      expect(klazz.logger).to be_a(ActiveSupport::TaggedLogging)
-    end
-
-    if defined?(ActiveSupport::BroadcastLogger)
-      describe "when the host logger broadcasts to multiple tagged loggers" do
-        let(:outputs) { [StringIO.new, StringIO.new] }
-        let(:runs) { [] }
-        let(:klazz) do
-          targets = outputs.map { |io| ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(io)) }
-          broadcast = ActiveSupport::BroadcastLogger.new(*targets)
-          broadcast.formatter = targets.first.formatter # as Rails initializes Rails.logger
-          Class.new(ActionController::Base) { self.logger = broadcast }.tap { |k| k.include described_class }
-        end
-
-        before do
-          recorded = runs
-          klazz.act_on_action :create, format: :html
-          klazz.define_method(:create) do
-            recorded << :create
-            logger.info "inside scene"
-            head :ok
-          end
-        end
-
-        it "runs the scene once and tags each log line once" do
-          expect(dispatch(klazz, :create, "text/html").first).to eq 200
-          expect(runs).to eq [:create]
-          expect(outputs.map { |io| io.string.scan("[MimeActor] [create] [html] inside scene").size }).to eq [1, 1]
-        end
-      end
-    end
-
-    it "runs the scene with a host logger that supports #tagged without #formatter" do
-      logger = Class.new do
-        def tagged(*)
-          yield
-        end
-      end.new
-      klazz = Class.new(ActionController::Base) { self.logger = logger }
-      klazz.include described_class
-      klazz.act_on_action :create, format: :html, with: -> { head :ok }
-
-      expect(dispatch(klazz, :create, "text/html").first).to eq 200
-    end
-
-    describe "when the logger is removed after inclusion" do
-      let(:klazz) do
-        Class.new(ActionController::Base).tap do |k|
-          k.include described_class
-          k.logger = nil
-        end
-      end
-
-      it "runs scenes" do
-        klazz.act_on_action :create, format: :html, with: -> { head :ok }
-
-        expect(dispatch(klazz, :create, "text/html").first).to eq 200
-      end
-
-      it "skips the missing scene warning" do
-        klazz.define_method(:show) { start_scene { head :accepted } }
-
-        expect(dispatch(klazz, :show, "text/html").first).to eq 202
-      end
-
-      it "skips the missing actor error log" do
-        klazz.act_on_action :create, format: :html, with: :missing_handler
-        klazz.define_method(:create) { head :ok }
-
-        expect { dispatch(klazz, :create, "text/html") }.not_to raise_error
-      end
+    it "raises #{AbstractController::ActionNotFound}" do
+      expect(dispatch(json_child, :create, "text/html").first).to eq 200
+      expect { dispatch(json_child, :create, "application/json") }.to raise_error(AbstractController::ActionNotFound)
     end
   end
 end

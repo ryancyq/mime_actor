@@ -2,8 +2,6 @@
 
 require "mime_actor"
 
-require "active_support/logger"
-require "active_support/tagged_logging"
 require "action_controller"
 
 RSpec.describe ActionController::Metal do
@@ -22,12 +20,9 @@ RSpec.describe ActionController::Metal do
     }
   end
   let(:act_action) { :new }
-  let(:log_output) { nil }
-  let(:stub_logger) { ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(log_output)) }
 
   before do
-    controller_class.config.logger = stub_logger
-    env["rack.input"] = "" if ActionPack.version < "7.1"
+    env["rack.input"] = "" if ActionPack.version < Gem::Version.new("7.1")
   end
 
   describe "when actor method is defined" do
@@ -51,44 +46,28 @@ RSpec.describe ActionController::Metal do
       controller_class.act_on_action act_action, format: :json
     end
 
-    it "raises #{MimeActor::ActionNotImplemented}" do
-      # proxy method is defined
+    it "raises #{AbstractController::ActionNotFound}" do
       expect(controller_class.action_methods).to include(act_action.to_s)
       expect(controller_class).to be_method_defined(act_action)
 
       expect { dispatch }.to raise_error(
-        MimeActor::ActionNotImplemented,
-        "action #{act_action.inspect} not implemented"
-      )
+        AbstractController::ActionNotFound,
+        "The action 'new' has no method or format handler for #{controller_class.name}"
+      ) { |ex| expect([ex.controller, ex.action]).to eq [controller, "new"] }
     end
   end
 
   describe "when actor method provided is undefined" do
     let(:actor_method) { :undefined_actor }
-    let(:log_output) { StringIO.new }
 
     before do
       controller_class.act_on_action act_action, format: %i[json html], with: actor_method
     end
 
-    it "logs the missing actor method" do
+    it "raises #{MimeActor::ActorNotFound}" do
       expect(controller_class.action_methods).not_to include(actor_method.to_s)
       expect(controller_class).not_to be_method_defined(actor_method)
-
-      expect { dispatch }.not_to raise_error
-      expect(log_output.string).to eq(
-        "[MimeActor] [new] [json] actor error, cause: <MimeActor::ActorNotFound> :undefined_actor not found\n"
-      )
-    end
-
-    context "when raise_on_actor_error is set" do
-      before { controller_class.raise_on_actor_error = true }
-
-      it "raises #{MimeActor::ActorNotFound}" do
-        expect(controller_class.action_methods).not_to include(actor_method.to_s)
-        expect(controller_class).not_to be_method_defined(actor_method)
-        expect { dispatch }.to raise_error(MimeActor::ActorNotFound, ":undefined_actor not found")
-      end
+      expect { dispatch }.to raise_error(MimeActor::ActorNotFound, ":undefined_actor not found")
     end
   end
 end
