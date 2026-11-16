@@ -108,6 +108,22 @@ The above is equivalent to the following:
   end
 ```
 
+#### Tagging logs with the Action + MIME type
+```rb
+  act_around :tag_act_logs
+
+  def tag_act_logs
+    return yield unless logger.respond_to?(:push_tags)
+
+    tags = [act_action, act_format]
+    logger.push_tags(*tags)
+    yield
+  ensure
+    logger.pop_tags(tags.size) if tags
+  end
+```
+NOTE: avoid `logger.tagged { ... }` here, on Rails >= 7.1 a broadcast logger yields once per logger, running the act again.
+
 #### Rescue handler registration for certain Action + MIME type
 ```rb
   act_before :load_event, action: %i[show update]

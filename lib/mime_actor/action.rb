@@ -2,7 +2,6 @@
 
 # :markup: markdown
 
-require "mime_actor/logging"
 require "mime_actor/scene"
 require "mime_actor/stage"
 
@@ -26,59 +25,25 @@ module MimeActor
 
     include Scene
     include Stage
-    include Logging
-
-    # The core logic where rendering logics are collected as `Proc` and passed over to `ActionController::MimeResponds`
-    #
-    # @param block the block to be evaluated
-    #
-    # @example process `create` action
-    #   # it uses AbstractController#action_name to process
-    #   start_scene { create_internal }
-    #
-    #   # it is equivalent to the following if `create` action is configured with `html` and `json` formats
-    #   def create
-    #     respond_to |format|
-    #       format.html { create_internal }
-    #       format.json { create_internal }
-    #     end
-    #   end
-    #
-    # NOTE: when the action is already in a scene, e.g. both parent and child classes declared the same action,
-    # the block is yielded directly so that format negotiation and act callbacks only run once.
-    def start_scene(&block)
-      action = action_name.to_sym
-      return (yield if block_given?) if @_mime_actor_scene == action
-
-      formats = acting_scenes.fetch(action, {})
-
-      if formats.empty?
-        logger&.warn { "no format found for action: #{action_name.inspect}" }
-        yield if block_given?
-      else
-        begin
-          enclosing_scene = @_mime_actor_scene
-          @_mime_actor_scene = action
-          respond_to_scene(action, formats, block)
-        ensure
-          @_mime_actor_scene = enclosing_scene
-        end
-      end
-    end
 
     private
 
-    def respond_to_scene(action, formats, block)
-      respond_to do |collector|
-        formats.each do |format, actor|
-          callable = actor.presence || block
-          if callable.nil?
-            logger&.warn { "no #respond_to handler found for action: #{action.inspect} format: #{format.inspect}" }
-            next
-          end
+    # Routes declared actions to the scene, see `AbstractController::Base#method_for_action`.
+    def method_for_action(action_name)
+      self.class.acting_scenes.key?(action_name.to_sym) ? "play_scene" : super
+    end
 
+    # Responds to each declared format of the action with its act.
+    def play_scene(*args)
+      action = action_name.to_sym
+      respond_to do |collector|
+        self.class.acting_scenes.fetch(action).each do |format, actor|
           collector.public_send(format) do
-            fill_run_sheet(action, format) { cue_actor(callable, action, format, action: action, format: format) }
+            if actor
+              cue_actor(actor, action, format, action: action, format: format)
+            else
+              cue_actor(action, *args, action: action, format: format)
+            end
           end
         end
       end
