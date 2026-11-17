@@ -12,7 +12,7 @@ require "active_support/core_ext/string/inflections"
 module MimeActor
   # # MimeActor Rescue
   #
-  # Simillar to `ActionController::Rescue` but with additional filtering logic on `action`/`format`.
+  # Similar to `ActionController::Rescue` but with additional filtering logic on `action`/`format`.
   #
   # @example Rescue RuntimeError when raised for any action with `json` format
   #   rescue_act_from RuntimeError, format: :json, with: :handle_json_error
@@ -23,7 +23,7 @@ module MimeActor
     include Validator
 
     included do
-      class_attribute :actor_rescuers, instance_writer: false, instance_predicate: false, default: []
+      class_attribute :actor_rescuers, instance_accessor: false, instance_predicate: false, default: [].freeze
     end
 
     module ClassMethods
@@ -61,9 +61,11 @@ module MimeActor
 
         # append at the end because strategies are read in reverse.
         # copy-on-write, registrations must not leak into the parent class or sibling classes
-        self.actor_rescuers += rescuers
+        self.actor_rescuers = (actor_rescuers + rescuers).freeze
       end
     end
+
+    private
 
     # Resolve the error provided with the registered handlers.
     #
@@ -87,12 +89,10 @@ module MimeActor
       end
     end
 
-    private
-
     def find_rescuer(error, format:, action:)
       return unless error
 
-      *_, rescuer = actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
+      *_, rescuer = self.class.actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
         next unless action_filter.nil? || Array(action_filter).include?(action)
         next unless format_filter.nil? || Array(format_filter).include?(format)
         next unless (klazz = constantize_rescuee(rescuee))

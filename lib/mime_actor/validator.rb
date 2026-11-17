@@ -22,10 +22,6 @@ module MimeActor
   module Validator
     extend ActiveSupport::Concern
 
-    included do
-      mattr_accessor :scene_formats, instance_writer: false, default: Mime::SET.symbols.to_set
-    end
-
     module ClassMethods
       # Raise the error returned by validator if any.
       #
@@ -109,10 +105,8 @@ module MimeActor
 
       private
 
-      # `scene_formats` is captured when the module is included,
-      # also accept MIME types registered afterwards (e.g. in an initializer)
       def supported_format?(format)
-        scene_formats.include?(format) || Mime::SET.symbols.include?(format)
+        Mime::SET.symbols.include?(format)
       end
     end
   end
