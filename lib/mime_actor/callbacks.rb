@@ -6,8 +6,6 @@ require "mime_actor/validator"
 
 require "active_support/callbacks"
 require "active_support/concern"
-require "active_support/core_ext/module/attr_internal"
-require "active_support/version"
 
 module MimeActor
   # # MimeActor Callbacks
@@ -34,11 +32,11 @@ module MimeActor
 
     LIFECYCLES = %i[before after around].freeze
 
-    included do
-      attr_internal_reader :act_action, :act_format
-      define_callbacks :act, skip_after_callbacks_if_terminated: true
+    Act = Struct.new(:action, :format)
 
-      ActiveSupport.version >= "7.2" ? generate_act_callback_methods : eval_act_callback_methods
+    included do
+      define_callbacks :act, skip_after_callbacks_if_terminated: true
+      private :_run_act_callbacks, :_act_callbacks # keep them out of `action_methods`
     end
 
     module ClassMethods
@@ -57,14 +55,26 @@ module MimeActor
 
         def match?(controller)
           matched = true
-          matched &= actions.include?(controller.act_action) if !actions.nil? && controller.respond_to?(:act_action)
-          matched &= formats.include?(controller.act_format) if !formats.nil? && controller.respond_to?(:act_format)
+          matched &= actions.include?(controller.send(:act_action)) unless actions.nil?
+          matched &= formats.include?(controller.send(:act_format)) unless formats.nil?
           matched
         end
 
         alias after  match?
         alias before match?
         alias around match?
+      end
+
+      LIFECYCLES.each do |kind|
+        { append: false, prepend: true }.each do |type, prepend|
+          define_method(:"#{type}_act_#{kind}") do |*callbacks, action: nil, format: nil, &block|
+            validate_callback_options!(action, format)
+            configure_callbacks(callbacks, action, format, block) do |callback, options|
+              set_callback(:act, kind, callback, options.merge!(prepend: prepend))
+            end
+          end
+        end
+        alias_method :"act_#{kind}", :"append_act_#{kind}"
       end
 
       private
@@ -83,49 +93,18 @@ module MimeActor
         validate!(:action_or_actions, action) unless action.nil?
         validate!(:format_or_formats, format) unless format.nil?
       end
+    end
 
-      def eval_act_callback_methods
-        singleton_class.module_eval(<<-RUBY, __FILE__, __LINE__ + 1)
-          # def append_act_before(*callbacks, action: nil, format: nil, &block)
-          #   validate_callback_options!(action, format)
-          #   configure_callbacks(callbacks, action, format, block) do |callback, options|
-          #     set_callback(:act, :before, callback, options.merge!(prepend: false))
-          #   end
-          # end
-          #
-          # alias_method :act_before, :append_act_before
-          #
-          #{LIFECYCLES.map { |kind| act_callback_kind_template(kind, append: true) }.join(";")}
-          #{LIFECYCLES.map { |kind| act_callback_kind_template(kind, append: false) }.join(";")}
-          #{LIFECYCLES.map { |kind| "alias_method :act_#{kind}, :append_act_#{kind}" }.join(";")}
-        RUBY
-      end
+    private
 
-      def generate_act_callback_methods
-        require "active_support/code_generator"
-        ActiveSupport::CodeGenerator.batch(singleton_class, __FILE__, __LINE__) do |owner|
-          LIFECYCLES.each do |kind|
-            owner.define_cached_method(:"append_act_#{kind}", as: :"act_#{kind}", namespace: :mime_callbacks) do |batch|
-              batch << act_callback_kind_template(kind, append: true)
-            end
-            owner.define_cached_method(:"prepend_act_#{kind}", namespace: :mime_callbacks) do |batch|
-              batch << act_callback_kind_template(kind, append: false)
-            end
-          end
-        end
-      end
+    # The `action` of the act being played, `nil` outside of an act.
+    def act_action
+      @mime_actor_act&.action
+    end
 
-      def act_callback_kind_template(kind, append:)
-        type = append ? "append" : "prepend"
-        <<-RUBY
-          def #{type}_act_#{kind}(*callbacks, action: nil, format: nil, &block)
-            validate_callback_options!(action, format)
-            configure_callbacks(callbacks, action, format, block) do |callback, options|
-              set_callback(:act, :#{kind}, callback, options.merge!(prepend: #{!append}))
-            end
-          end
-        RUBY
-      end
+    # The `format` of the act being played, `nil` outside of an act.
+    def act_format
+      @mime_actor_act&.format
     end
 
     # Callbacks invocation sequence depends on the order of callback definition.
@@ -184,20 +163,20 @@ module MimeActor
     #   # - my_act_after_two
     #   # - my_act_after_one
     #
-    # NOTE: when nested, the enclosing `act_action`/`act_format` are restored once the inner act returns.
-    # The outermost act keeps its `act_action`/`act_format` readable after returning.
-    def run_act_callbacks(action:, format:)
-      enclosing_act = [@_act_action, @_act_format] if @_act_depth.to_i.positive?
-      @_act_depth = @_act_depth.to_i + 1
-      @_act_action = action.to_sym
-      @_act_format = format.to_sym
-
-      run_callbacks :act do
-        yield if block_given?
+    def play_act(action:, format:)
+      with_act(action: action, format: format) do
+        run_callbacks :act do
+          yield if block_given?
+        end
       end
+    end
+
+    def with_act(action:, format:)
+      enclosing_act = @mime_actor_act
+      @mime_actor_act = Act.new(action.to_sym, format.to_sym)
+      yield
     ensure
-      @_act_depth -= 1
-      @_act_action, @_act_format = enclosing_act if enclosing_act
+      @mime_actor_act = enclosing_act
     end
   end
 end

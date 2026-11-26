@@ -354,7 +354,7 @@ RSpec.describe MimeActor::Rescue do
       it "rescues with fallback" do
         allow(klazz_instance).to receive(:equal?)
         expect do
-          klazz_instance.rescue_actor(error_instance, action: :index, format: :json)
+          klazz_instance.send(:rescue_actor, error_instance, action: :index, format: :json)
         end.not_to raise_error
         expect(klazz_instance).to have_received(:equal?).with(1).once
       end
@@ -378,7 +378,7 @@ RSpec.describe MimeActor::Rescue do
       include_context "with rescuable actor handler"
 
       before do
-        klazz.actor_rescuers << [123, nil, nil, proc {}]
+        klazz.actor_rescuers = [[123, nil, nil, proc {}]]
       end
 
       it "raise #{TypeError}" do
