@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file. See [conven
 ---
 ## [Unreleased](https://github.com/ryancyq/mime_actor/tree/HEAD)
 
+### Refactoring
+
+- route declared actions through method_for_action ([#113](https://github.com/ryancyq/mime_actor/issues/113)) - ([1f8164c](https://github.com/ryancyq/mime_actor/commit/1f8164cbbc9274870ac228d10f90a8261dce9090)) - Ryan Chang
+
 ### Tests
 
 - set request host in events controller spec ([#111](https://github.com/ryancyq/mime_actor/issues/111)) - ([a9d1e0a](https://github.com/ryancyq/mime_actor/commit/a9d1e0a7d27fcadbfb0dffb4c3d4a76f27e6db70)) - Ryan Chang
