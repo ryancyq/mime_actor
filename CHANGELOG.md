@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file. See [conven
 
 - keep the act out of the view assigns ([#114](https://github.com/ryancyq/mime_actor/issues/114)) - ([24938e0](https://github.com/ryancyq/mime_actor/commit/24938e0078fcf574b40a62d319393e24e65310bd)) - Ryan Chang
 
+### Documentation
+
+- include mime_actor in an abstract controller on ActionController::Metal ([#115](https://github.com/ryancyq/mime_actor/issues/115)) - ([5ed4a6a](https://github.com/ryancyq/mime_actor/commit/5ed4a6aa24d5ecb6acacfe2100df2654fcad528e)) - Ryan Chang
+
 ### Refactoring
 
 - route declared actions through method_for_action ([#113](https://github.com/ryancyq/mime_actor/issues/113)) - ([1f8164c](https://github.com/ryancyq/mime_actor/commit/1f8164cbbc9274870ac228d10f90a8261dce9090)) - Ryan Chang
