@@ -5,22 +5,9 @@ require "mime_actor"
 require "action_controller"
 
 RSpec.describe MimeActor::Action do
-  let(:events) { [] }
-  let(:controller_base) { ActionController::Base }
-  let(:klazz) do
-    Class.new(controller_base).tap do |k|
-      k.logger = nil
-      k.include described_class
-    end
-  end
+  include_context "with a mime_actor controller"
 
-  def dispatch(controller_class, action, accept)
-    env = { "REQUEST_METHOD" => "POST", "HTTP_ACCEPT" => accept, "HTTP_HOST" => "example.org" }
-    env["rack.input"] = "" if ActionPack.version < Gem::Version.new("7.1")
-    request = ActionDispatch::Request.new(env)
-    response = ActionDispatch::Response.new.tap { |res| res.request = request }
-    controller_class.new.dispatch(action.to_s, request, response)
-  end
+  let(:events) { [] }
 
   describe "ActiveSupport#on_load" do
     it "allows customization" do
@@ -33,7 +20,9 @@ RSpec.describe MimeActor::Action do
       end.not_to raise_error
 
       expect(described_class).to be_method_defined(:patch)
-      expect(Class.new.include(described_class).new.patch).to eq "patch my stuff"
+      expect(klazz.new.patch).to eq "patch my stuff"
+    ensure
+      described_class.send(:remove_method, :patch)
     end
   end
 
@@ -59,11 +48,28 @@ RSpec.describe MimeActor::Action do
       expect(dispatch(klazz, :create, "text/html").last.body).to eq "handler create/html"
     end
 
-    it "passes the action and format to the handler" do
+    it "calls the handler without arguments" do
       klazz.act_on_action :create, format: :json, with: :render_act
-      klazz.define_method(:render_act) { |action, format| render plain: "#{action}/#{format}" }
+      klazz.define_method(:render_act) { render plain: "#{act_action}/#{act_format}" }
 
       expect(dispatch(klazz, :create, "application/json").last.body).to eq "create/json"
+    end
+
+    it "passes only the error to the rescue handler" do
+      klazz.rescue_act_from ArgumentError, with: :render_error
+      klazz.define_method(:render_error) { |*args| render plain: args.map(&:class).join(",") }
+      klazz.act_on_action :create, format: :json, with: -> { raise ArgumentError }
+
+      expect(dispatch(klazz, :create, "application/json").last.body).to eq "ArgumentError"
+    end
+
+    it "rejects a lambda handler taking arguments" do
+      expect { klazz.act_on_action :create, format: :html, with: ->(format) { format } }.to raise_error(
+        ArgumentError, %r{must not require arguments}
+      )
+      expect { klazz.rescue_act_from(StandardError, with: ->(error, format) { [error, format] }) }.to raise_error(
+        ArgumentError, %r{must not require more than 1 argument}
+      )
     end
 
     it "lists actions declared after the action methods are cached" do
@@ -80,6 +86,51 @@ RSpec.describe MimeActor::Action do
       expect(klazz.action_methods).not_to include(
         "act_action", "act_format", "acting_scenes", "actor_rescuers", "_run_act_callbacks", "_act_callbacks"
       )
+    end
+
+    it "keeps the validators off the controller" do
+      expect(klazz).not_to respond_to(:validate!)
+      expect(klazz).not_to respond_to(:validate_format)
+    end
+
+    it "raises #{MimeActor::ActorNotFound} when the handler method is missing" do
+      klazz.act_on_action :create, format: :html, with: :missing_handler
+
+      expect { dispatch(klazz, :create) }.to raise_error(MimeActor::ActorNotFound, ":missing_handler not found")
+    end
+
+    context "with a handler that does not exist" do
+      before do
+        recorded = events
+        klazz.act_before { recorded << :act_before }
+        klazz.rescue_act_from(StandardError) { head :unprocessable_entity }
+      end
+
+      it "raises #{MimeActor::ActorNotFound} for a missing handler method before any act callback" do
+        klazz.act_on_action :create, format: :html, with: -> { head :ok }
+        klazz.act_on_action :create, format: :json, with: :missing_handler
+
+        expect { dispatch(klazz, :create) }.to raise_error(MimeActor::ActorNotFound, ":missing_handler not found")
+        expect(events).to be_empty
+      end
+
+      it "raises #{AbstractController::ActionNotFound} for a missing action method before any act callback" do
+        klazz.act_on_action :create, format: :html
+
+        expect { dispatch(klazz, :create, :html) }.to raise_error(AbstractController::ActionNotFound)
+        expect(events).to be_empty
+      end
+    end
+
+    it "keeps the act callbacks out of the action methods" do
+      klazz.act_before { nil }
+      child = Class.new(klazz) do
+        act_before { nil }
+        act_on_action :show, format: :html
+      end
+
+      expect(klazz.action_methods).to be_empty
+      expect(child.action_methods).to eq Set["show"]
     end
 
     { "made private" => :private, "undefined" => :undef_method }.each do |description, visibility|
@@ -138,13 +189,14 @@ RSpec.describe MimeActor::Action do
       expect(dispatch(klazz, :create, "application/json").last.body).to eq "rescued create/json"
     end
 
-    it "clears the act after the action" do
+    it "keeps the act for the rest of the request" do
       recorded = events
-      klazz.after_action { recorded << [act_action, act_format] }
-      klazz.act_on_action :create, format: :html, with: -> { head :ok }
+      klazz.before_action { recorded << [:before_action, act_action, act_format] }
+      klazz.after_action { recorded << [:after_action, act_action, act_format] }
+      klazz.act_on_action :create, format: %i[html json], with: -> { head :ok }
 
-      expect(dispatch(klazz, :create, "text/html").first).to eq 200
-      expect(events).to eq [[nil, nil]]
+      expect(dispatch(klazz, :create, :json).first).to eq 200
+      expect(events).to eq [%i[before_action create json], %i[after_action create json]]
     end
 
     context "with an act callback tagging logs" do
@@ -211,6 +263,140 @@ RSpec.describe MimeActor::Action do
       expect(payloads).to eq [{ controller: klazz.name, action: :create, format: :html }]
     ensure
       ActiveSupport::Notifications.unsubscribe(subscriber)
+    end
+  end
+
+  describe "negotiating the act format" do
+    before do
+      recorded = events
+      klazz.act_on_action :create, format: :html, with: -> { head :ok }
+      klazz.define_method(:authenticate) do
+        recorded << :authenticate
+        head :unauthorized
+      end
+      klazz.define_method(:side_effect) { recorded << :side_effect }
+    end
+
+    it "runs the before_actions declared after the include once the format is accepted" do
+      klazz.before_action :side_effect
+
+      expect { dispatch(klazz, :create, :json) }.to raise_error(ActionController::UnknownFormat)
+      expect(events).to be_empty
+      expect(dispatch(klazz, :create, :html).first).to eq 200
+      expect(events).to eq [:side_effect]
+    end
+
+    it "runs the before_actions declared before the include first" do
+      parent = Class.new(ActionController::Base) { before_action :side_effect }
+      parent.define_method(:side_effect) { (@events ||= []) << :side_effect }
+      child = Class.new(parent) do
+        include MimeActor::Action
+        act_on_action :create, format: :html, with: -> { head :ok }
+      end
+      controller = child.new
+
+      expect { dispatch(controller, :create, :json) }.to raise_error(ActionController::UnknownFormat)
+      expect(controller.instance_variable_get(:@events)).to eq [:side_effect]
+    end
+
+    it "authenticates first when re-declared after the authentication" do
+      klazz.before_action :authenticate
+      klazz.before_action :negotiate_act_format
+
+      expect(dispatch(klazz, :create, :json).first).to eq 401
+      expect(events).to eq [:authenticate]
+    end
+
+    it "negotiates in the action when skipped" do
+      recorded = events
+      klazz.skip_before_action :negotiate_act_format
+      klazz.before_action { recorded << act_format }
+
+      expect { dispatch(klazz, :create, :json) }.to raise_error(ActionController::UnknownFormat)
+      expect(dispatch(klazz, :create, :html).first).to eq 200
+      expect(events).to eq [nil, nil]
+    end
+
+    it "negotiates again for each request of a reused controller" do
+      klazz.act_on_action :show, format: :json, with: -> { render plain: "show #{act_format}" }
+      controller = klazz.new
+
+      expect(dispatch(controller, :show, :json).last.body).to eq "show json"
+      expect(dispatch(controller, :create, :html).first).to eq 200
+    end
+
+    it "clears the act before the next request of a reused controller" do
+      klazz.act_on_action :show, format: :json, with: -> { render plain: "show" }
+      klazz.define_method(:index) { render plain: [act_action, act_format].inspect }
+      controller = klazz.new
+
+      dispatch(controller, :show, :json)
+      expect(dispatch(controller, :index).last.body).to eq "[nil, nil]"
+    end
+
+    it "leaves the act unset for an action not declared" do
+      klazz.define_method(:index) { render plain: [act_action, act_format].inspect }
+
+      expect(dispatch(klazz, :index).last.body).to eq "[nil, nil]"
+    end
+
+    it "keeps the negotiated format when a later before_action changes request.format" do
+      klazz.act_on_action :create, format: %i[html json], with: -> { render plain: act_format }
+      klazz.before_action { request.format = :json }
+
+      expect { dispatch(klazz, :create, :html) }.to raise_error(ActionController::UnknownFormat)
+    end
+
+    it "negotiates the request.format set by a before_action declared before the include" do
+      parent = Class.new(ActionController::Base) { before_action { request.format = :json } }
+      child = Class.new(parent) do
+        include MimeActor::Action
+        act_on_action :create, format: %i[html json], with: -> { render plain: act_format }
+      end
+
+      expect(dispatch(child, :create, :html).last.body).to eq "json"
+    end
+
+    it "keeps the act out of the view assigns" do
+      klazz.act_on_action :create, format: :json, with: -> { @event = :created }
+      controller = klazz.new
+
+      dispatch(controller, :create, :json)
+      expect(controller.view_assigns).to include("event" => :created)
+      expect(controller.view_assigns).not_to have_key("mime_actor_act")
+    end
+
+    it "keeps the act out of the view assigns when included where _protected_ivars is defined" do
+      base = Class.new(ActionController::Base)
+      base.define_method(:_protected_ivars) { ActionController::Base::PROTECTED_IVARS }
+      base.include described_class
+      base.act_on_action :create, format: :json, with: -> { @event = :created }
+      controller = base.new
+
+      dispatch(controller, :create, :json)
+      expect(controller.view_assigns).not_to have_key("mime_actor_act")
+    end
+
+    it "lets rescue_from read the act format of an error raised by a before_action" do
+      klazz.rescue_from(ArgumentError) { render plain: "rescued #{act_format}" }
+      klazz.before_action { raise ArgumentError }
+
+      expect(dispatch(klazz, :create, :html).last.body).to eq "rescued html"
+    end
+
+    it "exposes the act format as request.format when a before_action sets it" do
+      klazz.act_on_action :create, format: :json, with: -> { render plain: request.format.to_sym }
+      klazz.before_action { request.format = act_format if act_format }
+
+      expect(dispatch(klazz, :create, "application/xml, application/json;q=0.9").last.body).to eq "json"
+    end
+
+    it "responds to the negotiated format only" do
+      klazz.act_on_action :create, format: :json, with: -> { render plain: "json" }
+
+      _, headers, body = dispatch(klazz, :create, "application/xml, application/json;q=0.9, text/html;q=0.8")
+      expect(body.body).to eq "json"
+      expect(headers["Content-Type"]).to start_with "application/json"
     end
   end
 end

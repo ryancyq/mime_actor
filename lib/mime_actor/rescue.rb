@@ -2,7 +2,7 @@
 
 # :markup: markdown
 
-require "mime_actor/dispatcher"
+require "mime_actor/errors"
 require "mime_actor/validator"
 
 require "active_support/concern"
@@ -19,8 +19,6 @@ module MimeActor
   #
   module Rescue
     extend ActiveSupport::Concern
-
-    include Validator
 
     included do
       class_attribute :actor_rescuers, instance_accessor: false, instance_predicate: false, default: [].freeze
@@ -47,14 +45,14 @@ module MimeActor
         raise ArgumentError, "error filter is required" if klazzes.empty?
         raise ArgumentError, "provide either with: or a block" unless !with.nil? ^ block_given?
 
-        validate!(:callable, with) unless with.nil?
+        Validator.validate!(:callable, with, 1) unless with.nil?
         with = block if block_given?
 
-        validate!(:action_or_actions, action) unless action.nil?
-        validate!(:format_or_formats, format) unless format.nil?
+        Validator.validate!(:action_or_actions, action) unless action.nil?
+        Validator.validate!(:format_or_formats, format) unless format.nil?
 
         rescuers = klazzes.map do |klazz|
-          validate!(:klazz, klazz)
+          Validator.validate!(:klazz, klazz)
           error = klazz.is_a?(Module) ? klazz.name : klazz
           [error, format, action, with]
         end
@@ -67,34 +65,35 @@ module MimeActor
 
     private
 
-    # Resolve the error provided with the registered handlers.
+    # Rescues the error, or else its causes, with the most recently registered matching handler.
     #
-    # The handled error will be returned to indicate successful handling.
-    #
-    # @param error the error instance to rescue
-    # @param action the `action` filter
-    # @param format the `format` filter
-    # @param visited the errors to skip after no rescue handler matched the filter
-    #
-    def rescue_actor(error, action:, format:, visited: [])
-      return if visited.include?(error)
+    # Returns the rescued error, `nil` when no handler matched.
+    def rescue_act(error, visited = Set.new)
+      return if error.nil? || !visited.add?(error)
 
-      visited << error
-      rescuer = find_rescuer(error, format: format, action: action)
-      if (dispatch = MimeActor::Dispatcher.build(rescuer, error, format, action))
-        dispatch.call(self)
-        error
-      elsif error&.cause
-        rescue_actor(error.cause, format: format, action: action, visited: visited)
+      rescuer = find_rescuer(error)
+      return rescue_act(error.cause, visited) unless rescuer
+
+      call_rescuer(rescuer, error)
+      error
+    end
+
+    # Calls the handler with the error unless it takes no arguments.
+    def call_rescuer(rescuer, error)
+      if rescuer.is_a?(Proc)
+        rescuer.arity.zero? ? instance_exec(&rescuer) : instance_exec(error, &rescuer)
+      else
+        raise MimeActor::ActorNotFound, rescuer unless respond_to?(rescuer, true)
+
+        handler = method(rescuer)
+        handler.arity.zero? ? handler.call : handler.call(error)
       end
     end
 
-    def find_rescuer(error, format:, action:)
-      return unless error
-
+    def find_rescuer(error)
       *_, rescuer = self.class.actor_rescuers.reverse_each.detect do |rescuee, format_filter, action_filter|
-        next unless action_filter.nil? || Array(action_filter).include?(action)
-        next unless format_filter.nil? || Array(format_filter).include?(format)
+        next unless action_filter.nil? || Array(action_filter).include?(act_action)
+        next unless format_filter.nil? || Array(format_filter).include?(act_format)
         next unless (klazz = constantize_rescuee(rescuee))
 
         error.is_a?(klazz)

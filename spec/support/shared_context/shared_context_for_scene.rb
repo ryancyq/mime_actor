@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_context "with scene composition" do
-  let(:klazz) { Class.new.include described_class }
+  include_context "with a mime_actor controller"
   let(:action_filter) { :create }
   let(:format_filter) { :html }
   let(:compose) do

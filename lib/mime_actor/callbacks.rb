@@ -22,21 +22,87 @@ module MimeActor
   # - prepend_act_around
   # - prepend_act_after
   #
+  # An `act_before` halts the act once it responds (render, redirect or head) or throws `:abort`,
+  # the remaining callbacks and the act are skipped.
+  #
   # NOTE: Calling the same callback multiple times will overwrite previous callback definitions.
+  #
+  # Callbacks invocation sequence depends on the order of callback definition.
+  #
+  # @example callbacks with/without action filter
+  #   act_before :my_act_before_one
+  #   act_before :my_act_before_two, action: :create
+  #   act_before :my_act_before_three
+  #
+  #   act_around :my_act_around_one
+  #   act_around :my_act_around_two, action: :create
+  #   act_around :my_act_around_three
+  #
+  #   act_after :my_act_after_one
+  #   act_after :my_act_after_two, action: :create
+  #   act_after :my_act_after_three
+  #
+  #   # actual sequence:
+  #   # - my_act_before_one
+  #   # - my_act_before_two
+  #   # - my_act_before_three
+  #   # - my_act_around_one
+  #   # - my_act_around_two
+  #   # - my_act_around_three
+  #   # - my_act_after_three
+  #   # - my_act_after_two
+  #   # - my_act_after_one
+  #
+  # @example callbacks with format filter
+  #   act_before :my_act_before_one
+  #   act_before :my_act_before_two, action: :create
+  #   act_before :my_act_before_three, action: :create, format: :html
+  #   act_before :my_act_before_four
+  #
+  #   act_around :my_act_around_one
+  #   act_around :my_act_around_two, action: :create, format: :html
+  #   act_around :my_act_around_three, action: :create
+  #   act_around :my_act_around_four
+  #
+  #   act_after :my_act_after_one, format: :html
+  #   act_after :my_act_after_two
+  #   act_after :my_act_after_three, action: :create
+  #   act_after :my_act_after_four
+  #
+  #   # actual sequence:
+  #   # - my_act_before_one
+  #   # - my_act_before_two
+  #   # - my_act_before_four
+  #   # - my_act_before_three
+  #   # - my_act_around_one
+  #   # - my_act_around_two
+  #   # - my_act_around_three
+  #   # - my_act_around_four
+  #   # - my_act_after_four
+  #   # - my_act_after_three
+  #   # - my_act_after_two
+  #   # - my_act_after_one
   #
   module Callbacks
     extend ActiveSupport::Concern
 
     include ActiveSupport::Callbacks
-    include MimeActor::Validator
 
     LIFECYCLES = %i[before after around].freeze
 
-    Act = Struct.new(:action, :format)
+    TERMINATOR = lambda do |controller, result_lambda|
+      halted = true
+      catch(:abort) do
+        result_lambda.call
+        halted = false
+      end
+      halted || controller.performed?
+    end
 
     included do
-      define_callbacks :act, skip_after_callbacks_if_terminated: true
-      private :_run_act_callbacks, :_act_callbacks # keep them out of `action_methods`
+      define_callbacks :act, terminator: TERMINATOR, skip_after_callbacks_if_terminated: true
+      # keep the callback runners out of `action_methods`
+      %i[_run_act_callbacks _run_act_callbacks! _act_callbacks].each { |name| private name if method_defined?(name) }
     end
 
     module ClassMethods
@@ -44,13 +110,8 @@ module MimeActor
         attr_reader :actions, :formats
 
         def initialize(actions, formats)
-          if RUBY_VERSION < "2.6"
-            @actions = actions ? Array(actions).to_set(&:to_sym) : nil
-            @formats = formats ? Array(formats).to_set(&:to_sym) : nil
-          else
-            @actions = actions&.then { |a| Array(a).to_set(&:to_sym) }
-            @formats = formats&.then { |f| Array(f).to_set(&:to_sym) }
-          end
+          @actions = actions && Array(actions).to_set(&:to_sym)
+          @formats = formats && Array(formats).to_set(&:to_sym)
         end
 
         def match?(controller)
@@ -90,93 +151,9 @@ module MimeActor
       end
 
       def validate_callback_options!(action, format)
-        validate!(:action_or_actions, action) unless action.nil?
-        validate!(:format_or_formats, format) unless format.nil?
+        Validator.validate!(:action_or_actions, action) unless action.nil?
+        Validator.validate!(:format_or_formats, format) unless format.nil?
       end
-    end
-
-    private
-
-    # The `action` of the act being played, `nil` outside of an act.
-    def act_action
-      @mime_actor_act&.action
-    end
-
-    # The `format` of the act being played, `nil` outside of an act.
-    def act_format
-      @mime_actor_act&.format
-    end
-
-    # Callbacks invocation sequence depends on the order of callback definition.
-    #
-    # @example callbacks with/without action filter
-    #   act_before :my_act_before_one
-    #   act_before :my_act_before_two, action: :create
-    #   act_before :my_act_before_three
-    #
-    #   act_around :my_act_around_one
-    #   act_around :my_act_around_two, action: :create
-    #   act_around :my_act_around_three
-    #
-    #   act_after :my_act_after_one
-    #   act_after :my_act_after_two, action: :create
-    #   act_after :my_act_after_three
-    #
-    #   # actual sequence:
-    #   # - my_act_before_one
-    #   # - my_act_before_two
-    #   # - my_act_before_three
-    #   # - my_act_around_one
-    #   # - my_act_around_two
-    #   # - my_act_around_three
-    #   # - my_act_after_three
-    #   # - my_act_after_two
-    #   # - my_act_after_one
-    #
-    # @example callbacks with format filter
-    #   act_before :my_act_before_one
-    #   act_before :my_act_before_two, action: :create
-    #   act_before :my_act_before_three, action: :create, format: :html
-    #   act_before :my_act_before_four
-    #
-    #   act_around :my_act_around_one
-    #   act_around :my_act_around_two, action: :create, format: :html
-    #   act_around :my_act_around_three, action: :create
-    #   act_around :my_act_around_four
-    #
-    #   act_after :my_act_after_one, format: :html
-    #   act_after :my_act_after_two
-    #   act_after :my_act_after_three, action: :create
-    #   act_after :my_act_after_four
-    #
-    #   # actual sequence:
-    #   # - my_act_before_one
-    #   # - my_act_before_two
-    #   # - my_act_before_four
-    #   # - my_act_before_three
-    #   # - my_act_around_one
-    #   # - my_act_around_two
-    #   # - my_act_around_three
-    #   # - my_act_around_four
-    #   # - my_act_after_four
-    #   # - my_act_after_three
-    #   # - my_act_after_two
-    #   # - my_act_after_one
-    #
-    def play_act(action:, format:)
-      with_act(action: action, format: format) do
-        run_callbacks :act do
-          yield if block_given?
-        end
-      end
-    end
-
-    def with_act(action:, format:)
-      enclosing_act = @mime_actor_act
-      @mime_actor_act = Act.new(action.to_sym, format.to_sym)
-      yield
-    ensure
-      @mime_actor_act = enclosing_act
     end
   end
 end

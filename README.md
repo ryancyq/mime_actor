@@ -192,6 +192,51 @@ The above is equivalent to the following:
   end
 ```
 
+## Lifecycle
+
+`MimeActor::Action` handles the actions declared with `act_on_action`, other actions run as usual.
+
+Including `MimeActor::Action` adds `before_action :negotiate_act_format` where the `include` is. A request to a declared action runs in this order:
+
+1. The `before_action` callbacks declared before the `include`, including those of the parent controllers.
+2. `negotiate_act_format`:
+   - checks the handlers of every declared format exist, raises `MimeActor::ActorNotFound` for a missing `with:` method, or `AbstractController::ActionNotFound` for a format without a `with:` handler when the action has no method;
+   - picks the format from the request among the declared formats, raises `ActionController::UnknownFormat` (`406 Not Acceptable`) when none is accepted;
+   - sets `act_action` and `act_format`.
+3. The `before_action` callbacks declared after the `include`, including those of the subclasses.
+4. The act: `act_before`, `act_around`, the action method or the `with:` handler of the format, then `act_after`.
+5. The default render, when nothing has responded.
+6. The `after_action` callbacks.
+
+The gem imposes the following:
+
+- An `act_before` halts the act when it responds (`render`, `redirect_to`, `head`), like `before_action`, or when it throws `:abort`. The remaining act callbacks and the action are skipped. A halt without a response still gets the default render (step 5), which renders the template of the action if there is one.
+- `rescue_act_from` rescues the errors raised by the act (step 4). Other errors go to `rescue_from`, where `act_format` can be read.
+- `act_action` and `act_format` are private readers, set from the negotiation until the end of the request, `nil` before it or for an action not declared.
+- An act handler (a `with:` method, Proc or block) is called without arguments, it reads `act_action`/`act_format` instead. A rescue handler is called with the error unless it takes no arguments, like `rescue_from`.
+- `request.format` is left as Rails sets it, `act_format` is the negotiated format. To expose it as `request.format`, set it in a `before_action` declared after the `include`, it also changes `params[:format]`:
+  ```rb
+  before_action { request.format = act_format if act_format }
+  ```
+- The format is negotiated once, from the request at step 2. A `before_action` that changes `request.format` must run before it: declare it before the `include`, or declare `negotiate_act_format` again after it. Otherwise the act responds to the negotiated format only, and the request fails with `406`.
+- `negotiate_act_format` moves like any `before_action`: declare it again to run it after the callbacks declared so far, or `skip_before_action :negotiate_act_format` to negotiate when the action runs (step 4).
+
+#### Authentication
+
+The position of the `include` decides whether a request is negotiated or authenticated first.
+
+Negotiate first, with the `include` before the authentication: a request for a format the action does not declare is rejected with `406` before it is authenticated, so the formats of an action are visible to a signed out client.
+
+Authenticate first, by declaring the negotiation again after the authentication: a signed out request is rejected or redirected whatever its format, and the authentication runs for requests rejected with `406` afterwards.
+```rb
+class ApplicationController < ActionController::Base
+  include MimeActor::Action
+
+  before_action :authenticate_user!
+  before_action :negotiate_act_format # declared again, runs after the authentication
+end
+```
+
 ## Features
 
 - Action customisation for [ActionController][doc_action_controller] per MIME type
