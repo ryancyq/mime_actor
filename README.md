@@ -237,6 +237,20 @@ class ApplicationController < ActionController::Base
 end
 ```
 
+#### ActionController::Metal
+
+A controller built on `ActionController::Metal` dispatches every public method below its first abstract ancestor as an action, including those of the modules `MimeActor::Action` brings in (`render`, `respond_to`, `run_callbacks`, ...). Include `MimeActor::Action` in an abstract controller, and declare the actions in its subclasses, the methods of an abstract controller are not actions:
+```rb
+class MetalController < ActionController::Metal
+  abstract!
+  include MimeActor::Action
+end
+
+class EventsController < MetalController
+  act_on_action :show, format: :json, with: -> { self.response_body = "{}" }
+end
+```
+
 ## Features
 
 - Action customisation for [ActionController][doc_action_controller] per MIME type

@@ -133,6 +133,30 @@ RSpec.describe MimeActor::Action do
       expect(child.action_methods).to eq Set["show"]
     end
 
+    context "with an abstract #{ActionController::Metal} controller" do
+      let(:abstract_controller) do
+        Class.new(ActionController::Metal).tap do |k|
+          k.abstract!
+          k.include described_class
+        end
+      end
+
+      it "dispatches only the declared actions of its subclasses" do
+        child = Class.new(abstract_controller) do
+          act_on_action :show, format: :html, with: -> { self.response_body = "show" }
+        end
+
+        expect(child.action_methods).to eq Set["show"]
+        expect(dispatch(child, :show).last.body).to eq "show"
+      end
+
+      it "does not dispatch the actions declared in the abstract controller" do
+        abstract_controller.act_on_action :index, format: :html, with: -> { self.response_body = "index" }
+
+        expect(Class.new(abstract_controller).action_methods).to be_empty
+      end
+    end
+
     { "made private" => :private, "undefined" => :undef_method }.each do |description, visibility|
       it "does not dispatch actions #{description} by the child" do
         klazz.act_on_action :create, format: :html, with: -> { head :ok }
