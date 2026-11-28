@@ -43,6 +43,10 @@ module MimeActor
       before_action :negotiate_act_format
     end
 
+    def view_assigns
+      super.tap { |assigns| assigns.delete("mime_actor_act") }
+    end
+
     private
 
     # The `action` of the act, `nil` until the act format is negotiated.

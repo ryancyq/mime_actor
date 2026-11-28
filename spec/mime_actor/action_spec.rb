@@ -357,6 +357,26 @@ RSpec.describe MimeActor::Action do
       expect(dispatch(child, :create, :html).last.body).to eq "json"
     end
 
+    it "keeps the act out of the view assigns" do
+      klazz.act_on_action :create, format: :json, with: -> { @event = :created }
+      controller = klazz.new
+
+      dispatch(controller, :create, :json)
+      expect(controller.view_assigns).to include("event" => :created)
+      expect(controller.view_assigns).not_to have_key("mime_actor_act")
+    end
+
+    it "keeps the act out of the view assigns when included where _protected_ivars is defined" do
+      base = Class.new(ActionController::Base)
+      base.define_method(:_protected_ivars) { ActionController::Base::PROTECTED_IVARS }
+      base.include described_class
+      base.act_on_action :create, format: :json, with: -> { @event = :created }
+      controller = base.new
+
+      dispatch(controller, :create, :json)
+      expect(controller.view_assigns).not_to have_key("mime_actor_act")
+    end
+
     it "lets rescue_from read the act format of an error raised by a before_action" do
       klazz.rescue_from(ArgumentError) { render plain: "rescued #{act_format}" }
       klazz.before_action { raise ArgumentError }
