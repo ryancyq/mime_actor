@@ -47,7 +47,7 @@ module MimeActor
         raise ArgumentError, "error filter is required" if klazzes.empty?
         raise ArgumentError, "provide either with: or a block" unless !with.nil? ^ block_given?
 
-        validate!(:callable, with) unless with.nil?
+        validate!(:callable, with, 1) unless with.nil?
         with = block if block_given?
 
         validate!(:action_or_actions, action) unless action.nil?
@@ -81,7 +81,7 @@ module MimeActor
 
       visited << error
       rescuer = find_rescuer(error, format: format, action: action)
-      if (dispatch = MimeActor::Dispatcher.build(rescuer, error, format, action))
+      if (dispatch = MimeActor::Dispatcher.build(rescuer, error))
         dispatch.call(self)
         error
       elsif error&.cause

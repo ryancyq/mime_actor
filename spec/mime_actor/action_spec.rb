@@ -61,11 +61,28 @@ RSpec.describe MimeActor::Action do
       expect(dispatch(klazz, :create, "text/html").last.body).to eq "handler create/html"
     end
 
-    it "passes the action and format to the handler" do
+    it "calls the handler without arguments" do
       klazz.act_on_action :create, format: :json, with: :render_act
-      klazz.define_method(:render_act) { |action, format| render plain: "#{action}/#{format}" }
+      klazz.define_method(:render_act) { render plain: "#{act_action}/#{act_format}" }
 
       expect(dispatch(klazz, :create, "application/json").last.body).to eq "create/json"
+    end
+
+    it "passes only the error to the rescue handler" do
+      klazz.rescue_act_from ArgumentError, with: :render_error
+      klazz.define_method(:render_error) { |*args| render plain: args.map(&:class).join(",") }
+      klazz.act_on_action :create, format: :json, with: -> { raise ArgumentError }
+
+      expect(dispatch(klazz, :create, "application/json").last.body).to eq "ArgumentError"
+    end
+
+    it "rejects a lambda handler taking arguments" do
+      expect { klazz.act_on_action :create, format: :html, with: ->(format) { format } }.to raise_error(
+        ArgumentError, %r{must not require arguments}
+      )
+      expect { klazz.rescue_act_from(StandardError, with: ->(error, format) { [error, format] }) }.to raise_error(
+        ArgumentError, %r{must not require more than 1 argument}
+      )
     end
 
     it "lists actions declared after the action methods are cached" do

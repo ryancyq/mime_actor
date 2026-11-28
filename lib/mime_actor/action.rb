@@ -41,7 +41,7 @@ module MimeActor
         self.class.acting_scenes.fetch(action).each do |format, actor|
           collector.public_send(format) do
             if actor
-              cue_actor(actor, action, format, action: action, format: format)
+              cue_actor(actor, action: action, format: format)
             else
               cue_actor(action, *args, action: action, format: format)
             end

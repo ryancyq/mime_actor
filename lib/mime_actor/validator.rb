@@ -95,13 +95,21 @@ module MimeActor
         TypeError.new("#{unchecked.inspect} must be a Class/Module or a String referencing a Class/Module")
       end
 
-      # Validate `callable` must be a Symbol or Proc
+      # Validate `callable` must be a Symbol or Proc, a lambda must not require more than `max_arguments`
       #
       # @param unchecked the `callable` to be validated
-      def validate_callable(unchecked)
-        return if unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
+      # @param max_arguments the arguments the `callable` is called with
+      def validate_callable(unchecked, max_arguments = 0)
+        unless unchecked.is_a?(Proc) || unchecked.is_a?(Symbol)
+          return TypeError.new("#{unchecked.inspect} must be a Symbol or Proc")
+        end
+        return unless unchecked.is_a?(Proc) && unchecked.lambda?
 
-        TypeError.new("#{unchecked.inspect} must be a Symbol or Proc")
+        required = unchecked.parameters.count { |type, _| type == :req }
+        return if required <= max_arguments
+
+        requirement = max_arguments.zero? ? "arguments" : "more than #{max_arguments} argument"
+        ArgumentError.new("#{unchecked.inspect} must not require #{requirement}")
       end
 
       private
