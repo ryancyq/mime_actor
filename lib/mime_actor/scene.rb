@@ -35,6 +35,8 @@ module MimeActor
   module Scene
     extend ActiveSupport::Concern
 
+    class ActionMethods < Module; end
+
     included do
       class_attribute :acting_scenes, instance_accessor: false, instance_predicate: false, default: {}.freeze
     end
@@ -98,7 +100,7 @@ module MimeActor
 
       # included rather than prepended, a method defined in the class wins
       def mime_actor_action_methods
-        @mime_actor_action_methods ||= Module.new.tap { |mod| include mod }
+        @mime_actor_action_methods ||= ActionMethods.new.tap { |mod| include mod }
       end
 
       def define_action_methods(actions)
@@ -109,20 +111,44 @@ module MimeActor
             # def create
             #   return super if defined?(super)
             #
-            #   message = "The action 'create' has no method or format handler for \#{self.class.name}"
-            #   raise AbstractController::ActionNotFound.new(message, self, "create")
+            #   raise action_not_found(:create)
             # end
             def #{action}
               return super if defined?(super)
 
-              message = "The action '#{action}' has no method or format handler for \#{self.class.name}"
-              raise AbstractController::ActionNotFound.new(message, self, "#{action}")
+              raise action_not_found(:#{action})
             end
           RUBY
         end
         # module methods skip `method_added`, which resets the cache in controllers
         clear_action_methods! if respond_to?(:clear_action_methods!)
       end
+    end
+
+    private
+
+    # Raises when a handler of the `action` is missing, before the act callbacks can run or rescue it.
+    def verify_scene!(action)
+      self.class.acting_scenes.fetch(action).each_value do |actor|
+        case actor
+        when Symbol
+          raise MimeActor::ActorNotFound, actor unless respond_to?(actor, true)
+        when nil
+          raise action_not_found(action) unless action_method_defined?(action)
+        end
+      end
+    end
+
+    # whether a method other than the base `action` method is defined
+    def action_method_defined?(action)
+      method = self.class.instance_method(action)
+      method = method.super_method while method && method.owner.is_a?(ActionMethods)
+      !method.nil?
+    end
+
+    def action_not_found(action)
+      message = "The action '#{action}' has no method or format handler for #{self.class.name}"
+      AbstractController::ActionNotFound.new(message, self, action.to_s)
     end
   end
 end

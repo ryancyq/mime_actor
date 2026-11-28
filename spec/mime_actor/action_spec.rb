@@ -99,6 +99,29 @@ RSpec.describe MimeActor::Action do
       expect { dispatch(klazz, :create) }.to raise_error(MimeActor::ActorNotFound, ":missing_handler not found")
     end
 
+    context "with a handler that does not exist" do
+      before do
+        recorded = events
+        klazz.act_before { recorded << :act_before }
+        klazz.rescue_act_from(StandardError) { head :unprocessable_entity }
+      end
+
+      it "raises #{MimeActor::ActorNotFound} for a missing handler method before any act callback" do
+        klazz.act_on_action :create, format: :html, with: -> { head :ok }
+        klazz.act_on_action :create, format: :json, with: :missing_handler
+
+        expect { dispatch(klazz, :create) }.to raise_error(MimeActor::ActorNotFound, ":missing_handler not found")
+        expect(events).to be_empty
+      end
+
+      it "raises #{AbstractController::ActionNotFound} for a missing action method before any act callback" do
+        klazz.act_on_action :create, format: :html
+
+        expect { dispatch(klazz, :create, :html) }.to raise_error(AbstractController::ActionNotFound)
+        expect(events).to be_empty
+      end
+    end
+
     it "keeps the act callbacks out of the action methods" do
       klazz.act_before { nil }
       child = Class.new(klazz) do

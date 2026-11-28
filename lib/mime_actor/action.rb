@@ -55,6 +55,7 @@ module MimeActor
 
     def play_scene(*args)
       action = action_name.to_sym
+      verify_scene!(action)
       respond_to do |collector|
         self.class.acting_scenes.fetch(action).each do |format, actor|
           collector.public_send(format) { play_act(action, format, actor, *args) }
@@ -75,10 +76,7 @@ module MimeActor
     end
 
     def call_actor(actor)
-      return instance_exec(&actor) if actor.is_a?(Proc)
-      raise MimeActor::ActorNotFound, actor unless respond_to?(actor, true)
-
-      send(actor)
+      actor.is_a?(Proc) ? instance_exec(&actor) : send(actor)
     end
 
     ActiveSupport.run_load_hooks(:mime_actor, self)
