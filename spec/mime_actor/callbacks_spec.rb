@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "action_view/testing/resolvers"
+
 require "mime_actor"
 
 RSpec.describe MimeActor::Callbacks do
@@ -263,6 +265,96 @@ RSpec.describe MimeActor::Callbacks do
             after_a_f
           ]
         end
+      end
+    end
+  end
+
+  describe "halting" do
+    include_context "with a mime_actor controller"
+
+    let(:events) { [] }
+
+    before do
+      recorded = events
+      klazz.act_before -> { recorded << :first_before }
+      klazz.act_before :respond_early
+      klazz.act_before -> { recorded << :later_before }
+      klazz.act_around :around_act
+      klazz.define_method(:around_act) do |&block|
+        recorded << :around
+        block.call
+      end
+      klazz.act_after -> { recorded << :after }
+      klazz.act_on_action :create, format: :html, with: -> { recorded << :act }
+    end
+
+    {
+      "redirects" => [302, -> { redirect_to "/events" }],
+      "renders"   => [200, -> { render plain: "early" }],
+      "heads"     => [202, -> { head :accepted }]
+    }.each do |description, (expected_status, respond)|
+      [ActionController::Base, ActionController::API].each do |base|
+        context "when an act_before #{description} on #{base}" do
+          let(:controller_base) { base }
+
+          before { klazz.define_method(:respond_early, &respond) }
+
+          it "skips the later callbacks and the act" do
+            expect(dispatch(klazz, :create).first).to eq expected_status
+            expect(events).to eq [:first_before]
+          end
+        end
+      end
+    end
+
+    context "when an act_before responds on #{ActionController::Metal}" do
+      let(:controller_base) { ActionController::Metal }
+
+      before { klazz.define_method(:respond_early) { self.response_body = "early" } }
+
+      it "skips the later callbacks and the act" do
+        expect(dispatch(klazz, :create).last.body).to eq "early"
+        expect(events).to eq [:first_before]
+      end
+    end
+
+    context "when an act_before throws :abort" do
+      before { klazz.define_method(:respond_early) { throw :abort } }
+
+      it "skips the later callbacks and the act" do
+        expect(dispatch(klazz, :create).first).to eq 204
+        expect(events).to eq [:first_before]
+      end
+
+      it "still renders the template of the action by default" do
+        klazz.define_singleton_method(:controller_path) { "events" }
+        klazz.view_paths = [ActionView::FixtureResolver.new("events/create.html.erb" => "event: <%= @event.inspect %>")]
+        klazz.act_on_action :create, format: :html, with: -> { @event = "created" }
+
+        expect(dispatch(klazz, :create).last.body).to eq "event: nil"
+        expect(events).to eq [:first_before]
+      end
+    end
+
+    context "when an act_around does not yield" do
+      before do
+        recorded = events
+        klazz.define_method(:respond_early) { nil }
+        klazz.act_around ->(_, _block) { recorded << :blocking_around }
+      end
+
+      it "skips the act, like ActiveSupport::Callbacks the act_after still runs" do
+        expect(dispatch(klazz, :create).first).to eq 204
+        expect(events).to eq %i[first_before later_before around blocking_around after]
+      end
+    end
+
+    context "when no act_before responds" do
+      before { klazz.define_method(:respond_early) { nil } }
+
+      it "runs the act and the act_after" do
+        expect(dispatch(klazz, :create).first).to eq 204
+        expect(events).to eq %i[first_before later_before around act after]
       end
     end
   end

@@ -22,6 +22,9 @@ module MimeActor
   # - prepend_act_around
   # - prepend_act_after
   #
+  # An `act_before` halts the act once it responds (render, redirect or head) or throws `:abort`,
+  # the remaining callbacks and the act are skipped.
+  #
   # NOTE: Calling the same callback multiple times will overwrite previous callback definitions.
   #
   # Callbacks invocation sequence depends on the order of callback definition.
@@ -87,8 +90,17 @@ module MimeActor
 
     LIFECYCLES = %i[before after around].freeze
 
+    TERMINATOR = lambda do |controller, result_lambda|
+      halted = true
+      catch(:abort) do
+        result_lambda.call
+        halted = false
+      end
+      halted || controller.performed?
+    end
+
     included do
-      define_callbacks :act, skip_after_callbacks_if_terminated: true
+      define_callbacks :act, terminator: TERMINATOR, skip_after_callbacks_if_terminated: true
       # keep the callback runners out of `action_methods`
       %i[_run_act_callbacks _run_act_callbacks! _act_callbacks].each { |name| private name if method_defined?(name) }
     end

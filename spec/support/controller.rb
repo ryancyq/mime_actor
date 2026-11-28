@@ -20,7 +20,7 @@ RSpec.shared_context "with a mime_actor controller" do
   let(:controller_base) { ActionController::Base }
   let(:klazz) do
     Class.new(controller_base).tap do |k|
-      k.logger = nil
+      k.logger = nil if k.respond_to?(:logger=)
       k.include MimeActor::Action
     end
   end
