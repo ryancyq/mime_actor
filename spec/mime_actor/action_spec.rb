@@ -315,6 +315,7 @@ RSpec.describe MimeActor::Action do
       parent.define_method(:side_effect) { (@events ||= []) << :side_effect }
       child = Class.new(parent) do
         include MimeActor::Action
+
         act_on_action :create, format: :html, with: -> { head :ok }
       end
       controller = child.new
@@ -375,6 +376,7 @@ RSpec.describe MimeActor::Action do
       parent = Class.new(ActionController::Base) { before_action { request.format = :json } }
       child = Class.new(parent) do
         include MimeActor::Action
+
         act_on_action :create, format: %i[html json], with: -> { render plain: act_format }
       end
 

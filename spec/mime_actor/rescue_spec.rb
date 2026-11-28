@@ -183,7 +183,7 @@ RSpec.describe MimeActor::Rescue do
       it_behaves_like "rescuable with handler", "Method", Method, acceptance: false do
         let(:handler) { method(:to_s) }
         let(:error_class_raised) { TypeError }
-        let(:error_message_raised) { %r{Method.*[\.#]to_s.* must be a Symbol or Proc} }
+        let(:error_message_raised) { %r{Method.*[.#]to_s.* must be a Symbol or Proc} }
       end
     end
 
@@ -220,6 +220,7 @@ RSpec.describe MimeActor::Rescue do
 
     it_behaves_like "rescuable actor handler", "defined class name with namespace" do
       let(:error_class) { MimeActor::Error }
+
       before { klazz.rescue_act_from "MimeActor::Error", with: proc {} }
     end
 
@@ -229,6 +230,7 @@ RSpec.describe MimeActor::Rescue do
 
     it_behaves_like "rescuable actor handler", "error subclass" do
       let(:error_class) { stub_const "MyError", Class.new(RuntimeError) }
+
       before { klazz.rescue_act_from RuntimeError, with: proc {} }
     end
 
@@ -325,6 +327,7 @@ RSpec.describe MimeActor::Rescue do
       end
       let(:error_instance) { error_re_raise }
       let(:error_instance_rescued) { error_re_raise.cause }
+
       before { klazz.rescue_act_from RuntimeError, with: proc {} }
     end
 

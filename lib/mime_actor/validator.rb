@@ -46,7 +46,7 @@ module MimeActor
     def validate_actions(unchecked)
       return TypeError.new("actions must not be empty") if unchecked.empty?
 
-      rejected = unchecked.reject { |action| action.is_a?(Symbol) }
+      rejected = unchecked.grep_v(Symbol)
       NameError.new("invalid actions, got: #{rejected.map(&:inspect).join(", ")}") if rejected.size.positive?
     end
 

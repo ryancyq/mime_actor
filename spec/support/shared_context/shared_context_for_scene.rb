@@ -2,6 +2,7 @@
 
 RSpec.shared_context "with scene composition" do
   include_context "with a mime_actor controller"
+
   let(:action_filter) { :create }
   let(:format_filter) { :html }
   let(:compose) do

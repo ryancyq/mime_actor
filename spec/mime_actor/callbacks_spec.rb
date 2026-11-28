@@ -81,6 +81,7 @@ RSpec.describe MimeActor::Callbacks do
 
   describe "act callbacks sequence" do
     include_context "with a mime_actor controller"
+
     let(:sequence) { [] }
 
     before do

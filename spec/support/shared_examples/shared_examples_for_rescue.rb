@@ -22,7 +22,9 @@ end
 
 RSpec.shared_examples "rescuable format filter" do |format_name, acceptance: true|
   include_context "with rescuable filter", :format
+
   let(:error_filter) { StandardError }
+
   if acceptance
     it "accepts #{format_name || "the format"}" do
       expect { rescuable }.not_to raise_error

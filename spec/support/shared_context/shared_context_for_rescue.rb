@@ -2,6 +2,7 @@
 
 RSpec.shared_context "with rescuable filter" do |*filters|
   include_context "with a mime_actor controller"
+
   let(:error_filter) { nil }
   let(:action_filter) { nil } if filters.include?(:action)
   let(:format_filter) { nil } if filters.include?(:format)
@@ -22,6 +23,7 @@ end
 
 RSpec.shared_context "with rescuable actor handler" do
   include_context "with a mime_actor controller"
+
   let(:error_instance) { error_class.new "my error" }
   let(:action_filter) { nil }
   let(:format_filter) { nil }
