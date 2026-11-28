@@ -10,21 +10,4 @@ require "active_support" # load the core before its components, required by rail
 
 require "mime_actor/version"
 require "mime_actor/errors"
-
-# load mime_actor components
 require "mime_actor/action"
-require "mime_actor/callbacks"
-require "mime_actor/rescue"
-require "mime_actor/scene"
-require "mime_actor/stage"
-require "mime_actor/validator"
-
-require "mime_actor/deprecator"
-
-begin
-  require "rails"
-rescue LoadError
-  # noop
-end
-
-require "mime_actor/railtie" if defined?(Rails::Railtie)

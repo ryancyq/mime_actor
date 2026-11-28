@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "mime_actor/callbacks"
+require "mime_actor"
 
 RSpec.describe MimeActor::Callbacks do
   %i[before after around].each do |kind|
@@ -78,8 +78,7 @@ RSpec.describe MimeActor::Callbacks do
   end
 
   describe "act callbacks sequence" do
-    let(:klazz) { Class.new.include described_class }
-    let(:klazz_instance) { klazz.new }
+    include_context "with a mime_actor controller"
     let(:sequence) { [] }
 
     before do
@@ -87,13 +86,14 @@ RSpec.describe MimeActor::Callbacks do
       around_callbacks
       after_callbacks
 
-      klazz.define_method(:method_missing) { |*_args| "missed" }
-      klazz.define_method(:respond_to_missing?) { |*_args| "responded" }
-
-      allow(klazz_instance).to receive(:method_missing).and_wrap_original do |_method, method_name, *_args, &block|
-        sequence << method_name
-        block&.call
+      recorded = sequence
+      klazz.__callbacks[:act].map(&:filter).grep(Symbol).each do |name|
+        klazz.define_method(name) do |&block|
+          recorded << name
+          block&.call
+        end
       end
+      klazz.act_on_action :create, :show, format: %i[xml html json], with: -> { head :ok }
     end
 
     context "with or without action filter" do
@@ -114,7 +114,7 @@ RSpec.describe MimeActor::Callbacks do
       end
 
       it "calls in order" do
-        klazz_instance.send(:play_act, action: :create, format: :html)
+        dispatch(klazz_instance, :create, :html)
         expect(sequence).to eq %i[
           my_act_before_one
           my_act_before_two
@@ -150,7 +150,7 @@ RSpec.describe MimeActor::Callbacks do
       end
 
       it "calls in order" do
-        klazz_instance.send(:play_act, action: :create, format: :html)
+        dispatch(klazz_instance, :create, :html)
         expect(sequence).to eq %i[
           my_act_before_one
           my_act_before_two
@@ -188,7 +188,7 @@ RSpec.describe MimeActor::Callbacks do
 
       context "with action name :create" do
         it "calls xml callbacks in order" do
-          klazz_instance.send(:play_act, action: :create, format: :xml)
+          dispatch(klazz_instance, :create, :xml)
           expect(sequence).to eq %i[
             before_a
             before_anything
@@ -199,7 +199,7 @@ RSpec.describe MimeActor::Callbacks do
         end
 
         it "calls html callbacks in order" do
-          klazz_instance.send(:play_act, action: :create, format: :html)
+          dispatch(klazz_instance, :create, :html)
           expect(sequence).to eq %i[
             before_a
             before_f
@@ -212,7 +212,7 @@ RSpec.describe MimeActor::Callbacks do
         end
 
         it "calls json callbacks in order" do
-          klazz_instance.send(:play_act, action: :create, format: :json)
+          dispatch(klazz_instance, :create, :json)
           expect(sequence).to eq %i[
             before_a
             before_f
@@ -227,7 +227,7 @@ RSpec.describe MimeActor::Callbacks do
 
       context "with action name :show" do
         it "calls xml callbacks in order" do
-          klazz_instance.send(:play_act, action: :show, format: :xml)
+          dispatch(klazz_instance, :show, :xml)
           expect(sequence).to eq %i[
             before_a
             before_anything
@@ -238,7 +238,7 @@ RSpec.describe MimeActor::Callbacks do
         end
 
         it "calls html callbacks in order" do
-          klazz_instance.send(:play_act, action: :show, format: :html)
+          dispatch(klazz_instance, :show, :html)
           expect(sequence).to eq %i[
             before_a
             before_f
@@ -251,7 +251,7 @@ RSpec.describe MimeActor::Callbacks do
         end
 
         it "calls json callbacks in order" do
-          klazz_instance.send(:play_act, action: :show, format: :json)
+          dispatch(klazz_instance, :show, :json)
           expect(sequence).to eq %i[
             before_a
             before_f
@@ -264,54 +264,6 @@ RSpec.describe MimeActor::Callbacks do
           ]
         end
       end
-    end
-  end
-
-  describe "#play_act when nested" do
-    let(:klazz) do
-      Class.new.tap do |k|
-        k.include described_class
-        k.attr_reader :events
-        k.define_method(:initialize) { @events = [] }
-        k.act_after -> { events << "outer_html_after" }, action: :outer, format: :html
-      end
-    end
-    let(:klazz_instance) { klazz.new }
-
-    def run_outer
-      klazz_instance.send(:play_act, action: :outer, format: :html) do
-        yield
-        klazz_instance.events << "after_inner:#{klazz_instance.send(:act_action)}/#{klazz_instance.send(:act_format)}"
-      end
-    end
-
-    it "restores the outer action/format after the inner act" do
-      run_outer do
-        klazz_instance.send(:play_act, action: :inner, format: :json) { klazz_instance.events << "inner_body" }
-      end
-      expect(klazz_instance.events).to eq %w[inner_body after_inner:outer/html outer_html_after]
-    end
-
-    it "restores the outer action/format after the inner act is aborted" do
-      klazz.act_before -> { throw :abort }, action: :inner
-      run_outer do
-        klazz_instance.send(:play_act, action: :inner, format: :json) { klazz_instance.events << "inner_body" }
-      end
-      expect(klazz_instance.events).to eq %w[after_inner:outer/html outer_html_after]
-    end
-
-    it "restores the outer action/format after the inner act raises" do
-      run_outer do
-        klazz_instance.send(:play_act, action: :inner, format: :json) { raise ArgumentError }
-      rescue ArgumentError
-        klazz_instance.events << "rescued"
-      end
-      expect(klazz_instance.events).to eq %w[rescued after_inner:outer/html outer_html_after]
-    end
-
-    it "clears the action/format after returning" do
-      klazz_instance.send(:play_act, action: :outer, format: :html)
-      expect([klazz_instance.send(:act_action), klazz_instance.send(:act_format)]).to eq [nil, nil]
     end
   end
 end

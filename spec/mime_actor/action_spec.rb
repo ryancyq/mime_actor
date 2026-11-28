@@ -5,22 +5,9 @@ require "mime_actor"
 require "action_controller"
 
 RSpec.describe MimeActor::Action do
-  let(:events) { [] }
-  let(:controller_base) { ActionController::Base }
-  let(:klazz) do
-    Class.new(controller_base).tap do |k|
-      k.logger = nil
-      k.include described_class
-    end
-  end
+  include_context "with a mime_actor controller"
 
-  def dispatch(controller_class, action, accept)
-    env = { "REQUEST_METHOD" => "POST", "HTTP_ACCEPT" => accept, "HTTP_HOST" => "example.org" }
-    env["rack.input"] = "" if ActionPack.version < Gem::Version.new("7.1")
-    request = ActionDispatch::Request.new(env)
-    response = ActionDispatch::Response.new.tap { |res| res.request = request }
-    controller_class.new.dispatch(action.to_s, request, response)
-  end
+  let(:events) { [] }
 
   describe "ActiveSupport#on_load" do
     it "allows customization" do
@@ -33,7 +20,7 @@ RSpec.describe MimeActor::Action do
       end.not_to raise_error
 
       expect(described_class).to be_method_defined(:patch)
-      expect(Class.new.include(described_class).new.patch).to eq "patch my stuff"
+      expect(klazz.new.patch).to eq "patch my stuff"
     ensure
       described_class.send(:remove_method, :patch)
     end
@@ -99,6 +86,17 @@ RSpec.describe MimeActor::Action do
       expect(klazz.action_methods).not_to include(
         "act_action", "act_format", "acting_scenes", "actor_rescuers", "_run_act_callbacks", "_act_callbacks"
       )
+    end
+
+    it "keeps the validators off the controller" do
+      expect(klazz).not_to respond_to(:validate!)
+      expect(klazz).not_to respond_to(:validate_format)
+    end
+
+    it "raises #{MimeActor::ActorNotFound} when the handler method is missing" do
+      klazz.act_on_action :create, format: :html, with: :missing_handler
+
+      expect { dispatch(klazz, :create) }.to raise_error(MimeActor::ActorNotFound, ":missing_handler not found")
     end
 
     it "keeps the act callbacks out of the action methods" do

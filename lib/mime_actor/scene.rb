@@ -35,8 +35,6 @@ module MimeActor
   module Scene
     extend ActiveSupport::Concern
 
-    include Validator
-
     included do
       class_attribute :acting_scenes, instance_accessor: false, instance_predicate: false, default: {}.freeze
     end
@@ -74,9 +72,9 @@ module MimeActor
         raise ArgumentError, "format is required" if format.nil?
         raise ArgumentError, "provide either with: or a block" if !with.nil? && block_given?
 
-        validate!(:actions, actions)
-        validate!(:format_or_formats, format)
-        validate!(:callable, with) unless with.nil?
+        Validator.validate!(:actions, actions)
+        Validator.validate!(:format_or_formats, format)
+        Validator.validate!(:callable, with) unless with.nil?
         with = block if block_given?
 
         register_acting_scenes(actions, format, with)

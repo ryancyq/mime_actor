@@ -112,7 +112,7 @@ RSpec.shared_examples "composable scene action method" do |scene_name|
 
   describe "when action method is defined in the parent for #{scene_name || "the scene"}" do
     let(:parent) do
-      Class.new.tap do |k|
+      Class.new(ActionController::Base).tap do |k|
         expected_scenes.each_key { |action_name| k.define_method(action_name) { "parent #{action_name}" } }
       end
     end

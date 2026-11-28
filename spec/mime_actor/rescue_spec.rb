@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "mime_actor/rescue"
+require "mime_actor"
 
 RSpec.describe MimeActor::Rescue do
-  let(:klazz) { Class.new.include described_class }
+  include_context "with a mime_actor controller"
 
   describe "#rescue_act_from" do
     describe "error filter" do
@@ -202,7 +202,7 @@ RSpec.describe MimeActor::Rescue do
     end
   end
 
-  describe "#rescue_actor" do
+  describe "#rescue_act" do
     let(:error_class) { RuntimeError }
 
     it_behaves_like "rescuable actor handler", "emtpy actor_rescuers", acceptance: false
@@ -313,11 +313,6 @@ RSpec.describe MimeActor::Rescue do
       end
     end
 
-    it_behaves_like "rescuable actor handler", "error in visited", acceptance: false do
-      let(:visited_errors) { [error_instance] }
-      before { klazz.rescue_act_from RuntimeError, with: proc {} }
-    end
-
     it_behaves_like "rescuable actor handler", "error re-raised" do
       let(:error_re_raise) do
         begin
@@ -352,10 +347,10 @@ RSpec.describe MimeActor::Rescue do
       end
 
       it "rescues with fallback" do
+        error = error_instance
+        klazz.act_on_action :index, format: :json, with: -> { raise error }
         allow(klazz_instance).to receive(:equal?)
-        expect do
-          klazz_instance.send(:rescue_actor, error_instance, action: :index, format: :json)
-        end.not_to raise_error
+        expect { dispatch(klazz_instance, :index, :json) }.not_to raise_error
         expect(klazz_instance).to have_received(:equal?).with(1).once
       end
     end
@@ -371,6 +366,32 @@ RSpec.describe MimeActor::Rescue do
         allow(klazz_instance).to receive(:equal?)
         expect { rescuable }.not_to raise_error
         expect(klazz_instance).to have_received(:equal?).with(3).once
+      end
+    end
+
+    context "when the act callbacks raise" do
+      include_context "with a mime_actor controller"
+
+      let(:events) { [] }
+
+      before do
+        recorded = events
+        klazz.rescue_act_from ArgumentError, with: ->(e) { recorded << "rescued #{e.message}" }
+        klazz.act_on_action :create, format: :html, with: -> { recorded << "act" }
+      end
+
+      it "rescues an error raised by an act_before, skipping the act" do
+        klazz.act_before -> { raise ArgumentError, "before" }
+
+        expect(dispatch(klazz, :create).first).to eq 204
+        expect(events).to eq ["rescued before"]
+      end
+
+      it "rescues an error raised by an act_after" do
+        klazz.act_after -> { raise ArgumentError, "after" }
+
+        expect(dispatch(klazz, :create).first).to eq 204
+        expect(events).to eq ["act", "rescued after"]
       end
     end
 

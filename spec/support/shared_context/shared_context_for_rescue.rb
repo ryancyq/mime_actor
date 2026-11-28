@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_context "with rescuable filter" do |*filters|
-  let(:klazz) { Class.new.include described_class }
+  include_context "with a mime_actor controller"
   let(:error_filter) { nil }
   let(:action_filter) { nil } if filters.include?(:action)
   let(:format_filter) { nil } if filters.include?(:format)
@@ -21,17 +21,23 @@ RSpec.shared_context "with rescuable filter" do |*filters|
 end
 
 RSpec.shared_context "with rescuable actor handler" do
-  let(:klazz) { Class.new.include described_class }
-  let(:klazz_instance) { klazz.new }
+  include_context "with a mime_actor controller"
   let(:error_instance) { error_class.new "my error" }
   let(:action_filter) { nil }
   let(:format_filter) { nil }
-  let(:visited_errors) { [] }
+  # the error rescued by the act, `nil` when no handler matched
   let(:rescuable) do
-    klazz_instance.send(
-      :rescue_actor,
-      error_instance,
-      action: action_filter, format: format_filter, visited: visited_errors
-    )
+    error = error_instance
+    klazz.act_on_action action_filter || :create, format: format_filter || :html, with: -> { raise error }
+    rescued = []
+    allow(klazz_instance).to receive(:rescue_act).and_wrap_original do |method, *args|
+      method.call(*args).tap { |result| rescued << result }
+    end
+    begin
+      dispatch(klazz_instance, action_filter || :create, format_filter || :html)
+    rescue error.class
+      nil
+    end
+    rescued.last
   end
 end

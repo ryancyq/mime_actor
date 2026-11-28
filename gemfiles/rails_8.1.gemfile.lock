@@ -226,9 +226,6 @@ GEM
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
-    rspec-activesupport (0.3.1)
-      activesupport (>= 6.1)
-      rspec-expectations (~> 3.0)
     rspec-core (3.13.7)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.6)
@@ -306,7 +303,6 @@ DEPENDENCIES
   rake (>= 11.0)
   rexml (>= 3.3.9)
   rspec (~> 3.12)
-  rspec-activesupport (~> 0.1)
   rubocop (>= 1.28.2)
   rubocop-rake
   rubocop-rspec

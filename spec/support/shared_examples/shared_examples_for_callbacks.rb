@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples "runnable act callbacks action filter" do |kind, filter, acceptance: true|
-  let(:klazz) { Class.new.include described_class }
+  include_context "with a mime_actor controller"
   let(:kind_act) { :"act_#{kind}" }
   let(:kind_callback) { :"my_#{kind}" }
   let(:action_filter) { nil }
@@ -19,7 +19,7 @@ RSpec.shared_examples "runnable act callbacks action filter" do |kind, filter, a
 end
 
 RSpec.shared_examples "runnable act callbacks format filter" do |kind, filter, acceptance: true|
-  let(:klazz) { Class.new.include described_class }
+  include_context "with a mime_actor controller"
   let(:kind_act) { :"act_#{kind}" }
   let(:kind_callback) { :"my_#{kind}" }
   let(:format_filter) { nil }

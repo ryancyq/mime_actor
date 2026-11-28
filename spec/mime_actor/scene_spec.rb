@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "mime_actor/scene"
+require "mime_actor"
 
 RSpec.describe MimeActor::Scene do
-  let(:klazz) { Class.new.include described_class }
+  include_context "with a mime_actor controller"
 
   describe "#act_on_action" do
     it_behaves_like "composable scene action", "Nil", acceptance: false do
