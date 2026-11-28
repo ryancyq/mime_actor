@@ -34,6 +34,8 @@ RSpec.describe MimeActor::Action do
 
       expect(described_class).to be_method_defined(:patch)
       expect(Class.new.include(described_class).new.patch).to eq "patch my stuff"
+    ensure
+      described_class.send(:remove_method, :patch)
     end
   end
 
@@ -80,6 +82,17 @@ RSpec.describe MimeActor::Action do
       expect(klazz.action_methods).not_to include(
         "act_action", "act_format", "acting_scenes", "actor_rescuers", "_run_act_callbacks", "_act_callbacks"
       )
+    end
+
+    it "keeps the act callbacks out of the action methods" do
+      klazz.act_before { nil }
+      child = Class.new(klazz) do
+        act_before { nil }
+        act_on_action :show, format: :html
+      end
+
+      expect(klazz.action_methods).to be_empty
+      expect(child.action_methods).to eq Set["show"]
     end
 
     { "made private" => :private, "undefined" => :undef_method }.each do |description, visibility|

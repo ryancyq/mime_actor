@@ -36,7 +36,8 @@ module MimeActor
 
     included do
       define_callbacks :act, skip_after_callbacks_if_terminated: true
-      private :_run_act_callbacks, :_act_callbacks # keep them out of `action_methods`
+      # keep the callback runners out of `action_methods`
+      %i[_run_act_callbacks _run_act_callbacks! _act_callbacks].each { |name| private name if method_defined?(name) }
     end
 
     module ClassMethods
