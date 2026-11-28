@@ -1,4 +1,4 @@
-# Rails / Ruby test matrix, shared by ci.yml and coverage.yml (read with yq).
+# Rails / Ruby test matrix, read by ci.yml with yq.
 #
 # Base: active rails × compatible rubies (no excludes needed)
 ruby-version:

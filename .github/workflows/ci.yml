@@ -11,6 +11,23 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    name: RuboCop
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - uses: actions/checkout@v7
+      - run: rm Gemfile.lock
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler: latest
+          bundler-cache: true
+
+      - run: bundle exec rake rubocop
+
   matrix-rails-ruby:
     name: Read Rails / Ruby matrix
     runs-on: ubuntu-latest
@@ -48,4 +65,38 @@ jobs:
           bundler: latest
           bundler-cache: true
 
-      - run: "bundle exec appraisal rails-${{ matrix.rails-version }} rake spec"
+      - run: "bundle exec appraisal rails-${{ matrix.rails-version }} rake coverage:run"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: "coverage-ruby-${{ matrix.ruby-version }}-rails-${{ matrix.rails-version }}"
+          path: coverage/ruby-*
+          include-hidden-files: true
+          retention-days: 1
+
+  coverage:
+    name: "CodeCov (Rails ${{ matrix.rails-version }} / Ruby ${{ matrix.ruby-version }})"
+    needs: [matrix-rails-ruby, tests]
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.ruby-version == 'head' || matrix.rails-version == 'edge' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.matrix-rails-ruby.outputs.matrix) }}
+
+    timeout-minutes: 3
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: "coverage-ruby-${{ matrix.ruby-version }}-rails-${{ matrix.rails-version }}"
+          path: coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          directory: coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: "ruby-${{ matrix.ruby-version }}-rails-${{ matrix.rails-version }}"
+          fail_ci_if_error: true
