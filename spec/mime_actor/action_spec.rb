@@ -364,6 +364,13 @@ RSpec.describe MimeActor::Action do
       expect(dispatch(klazz, :create, :html).last.body).to eq "rescued html"
     end
 
+    it "exposes the act format as request.format when a before_action sets it" do
+      klazz.act_on_action :create, format: :json, with: -> { render plain: request.format.to_sym }
+      klazz.before_action { request.format = act_format if act_format }
+
+      expect(dispatch(klazz, :create, "application/xml, application/json;q=0.9").last.body).to eq "json"
+    end
+
     it "responds to the negotiated format only" do
       klazz.act_on_action :create, format: :json, with: -> { render plain: "json" }
 
